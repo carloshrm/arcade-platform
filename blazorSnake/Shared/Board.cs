@@ -12,7 +12,7 @@ namespace blazorSnake.Shared
 
         public Board(int rows, int cols)
         {
-            scaleOfset = (10, 10);
+            scaleOfset = (20, 20);
             limits = (rows / scaleOfset.r, cols / scaleOfset.c);
         }
 
@@ -52,26 +52,21 @@ namespace blazorSnake.Shared
             }
         }
 
-        public bool moveSnake()
+        public bool checkSpot()
         {
-            if (snake.headPosition.r >= limits.row || snake.headPosition.c >= limits.col)
-            {
+            if (snake.headPosition.r <= 0 || snake.headPosition.c <= 0 || snake.headPosition.r >= limits.row || snake.headPosition.c >= limits.col)
                 return false;
-            }
             else
             {
-                foreach (var pc in snake.tail)
+                foreach (var tp in snake.tail)
                 {
-                    if (pc.pos == snake.headPosition)
-                    {
+                    if (tp.pos == snake.headPosition)
                         return false;
-                    }
                 }
                 if (snake.headPosition == foodPosition)
                 {
-                    snake.feedSnake();
                     makeFood();
-                    return true;
+                    snake.feedSnake();
                 }
             }
             snake.tail.Add(new Snake.TailPiece(snake.headPosition, snake.size));
@@ -89,20 +84,20 @@ namespace blazorSnake.Shared
 
             await canvasContext.SetFillStyleAsync("red");
             await drawPiece(foodPosition.c * scaleOfset.c, foodPosition.r * scaleOfset.r);
-
-            for (int i = 0; i < snake.tail.Count(); i++)
+            foreach (var tailPiece in snake.tail)
             {
-                if (snake.tail[i].val <= 0)
+                await canvasContext.SetFillStyleAsync("#ffffff");
+                if (tailPiece.val <= 0)
                 {
-                    await canvasContext.SetFillStyleAsync("white");
-                    await drawPiece(snake.tail[i].pos.c * scaleOfset.c, snake.tail[i].pos.r * scaleOfset.r);
-                    snake.tail.Remove(snake.tail[i]);
+                    await drawPiece(tailPiece.pos.c * scaleOfset.c, tailPiece.pos.r * scaleOfset.r);
                 }
             }
+            snake.tail.RemoveAll(tp => tp.val == 0);
 
-            await canvasContext.SetFillStyleAsync("darkgreen");
+            await canvasContext.SetFillStyleAsync("green");
             await drawPiece(snake.headPosition.c * scaleOfset.c, snake.headPosition.r * scaleOfset.r);
 
+            await canvasContext.SetFillStyleAsync("darkgreen");
             for (int i = 0; i < snake.tail.Count(); i++)
             {
                 Console.WriteLine("parsing tail");
