@@ -4,7 +4,7 @@
 
 @inject IJSRuntime JSRUN
 
-<div @onkeydown=showKey tabindex="0" id="snake_container">
+<div @onkeydown=getPlayerInput tabindex="0" id="snake_container">
     <h2>score @score</h2>
     <button @onclick=startGame>start</button>
     <div id="snake_canvas" style="position: fixed; opacity: 1; background-color: ivory; width: 100%; height: 100%">
@@ -33,19 +33,21 @@
         Console.WriteLine("after render");
     }
 
-    private void showKey(KeyboardEventArgs e)
+    private void getPlayerInput(KeyboardEventArgs e)
     {
-        if (turnControl != null)
+        if (turnControl != null && canTurn)
         {
-            game.snake.parseMoveCommand(e.Key);            
+            game.snake.parseMoveCommand(e.Key);
+            canTurn = false;
+
         }
-        Console.WriteLine(e.Key);
     }
 
     private int turnCount { get; set; } = 0;
     private int score { get; set; } = 0;
     private Timer? turnControl;
     private Board? game { get; set; }
+    private bool canTurn { get; set; }
 
     private void startGame()
     {
@@ -59,11 +61,12 @@
         }
     }
 
-    private void updateDifficulty()
+    private void increaseSpeed()
     {
         if (turnControl != null)
-            turnControl.Change(0, (int)(100 * (game.snake.size * 0.6)));
+            turnControl.Change(0, (int)(5 / (game.snake.size * 1.5)) * 100);
     }
+
 
     private async void runTurn(Object state)
     {
@@ -73,7 +76,8 @@
         score += turnCount * game.snake.size;
         game.snake.setNextSnakePosition();
         await game.drawGameState();
-        if (!game.checkSpot())
+        canTurn = true;
+        if (!game.checkSpot(new Action(increaseSpeed)))
         {
             turnControl.Dispose();
         }

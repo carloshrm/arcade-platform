@@ -52,7 +52,7 @@ namespace blazorSnake.Shared
             }
         }
 
-        public bool checkSpot()
+        public bool checkSpot(Action increaseSpeed)
         {
             if (snake.headPosition.r <= 0 || snake.headPosition.c <= 0 || snake.headPosition.r >= limits.row || snake.headPosition.c >= limits.col)
                 return false;
@@ -67,6 +67,7 @@ namespace blazorSnake.Shared
                 {
                     makeFood();
                     snake.feedSnake();
+                    increaseSpeed();
                 }
             }
             snake.tail.Add(new Snake.TailPiece(snake.headPosition, snake.size));
