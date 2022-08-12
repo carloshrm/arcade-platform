@@ -39,7 +39,6 @@
         {
             game.snake.parseMoveCommand(e.Key);
             canTurn = false;
-
         }
     }
 
@@ -53,18 +52,19 @@
     {
         if (game != null)
         {
-            game.placeSnakeOnStart();
             game.makeFood();
             game.drawBoardEdges();
             turnCount = 0;
-            turnControl = new Timer(new TimerCallback(runTurn), null, 0, (int)(100 * (game.snake.size * 0.6)));
+            turnControl = new Timer(new TimerCallback(runTurn), null, 0, 400);
         }
     }
 
     private void increaseSpeed()
     {
         if (turnControl != null)
-            turnControl.Change(0, (int)(5 / (game.snake.size * 1.5)) * 100);
+        {            
+            turnControl.Change(0, 1500 / game.snake.size);
+        }
     }
 
 

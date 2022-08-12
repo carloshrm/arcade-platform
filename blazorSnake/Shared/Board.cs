@@ -40,28 +40,23 @@ namespace blazorSnake.Shared
             foodPosition = (row, col);
         }
 
-        public void placeSnakeOnStart()
-        {
-            int i = snake.size;
-            while (i-- > 0)
-            {
-                snake.tail.Add(new Snake.TailPiece((
-                    snake.headPosition.r - (snake.movingDirection.row * i),
-                    snake.headPosition.c - (snake.movingDirection.col * i)),
-                    snake.size - i));
-            }
-        }
-
         public bool checkSpot(Action increaseSpeed)
         {
             if (snake.headPosition.r <= 0 || snake.headPosition.c <= 0 || snake.headPosition.r >= limits.row || snake.headPosition.c >= limits.col)
+            {
+                Console.WriteLine("\n Game Over edge.");
                 return false;
+            }
             else
             {
                 foreach (var tp in snake.tail)
                 {
                     if (tp.pos == snake.headPosition)
+                    {
+                        Console.WriteLine("\n Game Over tail.");
+
                         return false;
+                    }
                 }
                 if (snake.headPosition == foodPosition)
                 {
@@ -99,9 +94,8 @@ namespace blazorSnake.Shared
             await drawPiece(snake.headPosition.c * scaleOfset.c, snake.headPosition.r * scaleOfset.r);
 
             await canvasContext.SetFillStyleAsync("darkgreen");
-            for (int i = 0; i < snake.tail.Count(); i++)
+            for (int i = 0; i < snake.tail.Count; i++)
             {
-                Console.WriteLine("parsing tail");
                 await drawPiece(snake.tail[i].pos.c * scaleOfset.c, snake.tail[i].pos.r * scaleOfset.r);
                 Console.WriteLine(snake.tail[i].val);
                 snake.tail[i].val--;
