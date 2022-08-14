@@ -40,9 +40,9 @@
             headPosition = (headPosition.r + movingDirection.row, headPosition.c + movingDirection.col);
         }
 
-        public void parseMoveCommand(string pressedKey)
+        public void parseMoveCommand(string keyValue)
         {
-            switch (pressedKey)
+            switch (keyValue)
             {
                 case "ArrowUp":
                     if (movingDirection != (1, 0))

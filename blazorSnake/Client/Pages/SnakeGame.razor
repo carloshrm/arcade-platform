@@ -1,12 +1,14 @@
 ﻿@page "/snakegame"
 @using Blazor.Extensions
 @using Blazor.Extensions.Canvas.Canvas2D
+@using System.Timers
 
 @inject IJSRuntime JSRUN
 
 <div @onkeydown=getPlayerInput tabindex="0" id="snake_container">
     <h2>score @score</h2>
     <button @onclick=startGame>start</button>
+    <button @onclick=setup>reset</button>
     <div id="snake_canvas" style="position: fixed; opacity: 1; background-color: ivory; width: 100%; height: 100%">
         <BECanvas Width="800" Height="800" @ref="_canvasReference"></BECanvas>
     </div>
@@ -26,49 +28,63 @@
         if (firstRender)
         {
             this._canvas = await this._canvasReference.CreateCanvas2DAsync();
-            game = new Board((int)_canvasReference.Width, (int)_canvasReference.Height);
-            game.setContext(_canvas);
-            game.newPlayer(new Snake(2));
+            await setup();
         }
-        Console.WriteLine("after render");
     }
 
     private void getPlayerInput(KeyboardEventArgs e)
     {
-        if (turnControl != null && canTurn)
+        if (turnControl != null && canMove)
         {
             game.snake.parseMoveCommand(e.Key);
-            canTurn = false;
+            canMove = false;
         }
     }
 
-    private int turnCount { get; set; } = 0;
-    private int score { get; set; } = 0;
+    private int turnCount { get; set; }
+    private int score { get; set; }
+    public bool canMove { get; set; }
     private Timer? turnControl;
     private Board? game { get; set; }
-    private bool canTurn { get; set; }
 
     private void startGame()
     {
-        if (game != null)
+        if (turnControl != null && turnControl.Enabled)
         {
-            game.makeFood();
-            game.drawBoardEdges();
-            turnCount = 0;
-            turnControl = new Timer(new TimerCallback(runTurn), null, 0, 400);
+            return;
         }
+        game.makeFood();
+        game.drawBoardEdges();
+        turnControl = new Timer(400);
+        turnControl.Elapsed += runTurn;
+        turnControl.Enabled = true;
+        turnControl.AutoReset = true;
+    }
+
+
+    private async Task setup()
+    {
+        if (turnControl != null)
+        {
+            turnControl.Dispose();
+        }
+        turnCount = 0;
+        score = 0;
+        await _canvas.ClearRectAsync(0, 0, _canvasReference.Width, _canvasReference.Height);
+        game = new Board((int)_canvasReference.Width, (int)_canvasReference.Height);
+        game.setContext(_canvas);
+        game.newPlayer(new Snake(2));
     }
 
     private void increaseSpeed()
     {
-        if (turnControl != null)
-        {            
-            turnControl.Change(0, 1500 / game.snake.size);
+        if (turnControl != null && turnControl.Enabled)
+        {
+            turnControl.Interval = 1500 / game.snake.size;
         }
     }
 
-
-    private async void runTurn(Object state)
+    private async void runTurn(Object src, ElapsedEventArgs e)
     {
         Console.WriteLine($"Turn {turnCount}");
         Console.WriteLine($"size {game.snake.size} score {score}");
@@ -76,11 +92,11 @@
         score += turnCount * game.snake.size;
         game.snake.setNextSnakePosition();
         await game.drawGameState();
-        canTurn = true;
         if (!game.checkSpot(new Action(increaseSpeed)))
         {
             turnControl.Dispose();
         }
+        canMove = true;
         StateHasChanged();
     }
 }
