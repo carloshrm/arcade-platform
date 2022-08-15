@@ -12,7 +12,7 @@ namespace blazorSnake.Shared
 
         public Board(int x, int y)
         {
-            scaleOfset = (10, 10);
+            scaleOfset = (20, 20);
             limits = (y / scaleOfset.r, x / scaleOfset.c);
         }
 
@@ -49,7 +49,7 @@ namespace blazorSnake.Shared
                 snake.headPosition.r >= limits.row ||
                 snake.headPosition.c >= limits.col)
             {
-                Console.WriteLine("\n Game Over edge.");
+                Console.WriteLine("\n Game Over - edge.");
                 return false;
             }
             else
@@ -58,7 +58,7 @@ namespace blazorSnake.Shared
                 {
                     if (tp.pos == snake.headPosition)
                     {
-                        Console.WriteLine("\n Game Over tail.");
+                        Console.WriteLine("\n Game Over - tail.");
 
                         return false;
                     }

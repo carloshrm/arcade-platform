@@ -5,6 +5,11 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
+#main_content {
+    overflow: hidden;
+    margin: auto auto;
+}
+
 h1:focus {
     outline: none;
 }

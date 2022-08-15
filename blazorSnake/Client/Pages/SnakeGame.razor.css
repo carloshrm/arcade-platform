@@ -1,7 +1,11 @@
 ﻿
+body {
+    overflow: hidden !important;
+}
+
 #snake_container {
-    width: 90vw;
-    height: 90vh;
+    width: 85vw;
+    height: 85vh;
     margin: 1em auto;
 }
 
