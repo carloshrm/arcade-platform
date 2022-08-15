@@ -5,30 +5,37 @@
 
 @inject IJSRuntime JSRUN
 
-<div id="snake_container" @onkeydown=getPlayerInput>
+<div id="game_controls" @onkeydown=getPlayerInput>
     <h3 id="score_display">Score: @score</h3>
     <div>
         <button class="game_button" @onclick=startGame>start</button>
         <button class="game_button" @onclick=setup>reset</button>
     </div>
 </div>
-<div id="snake_canvas" tabindex="0">
-    <BECanvas Width="1200" Height="800" @ref="_canvasReference"></BECanvas>
+<div id="snake_container" tabindex="0">
+    <BECanvas Width="@initialSize.w" Height="@initialSize.h" @ref="_canvasReference" />
 </div>
 
 @code {
 
-    public bool canMove { get; set; }
+    private bool canMove { get; set; }
     private long score { get; set; }
     private int turnCount { get; set; }
+    private (int w, int h) initialSize { get; set; }
     private Timer? turnControl { get; set; }
     private Board? game { get; set; }
     private Canvas2DContext _canvas { get; set; }
     protected BECanvasComponent _canvasReference { get; set; }
 
-    protected override void OnInitialized()
+
+    protected override async Task OnInitializedAsync()
     {
-        base.OnInitialized();
+        await base.OnInitializedAsync();
+        initialSize = ( 
+            (int) (await JSRUN.InvokeAsync<long>("getWindowWidth") * 0.80), 
+            (int) (await JSRUN.InvokeAsync<long>("getWindowHeight") * 0.80)
+        );
+        Console.WriteLine($"Width {initialSize.w} Height {initialSize.h}");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -77,7 +84,6 @@
         game = new Board((int)_canvasReference.Width, (int)_canvasReference.Height);
         game.setContext(_canvas);
         game.newPlayer(new Snake(2));
-        game.drawGameOver();
     }
 
     private void increaseSpeed()

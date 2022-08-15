@@ -12,7 +12,7 @@ namespace blazorSnake.Shared
 
         public Board(int x, int y)
         {
-            scaleOfset = (20, 20);
+            scaleOfset = (10, 10);
             limits = (y / scaleOfset.r, x / scaleOfset.c);
         }
 
@@ -26,10 +26,11 @@ namespace blazorSnake.Shared
             Random rng = new Random();
             int row, col;
             bool invalid;
+
             do
             {
-                row = rng.Next(1, limits.row - scaleOfset.r - 1);
-                col = rng.Next(1, limits.col - scaleOfset.c - 1);
+                row = rng.Next(1, limits.row - 1);
+                col = rng.Next(1, limits.col - 1);
 
                 foreach (var pc in snake.tail)
                 {
@@ -37,6 +38,7 @@ namespace blazorSnake.Shared
                 }
                 invalid = snake.headPosition.c == col || snake.headPosition.r == row;
             } while (invalid);
+
             foodPosition = (row, col);
         }
 
@@ -44,8 +46,8 @@ namespace blazorSnake.Shared
         {
             if (snake.headPosition.r <= 0 ||
                 snake.headPosition.c <= 0 ||
-                snake.headPosition.r >= limits.row + scaleOfset.r ||
-                snake.headPosition.c >= limits.col + scaleOfset.c)
+                snake.headPosition.r >= limits.row ||
+                snake.headPosition.c >= limits.col)
             {
                 Console.WriteLine("\n Game Over edge.");
                 return false;
@@ -110,12 +112,12 @@ namespace blazorSnake.Shared
         {
             await canvasContext.BeginBatchAsync();
             await canvasContext.SetFillStyleAsync("black");
-            for (int i = 0; i <= (limits.row * scaleOfset.r); i++)
+            for (int i = 0; i <= (limits.row * scaleOfset.r) - scaleOfset.r; i++)
             {
                 await drawPiece(0, i);
                 await drawPiece((limits.col * scaleOfset.c) - scaleOfset.c, i);
             }
-            for (int j = 0; j <= (limits.col * scaleOfset.c); j++)
+            for (int j = 0; j <= (limits.col * scaleOfset.c) - scaleOfset.c; j++)
             {
                 await drawPiece(j, 0);
                 await drawPiece(j, (limits.row * scaleOfset.r) - scaleOfset.r);

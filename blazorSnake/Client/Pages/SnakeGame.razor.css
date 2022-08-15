@@ -1,12 +1,11 @@
 ﻿
-#snake_canvas {
-    position: absolute;
-    width: 100vw;
-    height: 100vh;
+#snake_container {
+    width: 90vw;
+    height: 90vh;
     margin: 1em auto;
 }
 
-#snake_container {
+#game_controls {
     font-family: 'Press Start 2P', cursive !important;
     font-size: 1rem;
     display: flex;
