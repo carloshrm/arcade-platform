@@ -1,3 +1,6 @@
 # blazorSnake
 
-Snake Game for web coded in C# using Blazor ASP.NET
+Play here - https://chrm-snake-game.herokuapp.com/
+
+Snake Game for web written in C# using Blazor ASP.NET
+
