@@ -5,13 +5,15 @@
 
 @inject IJSRuntime JSRUN
 
-<div @onkeydown=getPlayerInput tabindex="0" id="snake_container">
-    <h2>score @score</h2>
-    <button @onclick=startGame>start</button>
-    <button @onclick=setup>reset</button>
-    <div id="snake_canvas" style="position: fixed; opacity: 1; background-color: ivory; width: 100%; height: 100%">
-        <BECanvas Width="800" Height="800" @ref="_canvasReference"></BECanvas>
+<div id="snake_container" @onkeydown=getPlayerInput>
+    <h3 id="score_display">Score: @score</h3>
+    <div>
+        <button class="game_button" @onclick=startGame>start</button>
+        <button class="game_button" @onclick=setup>reset</button>
     </div>
+</div>
+<div id="snake_canvas" tabindex="0">
+    <BECanvas Width="800" Height="800" @ref="_canvasReference"></BECanvas>
 </div>
 
 @code {
@@ -42,23 +44,24 @@
     }
 
     private int turnCount { get; set; }
-    private int score { get; set; }
+    private long score { get; set; }
     public bool canMove { get; set; }
     private Timer? turnControl;
     private Board? game { get; set; }
 
-    private void startGame()
+    private async void startGame()
     {
         if (turnControl != null && turnControl.Enabled)
-        {
             return;
+        else if (game != null)
+        {
+            game.makeFood();
+            await game.drawBoardEdges();
+            turnControl = new Timer(400);
+            turnControl.Elapsed += runTurn;
+            turnControl.Enabled = true;
+            turnControl.AutoReset = true;
         }
-        game.makeFood();
-        game.drawBoardEdges();
-        turnControl = new Timer(400);
-        turnControl.Elapsed += runTurn;
-        turnControl.Enabled = true;
-        turnControl.AutoReset = true;
     }
 
 
@@ -95,6 +98,7 @@
         if (!game.checkSpot(new Action(increaseSpeed)))
         {
             turnControl.Dispose();
+            game.drawGameOver();
         }
         canMove = true;
         StateHasChanged();

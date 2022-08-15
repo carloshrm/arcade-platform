@@ -1,4 +1,5 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -62,3 +63,11 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+:root {
+    --color-light-background-hsat:#A65665;
+    --color-dark-background: #593C59;
+    --color-highlight-hsat: #F29849;
+    --color-highlight-lsat: #F2884B;
+    --color-light-background-lsat: #BF544B;
+}
