@@ -10,10 +10,10 @@ namespace blazorSnake.Shared
         private (int r, int c) foodPosition { get; set; }
         public Snake snake { get; set; }
 
-        public Board(int rows, int cols)
+        public Board(int x, int y)
         {
             scaleOfset = (20, 20);
-            limits = (rows / scaleOfset.r, cols / scaleOfset.c);
+            limits = (y / scaleOfset.r, x / scaleOfset.c);
         }
 
         public void setContext(Canvas2DContext c)
@@ -28,8 +28,8 @@ namespace blazorSnake.Shared
             bool invalid;
             do
             {
-                row = rng.Next(1, limits.row - 2);
-                col = rng.Next(1, limits.col - 2);
+                row = rng.Next(1, limits.row - scaleOfset.r - 1);
+                col = rng.Next(1, limits.col - scaleOfset.c - 1);
 
                 foreach (var pc in snake.tail)
                 {
@@ -42,7 +42,10 @@ namespace blazorSnake.Shared
 
         public bool checkSpot(Action increaseSpeed)
         {
-            if (snake.headPosition.r <= 0 || snake.headPosition.c <= 0 || snake.headPosition.r >= limits.row || snake.headPosition.c >= limits.col)
+            if (snake.headPosition.r <= 0 ||
+                snake.headPosition.c <= 0 ||
+                snake.headPosition.r >= limits.row + scaleOfset.r ||
+                snake.headPosition.c >= limits.col + scaleOfset.c)
             {
                 Console.WriteLine("\n Game Over edge.");
                 return false;
@@ -69,9 +72,9 @@ namespace blazorSnake.Shared
             return true;
         }
 
-        private async Task drawPiece(int r, int c)
+        private async Task drawPiece(int c, int r)
         {
-            await canvasContext.FillRectAsync(r, c, scaleOfset.c, scaleOfset.r);
+            await canvasContext.FillRectAsync(c, r, scaleOfset.c, scaleOfset.r);
         }
 
         public async Task drawGameState()
@@ -109,14 +112,13 @@ namespace blazorSnake.Shared
             await canvasContext.SetFillStyleAsync("black");
             for (int i = 0; i <= (limits.row * scaleOfset.r); i++)
             {
-                await canvasContext.FillRectAsync(i, 0, scaleOfset.c, scaleOfset.r);
-                await drawPiece(i, 0);
-                await drawPiece(i, (limits.col * scaleOfset.c) - scaleOfset.c);
+                await drawPiece(0, i);
+                await drawPiece((limits.col * scaleOfset.c) - scaleOfset.c, i);
             }
             for (int j = 0; j <= (limits.col * scaleOfset.c); j++)
             {
-                await drawPiece(0, j);
-                await drawPiece((limits.row * scaleOfset.r) - scaleOfset.r, j);
+                await drawPiece(j, 0);
+                await drawPiece(j, (limits.row * scaleOfset.r) - scaleOfset.r);
             }
             await canvasContext.EndBatchAsync();
         }
