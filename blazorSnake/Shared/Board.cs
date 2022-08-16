@@ -108,30 +108,13 @@ namespace blazorSnake.Shared
             await canvasContext.EndBatchAsync();
         }
 
-        public async Task drawBoardEdges()
-        {
-            await canvasContext.BeginBatchAsync();
-            await canvasContext.SetFillStyleAsync("black");
-            for (int i = 0; i <= (limits.row * scaleOfset.r) - scaleOfset.r; i++)
-            {
-                await drawPiece(0, i);
-                await drawPiece((limits.col * scaleOfset.c) - scaleOfset.c, i);
-            }
-            for (int j = 0; j <= (limits.col * scaleOfset.c) - scaleOfset.c; j++)
-            {
-                await drawPiece(j, 0);
-                await drawPiece(j, (limits.row * scaleOfset.r) - scaleOfset.r);
-            }
-            await canvasContext.EndBatchAsync();
-        }
-
         public async void drawGameOver()
         {
             await canvasContext.BeginBatchAsync();
             await canvasContext.SetFillStyleAsync("black");
             await canvasContext.FillRectAsync(0, limits.row * scaleOfset.r / 2.5, limits.col * scaleOfset.c, limits.row * 3);
             await canvasContext.SetFillStyleAsync("white");
-            await canvasContext.SetFontAsync("50px Press Start 2P");
+            await canvasContext.SetFontAsync("Press Start 2P");
             await canvasContext.SetTextAlignAsync(TextAlign.Center);
             await canvasContext.FillTextAsync("Game Over", limits.col * scaleOfset.c / 2.0, limits.row * scaleOfset.r / 2.0);
             await canvasContext.EndBatchAsync();

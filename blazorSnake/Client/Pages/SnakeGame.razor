@@ -68,7 +68,6 @@
         else if (game != null)
         {
             game.makeFood();
-            await game.drawBoardEdges();
             turnControl = new Timer(400);
             turnControl.Elapsed += runTurn;
             turnControl.Enabled = true;
@@ -110,7 +109,7 @@
         await game.drawGameState();
         if (!game.checkSpot(new Action(increaseSpeed)))
         {
-            turnControl.Dispose();
+            turnControl.Enabled = false;
             game.drawGameOver();
         }
         canMove = true;
