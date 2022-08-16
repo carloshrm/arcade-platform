@@ -28,22 +28,17 @@
     private Canvas2DContext _canvas { get; set; }
     protected BECanvasComponent _canvasReference { get; set; }
 
-
     protected override async Task OnInitializedAsync()
     {
+        await setCanvasSize();
         await base.OnInitializedAsync();
-        initialSize = ( 
-            (int) (await JSRUN.InvokeAsync<long>("getWindowWidth") * 0.80), 
-            (int) (await JSRUN.InvokeAsync<long>("getWindowHeight") * 0.80)
-        );
-        Console.WriteLine($"Width {initialSize.w} Height {initialSize.h}");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            this._canvas = await this._canvasReference.CreateCanvas2DAsync();
+            _canvas = await _canvasReference.CreateCanvas2DAsync();
             await setup();
         }
     }
@@ -55,6 +50,15 @@
             game.snake.parseMoveCommand(e.Key);
             canMove = false;
         }
+    }
+
+    private async Task setCanvasSize() 
+    {
+        initialSize = (
+            (int)(await JSRUN.InvokeAsync<long>("getWindowWidth") * 0.80),
+            (int)(await JSRUN.InvokeAsync<long>("getWindowHeight") * 0.80)
+            );
+        StateHasChanged();
     }
 
     private async void startGame()
@@ -79,6 +83,7 @@
         {
             turnControl.Dispose();
         }
+        await setCanvasSize();
         turnCount = 0;
         score = 0;
         await _canvas.ClearRectAsync(0, 0, _canvasReference.Width, _canvasReference.Height);

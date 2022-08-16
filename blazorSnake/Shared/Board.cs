@@ -131,7 +131,7 @@ namespace blazorSnake.Shared
             await canvasContext.SetFillStyleAsync("black");
             await canvasContext.FillRectAsync(0, limits.row * scaleOfset.r / 2.5, limits.col * scaleOfset.c, limits.row * 3);
             await canvasContext.SetFillStyleAsync("white");
-            await canvasContext.SetFontAsync("50px Comic Sans");
+            await canvasContext.SetFontAsync("50px Press Start 2P");
             await canvasContext.SetTextAlignAsync(TextAlign.Center);
             await canvasContext.FillTextAsync("Game Over", limits.col * scaleOfset.c / 2.0, limits.row * scaleOfset.r / 2.0);
             await canvasContext.EndBatchAsync();

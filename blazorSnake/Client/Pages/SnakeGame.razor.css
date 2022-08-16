@@ -1,16 +1,16 @@
 ﻿
 body {
     overflow: hidden !important;
+    font-family: 'Press Start 2P', cursive !important;
 }
 
 #snake_container {
-    width: 85vw;
-    height: 85vh;
+    width: 80vw;
+    height: 80vh;
     margin: 1em auto;
 }
 
 #game_controls {
-    font-family: 'Press Start 2P', cursive !important;
     font-size: 1rem;
     display: flex;
     flex-flow: column;
