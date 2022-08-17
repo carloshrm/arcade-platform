@@ -8,6 +8,7 @@ html, body {
 #main_content {
     overflow: hidden;
     margin: auto auto;
+    background-color: #593C5910;
 }
 
 h1:focus {

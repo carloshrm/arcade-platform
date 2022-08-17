@@ -5,15 +5,19 @@ namespace blazorSnake.Shared
     public class Board
     {
         private Canvas2DContext canvasContext { get; set; }
-        private (int r, int c) scaleOfset { get; set; }
+        private (int r, int c) scaleFactor { get; set; }
         private (int row, int col) limits { get; set; }
         private (int r, int c) foodPosition { get; set; }
         public Snake snake { get; set; }
 
         public Board(int x, int y)
         {
-            scaleOfset = (20, 20);
-            limits = (y / scaleOfset.r, x / scaleOfset.c);
+            scaleFactor = (20, 20);
+            int roundedX = (int)Math.Floor(x / 10.0 * 10);
+            int roundedY = (int)Math.Floor(y / 10.0 * 10);
+            roundedX = roundedX < 400 ? 400 : roundedX;
+            roundedY = roundedY < 400 ? 400 : roundedY;
+            limits = (roundedY / scaleFactor.r, roundedX / scaleFactor.c);
         }
 
         public void setContext(Canvas2DContext c)
@@ -29,8 +33,8 @@ namespace blazorSnake.Shared
 
             do
             {
-                row = rng.Next(1, limits.row - 1);
-                col = rng.Next(1, limits.col - 1);
+                row = rng.Next(1, limits.row - 2);
+                col = rng.Next(1, limits.col - 2);
 
                 foreach (var pc in snake.tail)
                 {
@@ -44,8 +48,8 @@ namespace blazorSnake.Shared
 
         public bool checkSpot(Action increaseSpeed)
         {
-            if (snake.headPosition.r <= 0 ||
-                snake.headPosition.c <= 0 ||
+            if (snake.headPosition.r < 0 ||
+                snake.headPosition.c < 0 ||
                 snake.headPosition.r >= limits.row ||
                 snake.headPosition.c >= limits.col)
             {
@@ -74,9 +78,25 @@ namespace blazorSnake.Shared
             return true;
         }
 
+        private async Task clearTail()
+        {
+            foreach (var tailPiece in snake.tail)
+            {
+                if (tailPiece.val <= 0)
+                {
+                    await canvasContext.ClearRectAsync(
+                        tailPiece.pos.c * scaleFactor.c,
+                        tailPiece.pos.r * scaleFactor.r,
+                        scaleFactor.c,
+                        scaleFactor.r);
+                }
+            }
+            snake.tail.RemoveAll(tp => tp.val == 0);
+        }
+
         private async Task drawPiece(int c, int r)
         {
-            await canvasContext.FillRectAsync(c, r, scaleOfset.c, scaleOfset.r);
+            await canvasContext.FillRectAsync(c, r, scaleFactor.c, scaleFactor.r);
         }
 
         public async Task drawGameState()
@@ -84,39 +104,18 @@ namespace blazorSnake.Shared
             await canvasContext.BeginBatchAsync();
 
             await canvasContext.SetFillStyleAsync("red");
-            await drawPiece(foodPosition.c * scaleOfset.c, foodPosition.r * scaleOfset.r);
-            foreach (var tailPiece in snake.tail)
-            {
-                await canvasContext.SetFillStyleAsync("#ffffff");
-                if (tailPiece.val <= 0)
-                {
-                    await drawPiece(tailPiece.pos.c * scaleOfset.c, tailPiece.pos.r * scaleOfset.r);
-                }
-            }
-            snake.tail.RemoveAll(tp => tp.val == 0);
+            await drawPiece(foodPosition.c * scaleFactor.c, foodPosition.r * scaleFactor.r);
+            await clearTail();
 
             await canvasContext.SetFillStyleAsync("green");
-            await drawPiece(snake.headPosition.c * scaleOfset.c, snake.headPosition.r * scaleOfset.r);
+            await drawPiece(snake.headPosition.c * scaleFactor.c, snake.headPosition.r * scaleFactor.r);
 
             await canvasContext.SetFillStyleAsync("darkgreen");
             for (int i = 0; i < snake.tail.Count; i++)
             {
-                await drawPiece(snake.tail[i].pos.c * scaleOfset.c, snake.tail[i].pos.r * scaleOfset.r);
-                Console.WriteLine(snake.tail[i].val);
+                await drawPiece(snake.tail[i].pos.c * scaleFactor.c, snake.tail[i].pos.r * scaleFactor.r);
                 snake.tail[i].val--;
             }
-            await canvasContext.EndBatchAsync();
-        }
-
-        public async void drawGameOver()
-        {
-            await canvasContext.BeginBatchAsync();
-            await canvasContext.SetFillStyleAsync("black");
-            await canvasContext.FillRectAsync(0, limits.row * scaleOfset.r / 2.5, limits.col * scaleOfset.c, limits.row * 3);
-            await canvasContext.SetFillStyleAsync("white");
-            await canvasContext.SetFontAsync("Press Start 2P");
-            await canvasContext.SetTextAlignAsync(TextAlign.Center);
-            await canvasContext.FillTextAsync("Game Over", limits.col * scaleOfset.c / 2.0, limits.row * scaleOfset.r / 2.0);
             await canvasContext.EndBatchAsync();
         }
 
