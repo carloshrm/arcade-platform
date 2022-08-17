@@ -7,5 +7,5 @@ function getWindowHeight() {
 }
 
 function setFocus() {
-    document.getElementById("snake_container").focus();
+    document.getElementById("snake-container").focus();
 }
