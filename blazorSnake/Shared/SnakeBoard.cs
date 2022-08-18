@@ -2,22 +2,18 @@
 
 namespace blazorSnake.Shared
 {
-    public class Board
+    public class SnakeBoard
     {
-        private Canvas2DContext canvasContext { get; set; }
+        private Canvas2DContext? canvasContext { get; set; }
         private (int r, int c) scaleFactor { get; set; }
-        private (int row, int col) limits { get; set; }
+        private (int r, int c) limits { get; set; }
         private (int r, int c) foodPosition { get; set; }
-        public Snake snake { get; set; }
+        public SnakePlayer? snake { get; set; }
 
-        public Board(int x, int y)
+        public SnakeBoard(int width, int height, (int r, int c) limits)
         {
-            scaleFactor = (20, 20);
-            int roundedX = (int)Math.Floor(x / 10.0 * 10);
-            int roundedY = (int)Math.Floor(y / 10.0 * 10);
-            roundedX = roundedX < 400 ? 400 : roundedX;
-            roundedY = roundedY < 400 ? 400 : roundedY;
-            limits = (roundedY / scaleFactor.r, roundedX / scaleFactor.c);
+            this.limits = limits;
+            scaleFactor = (height / limits.r, width / limits.c);
         }
 
         public void setContext(Canvas2DContext c)
@@ -33,8 +29,8 @@ namespace blazorSnake.Shared
 
             do
             {
-                row = rng.Next(1, limits.row - 2);
-                col = rng.Next(1, limits.col - 2);
+                row = rng.Next(1, limits.r - 2);
+                col = rng.Next(1, limits.c - 2);
 
                 foreach (var pc in snake.tail)
                 {
@@ -50,8 +46,8 @@ namespace blazorSnake.Shared
         {
             if (snake.headPosition.r < 0 ||
                 snake.headPosition.c < 0 ||
-                snake.headPosition.r >= limits.row ||
-                snake.headPosition.c >= limits.col)
+                snake.headPosition.r >= limits.r ||
+                snake.headPosition.c >= limits.c)
             {
                 Console.WriteLine("\n Game Over - edge.");
                 return false;
@@ -74,7 +70,7 @@ namespace blazorSnake.Shared
                     increaseSpeed();
                 }
             }
-            snake.tail.Add(new Snake.TailPiece(snake.headPosition, snake.size));
+            snake.tail.Add(new SnakePlayer.TailPiece(snake.headPosition, snake.size));
             return true;
         }
 
@@ -119,10 +115,10 @@ namespace blazorSnake.Shared
             await canvasContext.EndBatchAsync();
         }
 
-        public void newPlayer(Snake p)
+        public void newPlayer(SnakePlayer p)
         {
             snake = p;
-            snake.setStartingValues(limits.row, limits.col);
+            snake.setStartingValues(limits.r, limits.c);
         }
 
     }

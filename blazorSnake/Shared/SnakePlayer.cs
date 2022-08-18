@@ -1,6 +1,6 @@
 ﻿namespace blazorSnake.Shared
 {
-    public class Snake
+    public class SnakePlayer
     {
         public class TailPiece
         {
@@ -18,7 +18,7 @@
         public List<TailPiece> tail { get; set; }
         public (int row, int col) movingDirection { get; set; }
 
-        public Snake(int startingSize)
+        public SnakePlayer(int startingSize)
         {
             size = startingSize;
             tail = new List<TailPiece>();

@@ -1,46 +1,54 @@
-﻿@page "/snakegame/{start:bool?}"
+﻿@page "/snakegame"
 @layout ContentLayout
 @inject IJSRuntime JSRUN
+@inject IConfiguration CONFIG
 @using Blazor.Extensions
 @using Blazor.Extensions.Canvas.Canvas2D
 @using System.Timers
+@using Microsoft.Extensions.Configuration
 
 
 <div id="game-controls">
-    <h3 id="score-display">Score: @currentScore</h3>
+    <h3 id="score-display">Score:@currentScore  Time:@timeDisplay</h3>
     <div>
-        <button class="soft-shadow game-button @((turnCount > 0 && turnControl.Enabled) ? "dark-bg" : "")" @onclick=startGame>start</button>
+        <button class="soft-shadow game-button @((turnCount > 0 && turnManager.Enabled) ? "dark-bg" : "")" @onclick=startGame>start</button>
         <button class="soft-shadow game-button" @onclick=setupNewGame>reset</button>
     </div>
 </div>
 <div id="snake-container" class="soft-shadow" tabindex="0" @onkeydown=readPlayerInput>
-    @if (turnCount > 0 && !turnControl.Enabled)
+    @if (turnCount > 0 && !turnManager.Enabled)
     {
         <div id="game-over" class="dark-bg soft-shadow">
             <h2>Game Over</h2>
+            <h4>Highest Score: @highestScore</h4>
         </div>
     }
-    <BECanvas Width="@windowSize.w" Height="@windowSize.h" @ref="_canvasReference" />
+    <BECanvas Width="@windowSize" Height="@windowSize" @ref="_canvasReference" />
 </div>
 
 @code {
-    [Parameter]
-    public bool start { get; set; }
+    protected BECanvasComponent? _canvasReference { get; set; }
+    private Canvas2DContext? _canvas { get; set; }
+    private int windowSize { get; set; }
+    private (int r, int c) configLimits { get; set; }
+
+    private SnakeBoard? gameBoard { get; set; }
+    private Timer? turnManager { get; set; }
+    private DateTime startTime { get; set; }
+    private string timeDisplay { get; set; }   
 
     private bool canMove { get; set; }
-    private long currentScore { get; set; }
-    private (int w, int h) windowSize { get; set; }
     private int turnCount { get; set; }
-    private Timer? turnControl { get; set; }
-    private Board? gameBoard { get; set; }
-    private Canvas2DContext _canvas { get; set; }
-    protected BECanvasComponent _canvasReference { get; set; }
-
+    private long currentScore { get; set; }
+    private long highestScore { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         await setCanvasSize();
-        await base.OnInitializedAsync();
+        configLimits = (
+            int.Parse(CONFIG["snake-board-width"]),
+            int.Parse(CONFIG["snake-board-height"]));
+        Console.WriteLine(configLimits);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -49,24 +57,35 @@
         {
             _canvas = await _canvasReference.CreateCanvas2DAsync();
             await setupNewGame();
-            if (start)
-                startGame();
         }
     }
 
     private async Task setCanvasSize()
     {
-        windowSize = (
-            (int)(await JSRUN.InvokeAsync<long>("getWindowWidth") * 0.80),
-            (int)(await JSRUN.InvokeAsync<long>("getWindowHeight") * 0.80)
-            );
+        double windowWidth = await JSRUN.InvokeAsync<long>("getWindowWidth");
+        double windowHeight = await JSRUN.InvokeAsync<long>("getWindowHeight");
+
+        if (windowHeight <= 500 || windowWidth <= 500)
+            windowSize = (int) 460;
+        else 
+        {
+            windowWidth = (windowWidth * 0.08) * 10;
+            windowHeight = (windowHeight * 0.08) * 10;
+            if (windowHeight >= windowWidth)
+            {
+                windowSize = (int)(windowWidth - (windowWidth % configLimits.c));
+            }
+            else
+            {
+                windowSize = (int)(windowHeight - (windowHeight % configLimits.r)); ;
+            }
+        }
         StateHasChanged();
     }
 
     private void readPlayerInput(KeyboardEventArgs e)
     {
-        Console.WriteLine(e.Key);
-        if (turnControl.Enabled && canMove)
+        if (turnManager.Enabled && canMove)
         {
             gameBoard?.snake.parseMoveCommand(e.Key);
             canMove = false;
@@ -75,24 +94,26 @@
 
     private void setupTimer()
     {
-        if (turnControl != null && turnControl.Enabled)
+        if (turnManager != null && turnManager.Enabled)
         {
-            turnControl.Dispose();
+            turnManager.Dispose();
         }
-        turnControl = new Timer(400) { AutoReset = true, Enabled = false };
-        turnControl.Elapsed += runTurn;
+        turnManager = new Timer(400) { AutoReset = true, Enabled = false };
+        turnManager.Elapsed += runTurn;
     }
 
-    private async void startGame()
+    private async Task startGame()
     {
         await JSRUN.InvokeVoidAsync("setFocus");
-        if (turnControl.Enabled)
+        if (turnManager.Enabled)
             return;
         else
         {
-            await setupNewGame();
+            if (currentScore > 0)
+                await setupNewGame();
             gameBoard.makeFood();
-            turnControl.Enabled = true;
+            turnManager.Enabled = true;
+            startTime = DateTime.Now;
         }
     }
 
@@ -103,26 +124,31 @@
         setupTimer();
         await setCanvasSize();
         await _canvas.ClearRectAsync(0, 0, _canvasReference.Width, _canvasReference.Height);
-        gameBoard = new Board((int)_canvasReference.Width, (int)_canvasReference.Height);
+        gameBoard = new SnakeBoard((int)_canvasReference.Width, (int)_canvasReference.Height, configLimits);
         gameBoard.setContext(_canvas);
-        gameBoard.newPlayer(new Snake(2));
+        gameBoard.newPlayer(new SnakePlayer(2));
     }
 
     private void increaseSpeed()
     {
-        if (turnControl.Enabled)
-            turnControl.Interval = 1500 / gameBoard.snake.size;
+        if (turnManager.Enabled)
+            turnManager.Interval = 1500 / gameBoard.snake.size;
     }
 
     private async void runTurn(Object? src, ElapsedEventArgs e)
     {
+        timeDisplay = (e.SignalTime - startTime).ToString("mm\\:ss");
         turnCount++;
         currentScore += turnCount * gameBoard.snake.size;
         gameBoard.snake.setNextSnakePosition();
         await gameBoard.drawGameState();
         if (!gameBoard.checkSpot(new Action(increaseSpeed)))
         {
-            turnControl.Enabled = false;
+            turnManager.Enabled = false;
+            if (currentScore > highestScore)
+            {
+                highestScore = currentScore;
+            }
         }
         canMove = true;
         StateHasChanged();
