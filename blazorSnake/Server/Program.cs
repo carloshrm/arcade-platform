@@ -36,7 +36,11 @@ namespace blazorSnake
             app.MapRazorPages();
             app.MapControllers();
             app.MapFallbackToFile("index.html");
-
+            var connectionString = Environment.GetEnvironmentVariables();
+            foreach (var item in connectionString)
+            {
+                Console.WriteLine(item.ToString());
+            }
             app.Run();
         }
     }

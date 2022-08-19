@@ -35,9 +35,9 @@
     private (int r, int c) configLimits { get; set; }
 
     private SnakeBoard? gameBoard { get; set; }
-    private Timer? turnManager { get; set; }
+    private Timer turnManager { get; set; }
     private DateTime startTime { get; set; }
-    private string timeDisplay { get; set; }   
+    private string timeDisplay { get; set; }
 
     private bool canMove { get; set; }
     private int turnCount { get; set; }
@@ -56,12 +56,9 @@
         {
             _canvas = await _canvasReference.CreateCanvas2DAsync();
             await setupNewGame();
-            Console.WriteLine(Environment.GetEnvironmentVariable("DATABASE_URL"));
             var storedScore = await localStorage.GetItemAsync<long>("bestScore");
             if (storedScore > highestScore)
-            {
                 highestScore = storedScore;
-            }
         }
     }
 
