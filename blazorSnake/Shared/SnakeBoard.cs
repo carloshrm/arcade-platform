@@ -4,26 +4,23 @@ namespace blazorSnake.Shared
 {
     public class SnakeBoard
     {
-        private Canvas2DContext? canvasContext { get; set; }
+        private Canvas2DContext canvasContext { get; set; }
         private (int r, int c) scaleFactor { get; set; }
         private (int r, int c) limits { get; set; }
         private (int r, int c) foodPosition { get; set; }
-        public SnakePlayer? snake { get; set; }
+        public SnakePlayer snake { get; set; }
 
-        public SnakeBoard(int width, int height, (int r, int c) limits)
+        public SnakeBoard(int width, int height, (int r, int c) limits, Canvas2DContext c)
         {
             this.limits = limits;
             scaleFactor = (height / limits.r, width / limits.c);
-        }
-
-        public void setContext(Canvas2DContext c)
-        {
+            snake = new SnakePlayer(2, limits);
             canvasContext = c;
         }
 
         public void makeFood()
         {
-            Random rng = new Random();
+            var rng = new Random();
             int row, col;
             bool invalid;
 
@@ -113,12 +110,6 @@ namespace blazorSnake.Shared
                 snake.tail[i].val--;
             }
             await canvasContext.EndBatchAsync();
-        }
-
-        public void newPlayer(SnakePlayer p)
-        {
-            snake = p;
-            snake.setStartingValues(limits.r, limits.c);
         }
 
     }

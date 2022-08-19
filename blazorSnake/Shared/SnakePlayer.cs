@@ -18,15 +18,11 @@
         public List<TailPiece> tail { get; set; }
         public (int row, int col) movingDirection { get; set; }
 
-        public SnakePlayer(int startingSize)
+        public SnakePlayer(int startingSize, (int r, int c) boardLimits)
         {
             size = startingSize;
             tail = new List<TailPiece>();
-        }
-
-        public void setStartingValues(int r, int c)
-        {
-            headPosition = (r / 2, c / 2);
+            headPosition = (boardLimits.r / 2, boardLimits.c / 2);
             movingDirection = (0, 1);
         }
 
@@ -45,18 +41,22 @@
             switch (keyValue)
             {
                 case "ArrowUp":
+                case "w":
                     if (movingDirection != (1, 0))
                         movingDirection = (-1, 0);
                     break;
                 case "ArrowDown":
+                case "s":
                     if (movingDirection != (-1, 0))
                         movingDirection = (1, 0);
                     break;
                 case "ArrowLeft":
+                case "a":
                     if (movingDirection != (0, 1))
                         movingDirection = (0, -1);
                     break;
                 case "ArrowRight":
+                case "d":
                     if (movingDirection != (0, -1))
                         movingDirection = (0, 1);
                     break;

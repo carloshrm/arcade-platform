@@ -1,11 +1,12 @@
 ﻿@page "/snakegame"
 @layout ContentLayout
-@inject IJSRuntime JSRUN
-@inject IConfiguration CONFIG
+@inject IJSRuntime jsRuntime
+@inject IConfiguration appConfig
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 @using Blazor.Extensions
 @using Blazor.Extensions.Canvas.Canvas2D
-@using System.Timers
 @using Microsoft.Extensions.Configuration
+@using System.Timers
 
 
 <div id="game-controls">
@@ -20,7 +21,8 @@
     {
         <div id="game-over" class="dark-bg soft-shadow">
             <h2>Game Over</h2>
-            <h4>Highest Score: @highestScore</h4>
+            <h4>Score: @currentScore</h4>
+            <h4>Best: @highestScore</h4>
         </div>
     }
     <BECanvas Width="@windowSize" Height="@windowSize" @ref="_canvasReference" />
@@ -45,10 +47,7 @@
     protected override async Task OnInitializedAsync()
     {
         await setCanvasSize();
-        configLimits = (
-            int.Parse(CONFIG["snake-board-width"]),
-            int.Parse(CONFIG["snake-board-height"]));
-        Console.WriteLine(configLimits);
+        readConfigValues();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -57,13 +56,25 @@
         {
             _canvas = await _canvasReference.CreateCanvas2DAsync();
             await setupNewGame();
+            Console.WriteLine(Environment.GetEnvironmentVariable("DATABASE_URL"));
+            var storedScore = await localStorage.GetItemAsync<long>("bestScore");
+            if (storedScore > highestScore)
+            {
+                highestScore = storedScore;
+            }
         }
+    }
+
+    private void readConfigValues()
+    {
+        configLimits = (int.Parse(appConfig["snake-board-width"]),
+                        int.Parse(appConfig["snake-board-height"]));
     }
 
     private async Task setCanvasSize()
     {
-        double windowWidth = await JSRUN.InvokeAsync<long>("getWindowWidth");
-        double windowHeight = await JSRUN.InvokeAsync<long>("getWindowHeight");
+        double windowWidth = await jsRuntime.InvokeAsync<long>("getWindowWidth");
+        double windowHeight = await jsRuntime.InvokeAsync<long>("getWindowHeight");
 
         if (windowHeight <= 500 || windowWidth <= 500)
             windowSize = (int) 460;
@@ -72,13 +83,9 @@
             windowWidth = (windowWidth * 0.08) * 10;
             windowHeight = (windowHeight * 0.08) * 10;
             if (windowHeight >= windowWidth)
-            {
                 windowSize = (int)(windowWidth - (windowWidth % configLimits.c));
-            }
             else
-            {
                 windowSize = (int)(windowHeight - (windowHeight % configLimits.r)); ;
-            }
         }
         StateHasChanged();
     }
@@ -104,7 +111,7 @@
 
     private async Task startGame()
     {
-        await JSRUN.InvokeVoidAsync("setFocus");
+        await jsRuntime.InvokeVoidAsync("setFocus");
         if (turnManager.Enabled)
             return;
         else
@@ -124,9 +131,10 @@
         setupTimer();
         await setCanvasSize();
         await _canvas.ClearRectAsync(0, 0, _canvasReference.Width, _canvasReference.Height);
-        gameBoard = new SnakeBoard((int)_canvasReference.Width, (int)_canvasReference.Height, configLimits);
-        gameBoard.setContext(_canvas);
-        gameBoard.newPlayer(new SnakePlayer(2));
+        gameBoard = new SnakeBoard(
+            (int)_canvasReference.Width, 
+            (int)_canvasReference.Height, 
+            configLimits, _canvas);
     }
 
     private void increaseSpeed()
@@ -148,6 +156,7 @@
             if (currentScore > highestScore)
             {
                 highestScore = currentScore;
+                await localStorage.SetItemAsync("bestScore", highestScore);
             }
         }
         canMove = true;
