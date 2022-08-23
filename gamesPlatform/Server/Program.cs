@@ -1,4 +1,6 @@
-namespace blazorSnake
+using gamesPlatform.Server.Controllers;
+
+namespace gamesPlatform
 {
     public class Program
     {
@@ -10,6 +12,9 @@ namespace blazorSnake
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
+
+
+            builder.Services.AddSingleton<IScoreController, ScoreController>();
 
             var app = builder.Build();
 
@@ -36,11 +41,7 @@ namespace blazorSnake
             app.MapRazorPages();
             app.MapControllers();
             app.MapFallbackToFile("index.html");
-            var connectionString = Environment.GetEnvironmentVariables();
-            foreach (var item in connectionString)
-            {
-                Console.WriteLine(item.ToString());
-            }
+
             app.Run();
         }
     }

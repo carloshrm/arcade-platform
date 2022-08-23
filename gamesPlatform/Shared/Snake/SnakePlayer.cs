@@ -1,4 +1,4 @@
-﻿namespace blazorSnake.Shared
+﻿namespace gamesPlatform.Shared.Snake
 {
     public class SnakePlayer
     {

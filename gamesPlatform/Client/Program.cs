@@ -1,7 +1,8 @@
 using Blazored.LocalStorage;
+using gamesPlatform.Client.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
-namespace blazorSnake.Client
+namespace gamesPlatform.Client
 {
     public class Program
     {
@@ -11,6 +12,7 @@ namespace blazorSnake.Client
             builder.RootComponents.Add<App>("#app");
             builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddBlazoredLocalStorage();
+            builder.Services.AddSingleton<IScoreService, ScoreService>();
             await builder.Build().RunAsync();
         }
     }

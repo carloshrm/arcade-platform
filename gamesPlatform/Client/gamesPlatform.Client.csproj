@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Shared\blazorSnake.Shared.csproj" />
+    <ProjectReference Include="..\Shared\gamesPlatform.Shared.csproj" />
   </ItemGroup>
 
 </Project>

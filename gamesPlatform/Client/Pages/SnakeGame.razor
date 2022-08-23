@@ -3,6 +3,7 @@
 @inject IJSRuntime jsRuntime
 @inject IConfiguration appConfig
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IScoreService scoreService
 @using Blazor.Extensions
 @using Blazor.Extensions.Canvas.Canvas2D
 @using Microsoft.Extensions.Configuration
@@ -10,7 +11,7 @@
 
 
 <div id="game-controls">
-    <h3 id="score-display">Score:@currentScore  Time:@timeDisplay</h3>
+    <h3 id="score-display">Score:@currentScores.current  Time:@timeDisplay</h3>
     <div>
         <button class="soft-shadow game-button @((turnCount > 0 && turnManager.Enabled) ? "dark-bg" : "")" @onclick=startGame>start</button>
         <button class="soft-shadow game-button" @onclick=setupNewGame>reset</button>
@@ -21,8 +22,8 @@
     {
         <div id="game-over" class="dark-bg soft-shadow">
             <h2>Game Over</h2>
-            <h4>Score: @currentScore</h4>
-            <h4>Best: @highestScore</h4>
+            <h4>Score: @currentScores.current</h4>
+            <h4>Best: @currentScores.high</h4>
         </div>
     }
     <BECanvas Width="@windowSize" Height="@windowSize" @ref="_canvasReference" />
@@ -39,10 +40,9 @@
     private DateTime startTime { get; set; }
     private string timeDisplay { get; set; }
 
+    private (long high, long current) currentScores;
     private bool canMove { get; set; }
     private int turnCount { get; set; }
-    private long currentScore { get; set; }
-    private long highestScore { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -56,9 +56,9 @@
         {
             _canvas = await _canvasReference.CreateCanvas2DAsync();
             await setupNewGame();
-            var storedScore = await localStorage.GetItemAsync<long>("bestScore");
-            if (storedScore > highestScore)
-                highestScore = storedScore;
+            var previousHighScore = await localStorage.GetItemAsync<int>("highScore");
+            if (previousHighScore > currentScores.high)
+                currentScores.high = previousHighScore;
         }
     }
 
@@ -91,7 +91,7 @@
     {
         if (turnManager.Enabled && canMove)
         {
-            gameBoard?.snake.parseMoveCommand(e.Key);
+            gameBoard.snake.parseMoveCommand(e.Key);
             canMove = false;
         }
     }
@@ -113,7 +113,7 @@
             return;
         else
         {
-            if (currentScore > 0)
+            if (currentScores.current > 0)
                 await setupNewGame();
             gameBoard.makeFood();
             turnManager.Enabled = true;
@@ -124,7 +124,7 @@
     private async Task setupNewGame()
     {
         turnCount = 0;
-        currentScore = 0;
+        currentScores.current = 0;
         setupTimer();
         await setCanvasSize();
         await _canvas.ClearRectAsync(0, 0, _canvasReference.Width, _canvasReference.Height);
@@ -144,16 +144,15 @@
     {
         timeDisplay = (e.SignalTime - startTime).ToString("mm\\:ss");
         turnCount++;
-        currentScore += turnCount * gameBoard.snake.size;
+        currentScores.current += (int)(Math.Ceiling(turnCount / 10.0)) * gameBoard.snake.size;
         gameBoard.snake.setNextSnakePosition();
         await gameBoard.drawGameState();
         if (!gameBoard.checkSpot(new Action(increaseSpeed)))
         {
             turnManager.Enabled = false;
-            if (currentScore > highestScore)
+            if (currentScores.current > currentScores.high)
             {
-                highestScore = currentScore;
-                await localStorage.SetItemAsync("bestScore", highestScore);
+                currentScores.high = currentScores.current;
             }
         }
         canMove = true;

@@ -8,16 +8,14 @@
 
   <ItemGroup>
     <PackageReference Include="Blazor.Extensions.Canvas" Version="1.1.1" />
+    <PackageReference Include="Dapper" Version="2.0.123" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.6" />
+    <PackageReference Include="Npgsql" Version="6.0.6" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Client\blazorSnake.Client.csproj" />
-    <ProjectReference Include="..\Shared\blazorSnake.Shared.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\Client\gamesPlatform.Client.csproj" />
+    <ProjectReference Include="..\Shared\gamesPlatform.Shared.csproj" />
   </ItemGroup>
 
 

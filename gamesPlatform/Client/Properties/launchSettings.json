@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "blazorSnake": {
+    "gamesPlatform": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
