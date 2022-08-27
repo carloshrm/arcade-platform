@@ -11,9 +11,9 @@ namespace gamesPlatform.Server.Controllers
     {
         private NpgsqlConnection? connection { get; } = null;
 
-        public ScoreController()
+        public ScoreController(IConfiguration cfg)
         {
-            var envString = Environment.GetEnvironmentVariable("DATABASE_URL")!;
+            var envString = cfg.GetConnectionString("mainDB");
             if (envString?.Equals(string.Empty) == false)
             {
                 var dbURI = new Uri(envString);
