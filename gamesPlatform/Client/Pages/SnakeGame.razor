@@ -17,7 +17,7 @@
         <button class="soft-shadow game-button" @onclick=setupNewGame>reset</button>
     </div>
 </div>
-<div id="snake-container" class="soft-shadow" tabindex="0" @onkeydown=readPlayerInput>
+<div id="snake-container" class="soft-shadow" tabindex="0" @onkeydown=@((e) => playerInputHandler(e.Key))>
     @if (turnCount > 0 && !turnManager.Enabled)
     {
         <div id="game-over" class="dark-bg soft-shadow">
@@ -28,11 +28,16 @@
     }
     <BECanvas Width="@windowSize" Height="@windowSize" @ref="_canvasReference" />
 </div>
+@if(isMobile)
+{
+    <TouchDPad inputCallback=playerInputHandler></TouchDPad>
+}
 
 @code {
     protected BECanvasComponent? _canvasReference { get; set; }
     private Canvas2DContext? _canvas { get; set; }
     private int windowSize { get; set; }
+    private bool isMobile { get; set; }
     private (int r, int c) configLimits { get; set; }
 
     private SnakeBoard? gameBoard { get; set; }
@@ -48,6 +53,8 @@
     {
         await setCanvasSize();
         readConfigValues();
+        isMobile = await jsRuntime.InvokeAsync<bool>("isMobile");
+        Console.WriteLine(isMobile);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -73,29 +80,26 @@
         double windowWidth = await jsRuntime.InvokeAsync<long>("getWindowWidth");
         double windowHeight = await jsRuntime.InvokeAsync<long>("getWindowHeight");
 
-        if (windowHeight <= 500 || windowWidth <= 500)
-            windowSize = (int) 460;
-        else 
-        {
-            windowWidth = (windowWidth * 0.08) * 10;
-            windowHeight = (windowHeight * 0.08) * 10;
-            if (windowHeight >= windowWidth)
-                windowSize = (int)(windowWidth - (windowWidth % configLimits.c));
-            else
-                windowSize = (int)(windowHeight - (windowHeight % configLimits.r)); ;
-        }
+        windowWidth = (windowWidth * 0.08) * 10;
+        windowHeight = (windowHeight * 0.08) * 10;
+
+        if (windowHeight >= windowWidth)
+            windowSize = (int)(windowWidth - (windowWidth % configLimits.c));
+        else
+            windowSize = (int)(windowHeight - (windowHeight % configLimits.r));
+
         StateHasChanged();
     }
 
-    private void readPlayerInput(KeyboardEventArgs e)
+    private void playerInputHandler(string direction)
     {
         if (turnManager.Enabled && canMove)
         {
-            gameBoard.snake.parseMoveCommand(e.Key);
-            canMove = false;
+            gameBoard.snake.parseMoveCommand(direction);
         }
+        canMove = false;
     }
-
+    
     private void setupTimer()
     {
         if (turnManager != null && turnManager.Enabled)
@@ -137,7 +141,7 @@
     private void increaseSpeed()
     {
         if (turnManager.Enabled)
-            turnManager.Interval = 1500 / gameBoard.snake.size;
+            turnManager.Interval = 1400 / gameBoard.snake.size;
     }
 
     private async void runTurn(Object? src, ElapsedEventArgs e)

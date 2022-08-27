@@ -9,3 +9,7 @@ function getWindowHeight() {
 function setFocus() {
     document.getElementById("snake-container").focus();
 }
+
+function isMobile() {
+    return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile/i.test(navigator.userAgent);
+}
