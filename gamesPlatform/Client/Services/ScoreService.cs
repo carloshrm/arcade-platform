@@ -12,9 +12,9 @@ namespace gamesPlatform.Client.Services
             _httpClient = httpClient;
         }
 
-        public async Task<List<Score>> setLeaderboards(int appID)
+        public async Task<IEnumerable<Score>> getLeaderboard(int appID)
         {
-            var callResponse = await _httpClient.GetFromJsonAsync<List<Score>>($"api/leaderboard/{appID}");
+            var callResponse = await _httpClient.GetFromJsonAsync<IEnumerable<Score>>($"api/score/leaderboard/{appID}");
             if (callResponse != null)
                 return callResponse;
             else
@@ -23,7 +23,7 @@ namespace gamesPlatform.Client.Services
 
         public async Task<Score> getScore(int scoreID)
         {
-            var callResponse = await _httpClient.GetFromJsonAsync<Score>($"api/scores/{scoreID}");
+            var callResponse = await _httpClient.GetFromJsonAsync<Score>($"api/score/{scoreID}");
             if (callResponse != null)
                 return callResponse;
             else
@@ -32,7 +32,7 @@ namespace gamesPlatform.Client.Services
 
         public async Task setScore(Score s)
         {
-            var callResponse = await _httpClient.PostAsJsonAsync<Score>("api/setscore", s);
+            var callResponse = await _httpClient.PostAsJsonAsync<Score>("api/score/setscore", s);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace gamesPlatform.Server.Controllers
 
         public ScoreController(IConfiguration cfg)
         {
-            var envString = cfg.GetConnectionString("mainDB");
+            var envString = cfg.GetConnectionString("main_db");
             if (envString?.Equals(string.Empty) == false)
             {
                 var dbURI = new Uri(envString);
@@ -25,8 +25,8 @@ namespace gamesPlatform.Server.Controllers
                     Host = dbURI.Host,
                     Port = dbURI.Port,
                     Database = dbURI.LocalPath.Substring(1),
-                    SslMode = SslMode.Require,
-                    TrustServerCertificate = true
+                    //SslMode = SslMode.Require,
+                    //TrustServerCertificate = true
                 };
                 connection = new NpgsqlConnection(connectionString.ToString());
                 connection.Open();
@@ -36,10 +36,11 @@ namespace gamesPlatform.Server.Controllers
         }
 
         [HttpPost("setscore")]
-        public async Task<ActionResult<List<Score>>> dbAddScore(Score s)
+        public async Task<ActionResult<IEnumerable<Score>>> dbAddScore(Score s)
         {
-            const string query = "INSERT INTO scores (appid, scorevalue, runstart, runlength, nickname) " +
-                "VALUES (@id, @scorevalue, @runstart, @runlength, @nickname);";
+            const string query = @"INSERT INTO 
+                    scores (appid, scorevalue, runstart, runlength, nickname) 
+                    VALUES (@appid, @scorevalue, @runstart, @runlength, @nickname);";
 
             var vals = new
             {
@@ -54,7 +55,7 @@ namespace gamesPlatform.Server.Controllers
         }
 
         [HttpGet("leaderboard/{appID}")]
-        public async Task<ActionResult<List<Score>>> dbGetLeaderboard(int appID)
+        public async Task<ActionResult<IEnumerable<Score>>> dbGetLeaderboard(int appID)
         {
             string query = $"SELECT * FROM scores WHERE appid=@id;";
             var vals = new { id = appID };
@@ -63,7 +64,7 @@ namespace gamesPlatform.Server.Controllers
             return Ok(results);
         }
 
-        [HttpGet("scores/{scoreID}")]
+        [HttpGet("{scoreID}")]
         public async Task<ActionResult<Score>> dbGetScore(int scoreID)
         {
             string query = $"SELECT * FROM scores WHERE id=@id;";

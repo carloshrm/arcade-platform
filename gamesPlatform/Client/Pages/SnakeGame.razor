@@ -3,7 +3,6 @@
 @inject IJSRuntime jsRuntime
 @inject IConfiguration appConfig
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
-@inject IScoreService scoreService
 @using Blazor.Extensions
 @using Blazor.Extensions.Canvas.Canvas2D
 @using Microsoft.Extensions.Configuration
@@ -54,7 +53,6 @@
         await setCanvasSize();
         readConfigValues();
         isMobile = await jsRuntime.InvokeAsync<bool>("isMobile");
-        Console.WriteLine(isMobile);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
