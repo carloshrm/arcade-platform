@@ -2,5 +2,7 @@
 
 Play here - https://chrm-snake-game.herokuapp.com/snakegame
 
-Snake Game for web written in C# using Blazor ASP.NET
+Classic snake game written for web in C#, using Blazor ASP.NET server running in a docker container.
 
+Features a small API with endpoints to manage highest scores and show a leaderboard 
+working through a Postgresql database hosted on another docker container, along with the server.
