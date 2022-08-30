@@ -1,0 +1,34 @@
+﻿#pad_container {
+    margin: 0 auto;
+    width: fit-content;
+    display: grid;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-areas: 
+        '. u .'
+        'l . r'
+        '. d .';
+}
+
+#pad_bt_up {
+    grid-area: u;
+}
+
+#pad_bt_down {
+    grid-area: d;
+}
+
+#pad_bt_left {
+    grid-area: l;
+}
+
+#pad_bt_right {
+    grid-area: r;
+}
+
+button {
+    background-color: #BF544B50;
+    color: var(--color-dark-background);
+    border: none;
+    padding: 4vh;
+}
