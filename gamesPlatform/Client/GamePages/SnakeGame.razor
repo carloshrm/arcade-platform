@@ -1,0 +1,149 @@
+﻿@page "/snakegame"
+@layout ContentLayout
+@inject IJSRuntime jsRuntime
+@inject ILocalStorageService localStorage
+@using Microsoft.Extensions.Configuration
+@using System.Timers
+
+<div id="game-controls">
+    <h3 id="score-display">
+        <span> Score:@currentScore.scoreValue </span>
+        @if (highScore.scoreValue > 0)
+        {
+            <span> Best: @highScore.scoreValue  </span>
+        }
+        <span> Time:@currentScore.runLength.ToString("mm\\:ss") </span>
+    </h3>
+    <div>
+        <button type="button" class="soft-shadow game-button @((turnCount > 0 && turnManager.Enabled) ? "dark-bg" : "")" @onclick=startGame>start</button>
+        <button type="button" class="soft-shadow game-button" @onclick=setupNewGame>reset</button>
+    </div>
+</div>
+<div id="snake-container" class="soft-shadow" tabindex="0" @onkeydown=@((e) => playerInputHandler(e.Key))>
+    @if (turnCount > 0 && !turnManager.Enabled)
+    {
+        <div id="post-game-container" class="dark-bg soft-shadow">
+            <h2>Game Over...</h2>
+            <h4>Score: @currentScore.scoreValue</h4>
+            <h4>Best: @highScore.scoreValue</h4>
+            <button type="button" @onclick=@(() => 
+            {
+                showScoreUpload = !showScoreUpload;
+                StateHasChanged();
+            }) >Pin on leaderboard!</button>
+            <LeaderboardView appID="1" />
+        </div>
+        @if (showScoreUpload)
+        {
+            <ScoreUploadView info="@highScore" toggleVisibility=@(() => showScoreUpload = !showScoreUpload)/>
+        }
+    }
+    <ResponsiveCanvas @ref=gameScreen />
+</div>
+@if(isMobile)
+{
+    <TouchDPad inputCallback=playerInputHandler />
+}
+
+@code {
+    private ResponsiveCanvas gameScreen { get; set; }
+    private bool showScoreUpload { get; set; }
+    private bool isMobile { get; set; }
+
+    private Score currentScore { get; set; } = new Score(1);
+    private Score highScore { get; set; } = new Score(1);
+
+    private SnakeBoard? gameBoard { get; set; }
+    private Timer turnManager { get; set; }
+    private int turnCount { get; set; }
+    private bool canMove { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        isMobile = await jsRuntime.InvokeAsync<bool>("isMobile");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await setupNewGame();
+            var previousHighScore = await localStorage.GetItemAsync<long>("highScore");
+            highScore.scoreValue = previousHighScore;
+            //TODO - keep score ID instead, load full info from db
+        }
+    }
+
+    private void playerInputHandler(string direction)
+    {
+        if (turnManager.Enabled && canMove)
+        {
+            gameBoard.snake.parseMoveCommand(direction);
+        }
+        canMove = false;
+    }
+
+    private void setupTimer()
+    {
+        if (turnManager != null && turnManager.Enabled)
+        {
+            turnManager.Dispose();
+        }
+        turnManager = new Timer(400) { AutoReset = true, Enabled = false };
+        turnManager.Elapsed += runTurn;
+    }
+
+    private async Task startGame()
+    {
+        await jsRuntime.InvokeVoidAsync("setFocus");
+        if (turnManager.Enabled)
+            return;
+        else
+        {
+            if (currentScore.scoreValue > 0)
+                await setupNewGame();
+            gameBoard.makeFood();
+            turnManager.Enabled = true;
+            currentScore.runStart = DateTime.Now;
+        }
+    }
+
+    private async Task setupNewGame()
+    {
+        turnCount = 0;
+        currentScore = new Score();
+        setupTimer();
+        await gameScreen.setCanvasSize();
+        await gameScreen.clear();
+        gameBoard = new SnakeBoard(
+            gameScreen.getDimensions(),
+            gameScreen.configLimits, 
+            gameScreen._canvasReference);
+    }
+
+    private void increaseSpeed()
+    {
+        if (turnManager.Enabled)
+            turnManager.Interval = 1300 / gameBoard.snake.size;
+    }
+
+    private async void runTurn(Object? src, ElapsedEventArgs e)
+    {
+        turnCount++;
+        currentScore.runLength = (e.SignalTime - currentScore.runStart);
+        currentScore.scoreValue += (int)(Math.Ceiling(turnCount / 10.0)) * gameBoard.snake.size;
+        gameBoard.snake.setNextSnakePosition();
+        await gameBoard.drawGameState();
+        if (gameBoard.checkSpot(new Action(increaseSpeed)) == false)
+        {
+            // Game Over
+            turnManager.Enabled = false;
+            if (currentScore.scoreValue > highScore.scoreValue)
+            {
+                highScore = currentScore;
+            }
+        }
+        canMove = true;
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,10 @@
+﻿#leaderboard-container {
+    margin: 1rem auto;
+    padding: 0.2rem;
+}
+
+table {
+    background-color: white;
+    border: solid 2px black;
+}
+

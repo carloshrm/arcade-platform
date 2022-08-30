@@ -1,0 +1,25 @@
+﻿@inject IJSRuntime jsRuntime
+
+<div id="pad_container">
+    <button id="pad_bt_down" class="oi oi-chevron-bottom" @onclick=@((e) => clickHandler("s"))>
+    </button>
+    <button id="pad_bt_right" class="oi oi-chevron-right" @onclick=@((e) => clickHandler("d"))>
+    </button>
+    <button id="pad_bt_left" class="oi oi-chevron-left" @onclick=@((e) => clickHandler("a"))>
+    </button>
+    <button id="pad_bt_up" class="oi oi-chevron-top" @onclick=@((e) => clickHandler("w"))>
+    </button>
+</div>
+
+@code {
+    public delegate void externalHandler(string d);
+
+    [Parameter]
+    public externalHandler inputCallback { get; set; }
+
+    private void clickHandler(string direction)
+    {
+        inputCallback(direction);
+        jsRuntime.InvokeVoidAsync("vibrateFeedback");
+    }
+}

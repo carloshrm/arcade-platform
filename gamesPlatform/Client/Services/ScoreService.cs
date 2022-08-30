@@ -33,6 +33,7 @@ namespace gamesPlatform.Client.Services
         public async Task setScore(Score s)
         {
             var callResponse = await _httpClient.PostAsJsonAsync<Score>("api/score/setscore", s);
+            // TODO - read incremental ID from db and update local object
         }
     }
 }

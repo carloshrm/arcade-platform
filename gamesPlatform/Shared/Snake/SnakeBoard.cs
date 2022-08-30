@@ -10,10 +10,10 @@ namespace gamesPlatform.Shared.Snake
         private (int r, int c) foodPosition { get; set; }
         public SnakePlayer snake { get; set; }
 
-        public SnakeBoard(int width, int height, (int r, int c) limits, Canvas2DContext c)
+        public SnakeBoard((int width, int height) dimensions, (int r, int c) limits, Canvas2DContext c)
         {
             this.limits = limits;
-            scaleFactor = (height / limits.r, width / limits.c);
+            scaleFactor = (dimensions.height / limits.r, dimensions.width / limits.c);
             snake = new SnakePlayer(2, limits);
             canvasContext = c;
         }

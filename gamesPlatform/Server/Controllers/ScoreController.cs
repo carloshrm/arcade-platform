@@ -50,8 +50,8 @@ namespace gamesPlatform.Server.Controllers
                 runLength = s.runLength,
                 nickname = s.nickname,
             };
-            await connection.ExecuteAsync(query, vals);
-            return Ok(vals);
+            var result = await connection.ExecuteAsync(query, vals);
+            return Ok(result);
         }
 
         [HttpGet("leaderboard/{appID}")]

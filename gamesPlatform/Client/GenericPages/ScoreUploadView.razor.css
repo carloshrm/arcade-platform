@@ -1,0 +1,30 @@
+﻿#score-upload-container {
+    position: fixed;
+    padding: 0 1em;
+    border: solid 2px black;
+    background-color: white;
+    color: black;
+    box-shadow: var(--color-light-background-hsat) 4px 4px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#close-upload-button {
+    position: absolute;
+    right: 0;
+    margin: 0.4em;
+    padding: 0 1em;
+}
+
+#submit-upload-button {
+    margin-bottom: 1em;
+    border: solid 1px black;
+    color: var(--color-light-background-hsat);
+}
+
+h3 {
+    color: var(--color-light-background-hsat);
+    margin: 1em;
+}
+

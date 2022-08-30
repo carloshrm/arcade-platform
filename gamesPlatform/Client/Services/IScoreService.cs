@@ -4,8 +4,8 @@ namespace gamesPlatform.Client.Services
 {
     public interface IScoreService
     {
-        Task<Score> getScore(int scoreID);
-        Task<IEnumerable<Score>> getLeaderboard(int appID);
-        Task setScore(Score s);
+        public Task<Score> getScore(int scoreID);
+        public Task<IEnumerable<Score>> getLeaderboard(int appID);
+        public Task setScore(Score s);
     }
 }
