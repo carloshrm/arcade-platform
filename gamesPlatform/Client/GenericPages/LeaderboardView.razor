@@ -44,8 +44,14 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await refresh();
+    }
+
+    public async Task refresh()
+    {
         var databaseLeaderboard = await scoreService.getLeaderboard(appID);
-        localLeaderboard = databaseLeaderboard.OrderBy(x => x.scoreValue).ToList();
+        localLeaderboard = databaseLeaderboard.OrderByDescending(x => x.scoreValue).ToList();
+        StateHasChanged();
     }
 
 }

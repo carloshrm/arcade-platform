@@ -11,9 +11,9 @@ namespace gamesPlatform.Server.Controllers
     {
         private NpgsqlConnection? connection { get; } = null;
 
-        public ScoreController(IConfiguration cfg)
+        public ScoreController()
         {
-            var envString = cfg.GetConnectionString("main_db");
+            var envString = Environment.GetEnvironmentVariable("EXTERNAL_DB");
             if (envString?.Equals(string.Empty) == false)
             {
                 var dbURI = new Uri(envString);
@@ -40,7 +40,7 @@ namespace gamesPlatform.Server.Controllers
         {
             const string query = @"INSERT INTO 
                     scores (appid, scorevalue, runstart, runlength, nickname) 
-                    VALUES (@appid, @scorevalue, @runstart, @runlength, @nickname);";
+                    VALUES (@appid, @scorevalue, @runstart, @runlength, @nickname) RETURNING id;";
 
             var vals = new
             {
@@ -50,7 +50,7 @@ namespace gamesPlatform.Server.Controllers
                 runLength = s.runLength,
                 nickname = s.nickname,
             };
-            var result = await connection.ExecuteAsync(query, vals);
+            var result = await connection.QueryFirstAsync<int>(query, vals);
             return Ok(result);
         }
 

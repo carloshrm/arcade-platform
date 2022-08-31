@@ -1,12 +1,12 @@
 ﻿@inject IScoreService scoreService
 
 <div id="score-upload-container">
-    <button id="close-upload-button" class="btn game-button" type="button" @onclick=toggleVisibility>X</button>
-    <h3>Upload: </h3>
+    <button id="close-upload-button" class="btn game-button" type="button" @onclick=@(() => callback(-1))>X</button>
+    <h3>Upload: @info.appID </h3>
     <p>High Score: @info.scoreValue</p>
     <p>Date: @info.runStart</p>
     <p>Time: @info.runLength.ToString("mm\\:ss")</p>
-    <EditForm Model="@info" OnValidSubmit="uploadScore">
+    <EditForm Model="@info" OnValidSubmit=uploadScore >
         <DataAnnotationsValidator />
         <p>
             <label>
@@ -14,7 +14,7 @@
                 <InputText @bind-Value="info.nickname" />
             </label>
         </p>
-        <button type="submit" id="submit-upload-button" class="btn game-button">OK</button>
+        <button type="submit" id="submit-upload-button" class="btn game-button" >OK</button>
     </EditForm>
 </div>
 
@@ -22,11 +22,11 @@
 
 @code {
     [Parameter] public Score info { get; set; }
-    [Parameter] public Action toggleVisibility { get; set; }
+    [Parameter] public Action<int> callback { get; set; }
 
     private async Task uploadScore()
     {
-        await scoreService.setScore(info);
-        toggleVisibility();
+        var newID = await scoreService.setScore(info);
+        callback(newID);
     }
 }

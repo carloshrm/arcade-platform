@@ -26,32 +26,30 @@
             <h2>Game Over...</h2>
             <h4>Score: @currentScore.scoreValue</h4>
             <h4>Best: @highScore.scoreValue</h4>
-            <button type="button" @onclick=@(() => 
-            {
-                showScoreUpload = !showScoreUpload;
-                StateHasChanged();
-            }) >Pin on leaderboard!</button>
-            <LeaderboardView appID="1" />
+            <button type="button" @onclick=@(() => showScoreUpload = true)>Pin on leaderboard!</button>
+            <LeaderboardView appID="1" @ref=_leaderboard />
         </div>
         @if (showScoreUpload)
         {
-            <ScoreUploadView info="@highScore" toggleVisibility=@(() => showScoreUpload = !showScoreUpload)/>
+            <ScoreUploadView info=@highScore callback=@uploadCallback/>
         }
     }
-    <ResponsiveCanvas @ref=gameScreen />
+    <ResponsiveCanvas @ref=_gameScreen />
 </div>
-@if(isMobile)
+@if (isMobile)
 {
     <TouchDPad inputCallback=playerInputHandler />
 }
 
 @code {
-    private ResponsiveCanvas gameScreen { get; set; }
+    private ResponsiveCanvas _gameScreen;
+    private LeaderboardView _leaderboard;
     private bool showScoreUpload { get; set; }
     private bool isMobile { get; set; }
+    private Action<int> uploadCallback;
 
-    private Score currentScore { get; set; } = new Score(1);
-    private Score highScore { get; set; } = new Score(1);
+    private Score currentScore { get; set; } = new Score();
+    private Score highScore { get; set; } = new Score();
 
     private SnakeBoard? gameBoard { get; set; }
     private Timer turnManager { get; set; }
@@ -61,6 +59,19 @@
     protected override async Task OnInitializedAsync()
     {
         isMobile = await jsRuntime.InvokeAsync<bool>("isMobile");
+        currentScore.setAppID(1);
+        highScore.setAppID(1);
+        uploadCallback = newID =>
+        {
+            showScoreUpload = false;
+            if (newID != -1)
+            {
+                highScore.id = newID;
+                _leaderboard.refresh();
+                setLocalScore();
+            }
+            StateHasChanged();
+        };
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -68,10 +79,22 @@
         if (firstRender)
         {
             await setupNewGame();
-            var previousHighScore = await localStorage.GetItemAsync<long>("highScore");
-            highScore.scoreValue = previousHighScore;
-            //TODO - keep score ID instead, load full info from db
+            await readLocalScore();
         }
+    }
+
+    private async Task readLocalScore()
+    {
+        if (await localStorage.ContainKeyAsync("highScore"))
+        {
+            highScore = await localStorage.GetItemAsync<Score>("highScore");
+            StateHasChanged();
+        }
+    }
+
+    private async Task setLocalScore()
+    {
+        await localStorage.SetItemAsync<Score>("highScore", highScore);
     }
 
     private void playerInputHandler(string direction)
@@ -113,12 +136,12 @@
         turnCount = 0;
         currentScore = new Score();
         setupTimer();
-        await gameScreen.setCanvasSize();
-        await gameScreen.clear();
+        await _gameScreen.setCanvasSize();
+        await _gameScreen.clear();
         gameBoard = new SnakeBoard(
-            gameScreen.getDimensions(),
-            gameScreen.configLimits, 
-            gameScreen._canvasReference);
+            _gameScreen.getDimensions(),
+            _gameScreen.configLimits,
+            _gameScreen._canvasReference);
     }
 
     private void increaseSpeed()

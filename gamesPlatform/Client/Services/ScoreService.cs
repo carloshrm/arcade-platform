@@ -30,10 +30,11 @@ namespace gamesPlatform.Client.Services
                 throw new HttpRequestException("Score not found");
         }
 
-        public async Task setScore(Score s)
+        public async Task<int> setScore(Score s)
         {
             var callResponse = await _httpClient.PostAsJsonAsync<Score>("api/score/setscore", s);
-            // TODO - read incremental ID from db and update local object
+            int scoreID = int.Parse(await callResponse.Content.ReadAsStringAsync());
+            return scoreID;
         }
     }
 }

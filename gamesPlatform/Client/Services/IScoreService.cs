@@ -6,6 +6,6 @@ namespace gamesPlatform.Client.Services
     {
         public Task<Score> getScore(int scoreID);
         public Task<IEnumerable<Score>> getLeaderboard(int appID);
-        public Task setScore(Score s);
+        public Task<int> setScore(Score s);
     }
 }
