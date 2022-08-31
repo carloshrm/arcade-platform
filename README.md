@@ -1,6 +1,6 @@
 # blazorSnake
 
-Play here - https://chrm-snake-game.herokuapp.com/snakegame
+Play here - https://cmgamesplatform.fly.dev/snakegame
 
 Full-stack project involving the classic snake game written for web in C# using Blazor and ASP.NET server.
 Features a small API with endpoints to upload highest scores and show a leaderboard.
