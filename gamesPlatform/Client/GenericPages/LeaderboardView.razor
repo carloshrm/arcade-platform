@@ -15,7 +15,7 @@
         @if (localLeaderboard.Count == 0)
         {
             <tr>
-                <td>Loading...</td>
+                <td colspan="5">@statusMessage</td>
             </tr>
         }
         else
@@ -38,9 +38,10 @@
 
 @code {
     private List<Score> localLeaderboard { get; set; } = new List<Score>();
+    private string statusMessage = "Loading...";
 
     [Parameter]
-    public int appID { get; set; }
+    public AppID appID { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -49,9 +50,19 @@
 
     public async Task refresh()
     {
-        var databaseLeaderboard = await scoreService.getLeaderboard(appID);
-        localLeaderboard = databaseLeaderboard.OrderByDescending(x => x.scoreValue).ToList();
-        StateHasChanged();
+        try
+        {
+            var databaseLeaderboard = await scoreService.getLeaderboard(appID);
+            localLeaderboard = databaseLeaderboard.OrderByDescending(x => x.scoreValue).ToList();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            statusMessage = "Leaderboard currently unavailable.";
+        }
+        finally
+        {
+            StateHasChanged();
+        }
     }
-
 }

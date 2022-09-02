@@ -4,7 +4,7 @@ namespace gamesPlatform.Shared
 {
     public class Score
     {
-        public int id { get; set; } = -1;
+        public int id { get; set; }
 
         public int appID { get; set; }
 
@@ -18,9 +18,18 @@ namespace gamesPlatform.Shared
         [StringLength(12, ErrorMessage = "The nickname can only be up to 8 characters long.")]
         public string nickname { get; set; }
 
-        public void setAppID(int appID)
+        public Score()
         {
-            this.appID = appID;
+            this.id = -1;
+            this.scoreValue = 0;
+            this.runStart = DateTime.Now;
+            this.runLength = TimeSpan.Zero;
+            this.nickname = String.Empty;
+        }
+
+        public Score(AppID appID)
+        {
+            this.appID = (int)appID;
         }
     }
 }

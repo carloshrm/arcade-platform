@@ -17,11 +17,11 @@
     font-size: 18px;
 }
 
-#snake-container {
+#game-container {
     display:flex;
     width: fit-content;
     height: fit-content;
-    border: 2px ridge black;
+    border: 2px solid black;
     margin: 1em auto;
 }
 
@@ -47,6 +47,7 @@
     padding: 1em;
     height: fit-content;
     overflow-x: auto;
+    z-index: 1;
 }
 
 .game-button {

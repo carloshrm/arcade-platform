@@ -6,15 +6,16 @@
     <p>High Score: @info.scoreValue</p>
     <p>Date: @info.runStart</p>
     <p>Time: @info.runLength.ToString("mm\\:ss")</p>
-    <EditForm Model="@info" OnValidSubmit=uploadScore >
+    <EditForm Model="@info" OnValidSubmit=uploadScore OnInvalidSubmit=@(() => errorMessage = "Too long! 12 characters max.")>
         <DataAnnotationsValidator />
         <p>
             <label>
                 Nickname: 
-                <InputText @bind-Value="info.nickname" />
+                <InputText @bind-Value="info.nickname" required />
             </label>
+            @errorMessage
         </p>
-        <button type="submit" id="submit-upload-button" class="btn game-button" >OK</button>
+        <button type="submit" id="submit-upload-button" class="btn game-button ">OK</button>
     </EditForm>
 </div>
 
@@ -24,9 +25,25 @@
     [Parameter] public Score info { get; set; }
     [Parameter] public Action<int> callback { get; set; }
 
+    private bool sent = false;
+    private string errorMessage = "";
+
     private async Task uploadScore()
     {
-        var newID = await scoreService.setScore(info);
-        callback(newID);
+        if (sent) 
+            return;
+        try
+        {
+            sent = true;
+            if (info.nickname == "") info.nickname = "|❛ ᴗ ❛.)";  
+            int newID = await scoreService.setScore(info);
+            callback(newID);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            sent = false;
+            errorMessage = "Upload failed, try again later.";
+        }
     }
 }

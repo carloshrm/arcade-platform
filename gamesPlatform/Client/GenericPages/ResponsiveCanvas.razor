@@ -3,33 +3,44 @@
 @using Blazor.Extensions
 @using Blazor.Extensions.Canvas.Canvas2D
 
-<BECanvas Width="@windowSize" Height="@windowSize" @ref="_componentReference" />
+<BECanvas Width="@componentWidth" Height="@componentHeight" @ref="_componentReference" />
 
 @code {
-    private BECanvasComponent? _componentReference { get; set; }
-    public Canvas2DContext? _canvasReference { get; set; }
+    [Parameter] public AppID appID { get; set; }
 
-    public int windowSize { get; set; }
-    public (int r, int c) configLimits { get; set; }
+    private BECanvasComponent? _componentReference { get; set; }
+    public Canvas2DContext? canvasReference { get; set; }
+
+    public int componentWidth { get; set; }
+    public int componentHeight { get; set; }
+    public (int r, int c) baseResolution { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            _canvasReference = await _componentReference.CreateCanvas2DAsync();
+            canvasReference = await _componentReference.CreateCanvas2DAsync();
         }
     }
 
     protected override async Task OnInitializedAsync()
     {
-        await setCanvasSize();
         readConfigValues();
+        await setCanvasSize();
     }
 
     private void readConfigValues()
     {
-        configLimits = (int.Parse(appConfig["snake-board-width"]),
-                        int.Parse(appConfig["snake-board-height"]));
+        foreach (var setting in appConfig.GetSection("games").GetChildren())
+        {
+            if (setting.GetValue<AppID>("id") == appID)
+            {
+                baseResolution = (
+                    setting.GetValue<int>("size:width"), 
+                    setting.GetValue<int>("size:height"));
+                break;
+            }
+        }
     }
 
     public async Task setCanvasSize()
@@ -37,24 +48,39 @@
         double windowWidth = await jsRuntime.InvokeAsync<long>("getWindowWidth");
         double windowHeight = await jsRuntime.InvokeAsync<long>("getWindowHeight");
 
-        windowWidth = (windowWidth * 0.088) * 10;
-        windowHeight = (windowHeight * 0.088) * 10;
+        if (appID == AppID.Snake)
+        {
+            int width = (int)(windowWidth * 0.090) * 10;
+            int height = (int)(windowHeight * 0.090) * 10;
 
-        if (windowHeight >= windowWidth)
-            windowSize = (int)(windowWidth - (windowWidth % configLimits.c));
-        else
-            windowSize = (int)(windowHeight - (windowHeight % configLimits.r));
+            if (height <= width)
+            {
+                componentWidth = height - (height % baseResolution.c);
+                componentHeight = height - (height % baseResolution.r);
+            }
+            else
+            {
+                componentWidth = width - (width % baseResolution.c);
+                componentHeight = width - (width % baseResolution.r);
+            }
+        }
+        else if (appID == AppID.Invaders)
+        {
+            Console.WriteLine(appID);
+
+            (componentWidth, componentHeight) = baseResolution;
+        }
 
         StateHasChanged();
     }
 
     public async Task clear()
     {
-        await _canvasReference.ClearRectAsync(0, 0, _componentReference.Width, _componentReference.Height);
+        await canvasReference.ClearRectAsync(0, 0, _componentReference.Width, _componentReference.Height);
     }
 
     public (int, int) getDimensions()
     {
-        return ((int)_componentReference.Width, (int)_componentReference.Height);
+        return (componentWidth, componentHeight);
     }
 }

@@ -12,7 +12,7 @@ namespace gamesPlatform.Client
             builder.RootComponents.Add<App>("#app");
             builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddBlazoredLocalStorage();
-            builder.Services.AddSingleton<IScoreService, ScoreService>();
+            builder.Services.AddScoped<IScoreService, ScoreService>();
             await builder.Build().RunAsync();
         }
     }

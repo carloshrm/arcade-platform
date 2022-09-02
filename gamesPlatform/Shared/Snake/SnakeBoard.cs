@@ -39,14 +39,14 @@ namespace gamesPlatform.Shared.Snake
             foodPosition = (row, col);
         }
 
-        public bool checkSpot(Action increaseSpeed)
+        public bool checkCurrentSpotContents(Action increaseSpeed)
         {
             if (snake.headPosition.r < 0 ||
                 snake.headPosition.c < 0 ||
                 snake.headPosition.r >= limits.r ||
                 snake.headPosition.c >= limits.c)
             {
-                Console.WriteLine("\n Game Over - edge.");
+                //Game Over - Edge
                 return false;
             }
             else
@@ -55,8 +55,7 @@ namespace gamesPlatform.Shared.Snake
                 {
                     if (tp.pos == snake.headPosition)
                     {
-                        Console.WriteLine("\n Game Over - tail.");
-
+                        //Game Over - Tail
                         return false;
                     }
                 }
@@ -89,7 +88,7 @@ namespace gamesPlatform.Shared.Snake
 
         private async Task drawPiece(int c, int r)
         {
-            await canvasContext.FillRectAsync(c, r, scaleFactor.c, scaleFactor.r);
+            await canvasContext.FillRectAsync(c * scaleFactor.c, r * scaleFactor.r, scaleFactor.c, scaleFactor.r);
         }
 
         public async Task drawGameState()
@@ -97,20 +96,21 @@ namespace gamesPlatform.Shared.Snake
             await canvasContext.BeginBatchAsync();
 
             await canvasContext.SetFillStyleAsync("red");
-            await drawPiece(foodPosition.c * scaleFactor.c, foodPosition.r * scaleFactor.r);
+            await drawPiece(foodPosition.c, foodPosition.r);
             await clearTail();
 
             await canvasContext.SetFillStyleAsync("green");
-            await drawPiece(snake.headPosition.c * scaleFactor.c, snake.headPosition.r * scaleFactor.r);
+            await drawPiece(snake.headPosition.c, snake.headPosition.r);
 
             await canvasContext.SetFillStyleAsync("darkgreen");
             for (int i = 0; i < snake.tail.Count; i++)
             {
-                await drawPiece(snake.tail[i].pos.c * scaleFactor.c, snake.tail[i].pos.r * scaleFactor.r);
+                await drawPiece(snake.tail[i].pos.c, snake.tail[i].pos.r);
                 snake.tail[i].val--;
             }
             await canvasContext.EndBatchAsync();
         }
 
     }
+
 }

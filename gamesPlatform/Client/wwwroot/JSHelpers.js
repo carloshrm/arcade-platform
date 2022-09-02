@@ -7,7 +7,7 @@ function getWindowHeight() {
 }
 
 function setFocus() {
-    document.getElementById("snake-container").focus();
+    document.getElementById("game-container").focus();
 }
 
 function isMobile() {
