@@ -29,3 +29,8 @@ h3 {
     margin: 1em;
 }
 
+#error-message{
+    margin: 0.4em auto;
+    color: red;
+    font-size: 10px;
+}

@@ -5,10 +5,24 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-#main_content {
+#main-content {
     overflow: hidden;
-    background-color: #593C5910;
     height: 100vh;
+}
+
+#index-footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+.light-bg {
+    background-color: var(--color-dark-background);
+    color: white;
+}
+
+.card {
+    margin: 1em;
 }
 
 h1:focus {

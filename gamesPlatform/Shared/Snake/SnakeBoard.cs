@@ -9,16 +9,20 @@ namespace gamesPlatform.Shared.Snake
         private (int r, int c) limits { get; set; }
         private (int r, int c) foodPosition { get; set; }
         public SnakePlayer snake { get; set; }
+        public event EventHandler ateFood;
 
         public SnakeBoard((int width, int height) dimensions, (int r, int c) limits, Canvas2DContext c)
         {
             this.limits = limits;
             scaleFactor = (dimensions.height / limits.r, dimensions.width / limits.c);
             snake = new SnakePlayer(2, limits);
+            ateFood += snake.feedSnake;
+            ateFood += makeFood;
+            makeFood(this, EventArgs.Empty);
             canvasContext = c;
         }
 
-        public void makeFood()
+        public void makeFood(Object? sender, EventArgs e)
         {
             var rng = new Random();
             int row, col;
@@ -39,7 +43,7 @@ namespace gamesPlatform.Shared.Snake
             foodPosition = (row, col);
         }
 
-        public bool checkCurrentSpotContents(Action increaseSpeed)
+        public bool checkCurrentSpotContents()
         {
             if (snake.headPosition.r < 0 ||
                 snake.headPosition.c < 0 ||
@@ -59,12 +63,7 @@ namespace gamesPlatform.Shared.Snake
                         return false;
                     }
                 }
-                if (snake.headPosition == foodPosition)
-                {
-                    makeFood();
-                    snake.feedSnake();
-                    increaseSpeed();
-                }
+                if (snake.headPosition == foodPosition) ateFood.Invoke(this, EventArgs.Empty);
             }
             snake.tail.Add(new SnakePlayer.TailPiece(snake.headPosition, snake.size));
             return true;

@@ -42,35 +42,39 @@
 @code {
     private ResponsiveCanvas? _gameScreen;
     private LeaderboardView? _leaderboard;
-    private Action<int>? uploadCallback;
+    private Action<int> uploadCallback;
     private bool showScoreUpload { get; set; }
-    private bool isMobile { get; set; }
+    private bool isMobile = false;
 
     private SnakeBoard? gameBoard;
-    private Score? currentScore;
-    private Score? highScore;
+    private Score currentScore;
+    private Score highScore;
 
-    private Timer? turnManager;
+    private Timer turnManager;
     private int turnCount { get; set; }
     private bool canMove { get; set; }
 
+    public SnakeGame()
+    {
+        turnManager = new Timer(400) { AutoReset = true, Enabled = false };
+        turnManager.Elapsed += runTurn;
+        uploadCallback = new Action<int>(refreshAfterUpload);
+        currentScore = new Score(AppID.Snake);
+        highScore = currentScore;
+    }
+
     protected override async Task OnInitializedAsync()
     {
-        currentScore = new Score(AppID.Snake);
-        uploadCallback = new Action<int>(refreshAfterUpload);
         isMobile = await jsRuntime.InvokeAsync<bool>("isMobile");
         highScore = await scoreService.readLocalScore(AppID.Snake);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-            await setupNewGame();
-        }
+        if (firstRender) await setupNewGame();
     }
 
-    private void increaseSpeed()
+    private void increaseSpeed(Object? sender, EventArgs e)
     {
         if (turnManager.Enabled)
             turnManager.Interval = 1300 / gameBoard.snake.size;
@@ -97,16 +101,6 @@
         canMove = false;
     }
 
-    private void setupTimer()
-    {
-        if (turnManager != null && turnManager.Enabled)
-        {
-            turnManager.Dispose();
-        }
-        turnManager = new Timer(400) { AutoReset = true, Enabled = false };
-        turnManager.Elapsed += runTurn;
-    }
-
     private async Task startGame()
     {
         await jsRuntime.InvokeVoidAsync("setFocus");
@@ -119,7 +113,6 @@
                 currentScore = new Score(AppID.Snake);
                 await setupNewGame();
             }
-            gameBoard.makeFood();
             turnManager.Enabled = true;
             currentScore.runStart = DateTime.Now;
         }
@@ -128,23 +121,25 @@
     private async Task setupNewGame()
     {
         turnCount = 0;
-        setupTimer();
+        turnManager.Enabled = false;
         await _gameScreen.setCanvasSize();
         await _gameScreen.clear();
         gameBoard = new SnakeBoard(
             _gameScreen.getDimensions(),
             _gameScreen.baseResolution,
             _gameScreen.canvasReference);
+        gameBoard.ateFood += increaseSpeed;
     }
 
     private async void runTurn(Object? src, ElapsedEventArgs e)
     {
         turnCount++;
         currentScore.runLength = e.SignalTime - currentScore.runStart;
-        currentScore.scoreValue += (int)(Math.Ceiling(turnCount / 10.0)) * gameBoard.snake.size;
+        currentScore.scoreValue += (long) Math.Ceiling(turnCount / 10.0) * gameBoard.snake.size;
         gameBoard.snake.setNextSnakePosition();
         await gameBoard.drawGameState();
-        if (gameBoard.checkCurrentSpotContents(new Action(increaseSpeed)) == false)
+        var collided = gameBoard.checkCurrentSpotContents();
+        if (collided is false)
         {
             turnManager.Enabled = false;
             if (currentScore.scoreValue > highScore.scoreValue)

@@ -26,7 +26,7 @@
             movingDirection = (0, 1);
         }
 
-        public void feedSnake()
+        public void feedSnake(Object? sender, EventArgs e)
         {
             size++;
         }

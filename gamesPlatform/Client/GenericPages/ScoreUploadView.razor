@@ -13,7 +13,7 @@
                 Nickname: 
                 <InputText @bind-Value="info.nickname" required />
             </label>
-            @errorMessage
+            <p id="error-message"> @errorMessage </p>
         </p>
         <button type="submit" id="submit-upload-button" class="btn game-button ">OK</button>
     </EditForm>
