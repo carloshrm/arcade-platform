@@ -1,0 +1,15 @@
+﻿#main-content {
+    background-color: #00090f !important;
+    overflow: hidden;
+    height: 100vh;
+}
+
+#game-container {
+    display: flex;
+    width: fit-content;
+    height: fit-content;
+    margin: 1em auto;
+    background-color: black;
+    box-shadow: #1c003490 0px 0px 40px 5px;
+}
+

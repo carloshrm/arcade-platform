@@ -1,4 +1,4 @@
-﻿namespace gamesPlatform.Shared.Snake
+﻿namespace gamesPlatform.Shared
 {
     public class SnakePlayer
     {

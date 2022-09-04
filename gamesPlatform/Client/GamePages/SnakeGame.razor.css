@@ -1,5 +1,4 @@
-﻿
-* {
+﻿* {
     overflow: hidden !important;
     font-family: 'Press Start 2P', cursive !important;
     outline: none;
@@ -10,6 +9,12 @@
     * {
         font-size: 12px;
     }
+}
+
+#main-content {
+    overflow: hidden;
+    height: 100vh;
+    background-color: #fffefe;
 }
 
 #score-display {

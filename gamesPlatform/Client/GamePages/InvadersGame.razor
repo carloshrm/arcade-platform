@@ -1,0 +1,127 @@
+﻿@page "/invaders"
+@inject IJSRuntime jsRuntime
+@inject IScoreService scoreService
+
+<main id="main-content">
+    <div id="game-controls">
+        <div id="score-display">
+            <span> Score:@currentScore?.scoreValue </span>
+            @if (highScore?.scoreValue > 0)
+            {
+                <span> Best: @highScore?.scoreValue  </span>
+            }
+        </div>
+        <div>
+            <button type="button" class="soft-shadow game-button" @onclick=startGame>start</button>
+            <button type="button" class="soft-shadow game-button" @onclick=resetGame>reset</button>
+        </div>
+    </div>
+    <div id="game-container" tabindex="0" @onkeydown=keyDownInputHandler @onkeyup=keyUpInputHandler>
+        <ResponsiveCanvas @ref=_gameScreen appID=AppID.Invaders />
+    </div>
+</main>
+@code {
+    private ResponsiveCanvas _gameScreen;
+    private (int row, int col) limits;
+    private Score currentScore;
+    private Score highScore;
+
+    private Timer mainGameControl;
+    private Timer alienControl;
+
+    private Space space;
+
+    public InvadersGame()
+    {
+        space = new Space();
+        alienControl = new Timer(600) { AutoReset = true, Enabled = false };
+        alienControl.Elapsed += updateInvaderPositions;
+        mainGameControl = new Timer(15) { AutoReset = true, Enabled = false };
+        mainGameControl.Elapsed += refresh;
+        currentScore = new Score(AppID.Invaders);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await _gameScreen.setCanvasSize();
+            limits = _gameScreen.getDimensions();
+            StateHasChanged();
+        }
+    }
+
+    public void startGame()
+    {
+        jsRuntime.InvokeVoidAsync("setFocus");
+        if (mainGameControl.Enabled)
+            return;
+        else
+        {
+            mainGameControl.Enabled = true;
+            alienControl.Enabled = true;
+        }
+    }
+
+    private void resetGame()
+    {
+        mainGameControl.Enabled = false;
+        currentScore = new Score(AppID.Invaders);
+        space = new Space();
+    }
+
+    private void keyDownInputHandler(KeyboardEventArgs e)
+    {
+        space.parseKeyDown(e.Key, e.Repeat);
+    }
+
+    private void keyUpInputHandler(KeyboardEventArgs e)
+    {
+        space.parseKeyUp(e.Key);
+    }
+
+    public async void refresh(Object? o, ElapsedEventArgs e)
+    {
+        space.player.updatePosition(limits.row, limits.col);
+        foreach (var s in space.shotsFired)
+        {
+            s.updatePosition();
+        }
+
+
+        space.shotsFired.RemoveAll(s => s.row <= 0);
+        drawGameState();
+    }
+
+    private async void updateInvaderPositions(Object? o, EventArgs e)
+    {
+        foreach (var a in space.invaders)
+        {
+            a.updatePosition(limits.row, limits.col);
+            Console.WriteLine(limits);
+        }
+    }
+
+    private async void drawGameState()
+    {
+        await _gameScreen.clear();
+        await _gameScreen.canvasReference.BeginBatchAsync();
+        await _gameScreen.canvasReference.SetFillStyleAsync("white");
+        await _gameScreen.canvasReference.FillRectAsync(0, 0, limits.col, limits.row);
+        await _gameScreen.canvasReference.FillRectAsync(space.player.col, space.player.row, 10, 20);
+
+        await _gameScreen.canvasReference.SetFillStyleAsync("yellow");
+        foreach (var s in space.shotsFired)
+        {
+            await _gameScreen.canvasReference.FillRectAsync(s.col, s.row, 10, LaserShot.length);
+        }
+
+        await _gameScreen.canvasReference.SetFillStyleAsync("red");
+        foreach (var a in space.invaders)
+        {
+            await _gameScreen.canvasReference.FillRectAsync(a.col, a.row, a.shipWidth, a.shipHeight);
+        }
+
+        await _gameScreen.canvasReference.EndBatchAsync();
+    }
+}

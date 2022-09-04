@@ -1,43 +1,44 @@
 ﻿@page "/snakegame"
-@layout ContentLayout
 @inject IJSRuntime jsRuntime
 @inject IScoreService scoreService
 
-<div id="game-controls">
-        <div id="score-display">
-            <span> Score:@currentScore?.scoreValue </span>
-            @if (highScore?.scoreValue > 0)
-            {
-                <span> Best: @highScore?.scoreValue  </span>
-            }
-            <span> Time:@currentScore?.runLength.ToString("mm\\:ss") </span>
+<main id="main-content">
+    <div id="game-controls">
+            <div id="score-display">
+                <span> Score:@currentScore?.scoreValue </span>
+                @if (highScore?.scoreValue > 0)
+                {
+                    <span> Best: @highScore?.scoreValue  </span>
+                }
+                <span> Time:@currentScore?.runLength.ToString("mm\\:ss") </span>
+            </div>
+        <div>
+            <button type="button" class="soft-shadow game-button @((turnCount > 0 && turnManager.Enabled) ? "dark-bg" : "")" @onclick=startGame>start</button>
+            <button type="button" class="soft-shadow game-button" @onclick=setupNewGame>reset</button>
         </div>
-    <div>
-        <button type="button" class="soft-shadow game-button @((turnCount > 0 && turnManager.Enabled) ? "dark-bg" : "")" @onclick=startGame>start</button>
-        <button type="button" class="soft-shadow game-button" @onclick=setupNewGame>reset</button>
     </div>
-</div>
-<div id="game-container" class="soft-shadow" tabindex="0" @onkeydown=@((e) => playerInputHandler(e.Key))>
-    <ResponsiveCanvas @ref=_gameScreen appID=AppID.Snake/>
-    @if (turnCount > 0 && !turnManager.Enabled)
-    {
-        <div id="post-game-container" class="dark-bg soft-shadow">
-            <h2>Game Over...</h2>
-            <h4>Score: @currentScore?.scoreValue</h4>
-            <h4>Best: @highScore?.scoreValue</h4>
-            <button type="button" @onclick=@(() => { if (highScore?.id != -1) showScoreUpload = true; })>Pin on leaderboard!</button>
-            <LeaderboardView appID=AppID.Snake @ref=_leaderboard />
-        </div>
-        @if (showScoreUpload)
+    <div id="game-container" class="soft-shadow" tabindex="0" @onkeydown=@((e) => playerInputHandler(e.Key))>
+        <ResponsiveCanvas @ref=_gameScreen appID=AppID.Snake/>
+        @if (turnCount > 0 && !turnManager.Enabled)
         {
-            <ScoreUploadView info=@highScore callback=@uploadCallback/>
+            <div id="post-game-container" class="dark-bg soft-shadow">
+                <h2>Game Over...</h2>
+                <h4>Score: @currentScore?.scoreValue</h4>
+                <h4>Best: @highScore?.scoreValue</h4>
+                <button type="button" @onclick=@(() => { if (highScore?.id != -1) showScoreUpload = true; })>Pin on leaderboard!</button>
+                <LeaderboardView appID=AppID.Snake @ref=_leaderboard />
+            </div>
+            @if (showScoreUpload)
+            {
+                <ScoreUpload info=@highScore callback=@uploadCallback/>
+            }
         }
+    </div>
+    @if (isMobile)
+    {
+        <TouchDPad inputCallback=playerInputHandler />
     }
-</div>
-@if (isMobile)
-{
-    <TouchDPad inputCallback=playerInputHandler />
-}
+</main>
 
 @code {
     private ResponsiveCanvas? _gameScreen;
