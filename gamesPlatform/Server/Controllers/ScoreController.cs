@@ -16,7 +16,6 @@ namespace gamesPlatform.Server.Controllers
         public ScoreController()
         {
             var envString = Environment.GetEnvironmentVariable("EXTERNAL_DB");
-            envString = "postgres://postgres:nN9eJuZwcKCCHxZ6@db.stddcxbiiqmcnqzpouoi.supabase.co:6543/postgres";
             if (envString?.Equals(string.Empty) == false)
             {
                 var dbURI = new Uri(envString);
