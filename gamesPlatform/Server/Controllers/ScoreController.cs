@@ -2,6 +2,7 @@
 using gamesPlatform.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
+using System.Data;
 
 namespace gamesPlatform.Server.Controllers
 {
@@ -9,16 +10,18 @@ namespace gamesPlatform.Server.Controllers
     [Route("api/[controller]")]
     public class ScoreController : ControllerBase, IScoreController
     {
-        private NpgsqlConnection? connection { get; } = null;
+        private NpgsqlConnection connection { get; }
+        private NpgsqlConnectionStringBuilder connectionString { get; }
 
         public ScoreController()
         {
             var envString = Environment.GetEnvironmentVariable("EXTERNAL_DB");
+            envString = "postgres://postgres:nN9eJuZwcKCCHxZ6@db.stddcxbiiqmcnqzpouoi.supabase.co:6543/postgres";
             if (envString?.Equals(string.Empty) == false)
             {
                 var dbURI = new Uri(envString);
                 var dbUserInfo = dbURI.UserInfo.Split(":");
-                var connectionString = new NpgsqlConnectionStringBuilder
+                connectionString = new NpgsqlConnectionStringBuilder
                 {
                     Username = dbUserInfo.FirstOrDefault(),
                     Password = dbUserInfo.LastOrDefault(),
@@ -29,18 +32,53 @@ namespace gamesPlatform.Server.Controllers
                     //TrustServerCertificate = true
                 };
                 connection = new NpgsqlConnection(connectionString.ToString());
-                connection.Open();
             }
             else
                 throw new ArgumentException("invalid DATABASE_URL");
+        }
+
+        private async Task<T?> runQueryFirst<T>(string query, object vals)
+        {
+            if (connection.State is ConnectionState.Closed) connection.Open();
+            try
+            {
+                var dbResponse = await connection.QueryFirstAsync<T>(query, vals);
+                return dbResponse;
+            }
+            catch (Exception e)
+            {
+                return default;
+            }
+            finally
+            {
+                connection.Close();
+            }
+        }
+
+        private async Task<IEnumerable<T>?> runQuery<T>(string query, object vals)
+        {
+            if (connection.State is ConnectionState.Closed) connection.Open();
+            try
+            {
+                var dbResponse = await connection.QueryAsync<T>(query, vals);
+                return dbResponse;
+            }
+            catch (Exception e)
+            {
+                return default;
+            }
+            finally
+            {
+                connection.Close();
+            }
         }
 
         [HttpPost("setscore")]
         public async Task<ActionResult<IEnumerable<Score>>> dbAddScore(Score s)
         {
             const string query = @"INSERT INTO 
-                    scores (appid, scorevalue, runstart, runlength, nickname) 
-                    VALUES (@appid, @scorevalue, @runstart, @runlength, @nickname) RETURNING id;";
+                    scores (appid, scorevalue, runstart, runlength, nickname, turn) 
+                    VALUES (@appid, @scorevalue, @runstart, @runlength, @nickname, @turn) RETURNING id;";
 
             var vals = new
             {
@@ -49,8 +87,9 @@ namespace gamesPlatform.Server.Controllers
                 runStart = s.runStart,
                 runLength = s.runLength,
                 nickname = s.nickname,
+                turn = s.turn
             };
-            var result = await connection.QueryFirstAsync<int>(query, vals);
+            var result = await runQueryFirst<int>(query, vals);
             return Ok(result);
         }
 
@@ -59,9 +98,8 @@ namespace gamesPlatform.Server.Controllers
         {
             string query = $"SELECT * FROM scores WHERE appid=@id;";
             var vals = new { id = appID };
-            var results = await connection.QueryAsync<Score>(query, vals);
-
-            return Ok(results);
+            var result = await runQuery<Score>(query, vals);
+            return Ok(result);
         }
 
         [HttpGet("{scoreID}")]
@@ -69,7 +107,7 @@ namespace gamesPlatform.Server.Controllers
         {
             string query = $"SELECT * FROM scores WHERE id=@id;";
             var vals = new { id = scoreID };
-            var results = await connection.QueryFirstAsync<Score>(query, vals);
+            var results = await runQueryFirst<Score>(query, vals);
             return Ok(results);
         }
     }

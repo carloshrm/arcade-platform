@@ -2,11 +2,15 @@
 {
     public class AlienShip : GameActor
     {
-        public int healthPoints { get; set; }
+        public static readonly ShipModel[] availableModels = new ShipModel[]
+        {
+            new ShipModel { type = 1, width = 20, height = 20 },
+        };
+
+        public override int healthPoints { get; set; }
         public override int row { get; set; }
         public override int col { get; set; }
-        public int shipWidth { get; set; }
-        public int shipHeight { get; set; }
+        public override ShipModel model { get; set; }
         private Direction movingDirection { get; set; }
 
         public AlienShip(int row, int col)
@@ -14,21 +18,20 @@
             this.row = row;
             this.col = col;
             healthPoints = 1;
-            shipWidth = 30;
-            shipHeight = 20;
             movingDirection = Direction.right;
+            model = availableModels.FirstOrDefault();
         }
 
         public override void updatePosition(int rowEdge, int colEdge)
         {
-            Console.WriteLine(row);
-            Console.WriteLine(col);
-            if (col <= 0 || col >= colEdge)
+            var nextMove = col + ((int)movingDirection * model.width);
+            if (nextMove <= 0 || nextMove >= colEdge - model.width)
             {
-                row += 6;
+                row += 10;
                 movingDirection = movingDirection == Direction.left ? Direction.right : Direction.left;
+                return;
             }
-            col += (int)movingDirection * shipWidth;
+            col += (int)movingDirection * model.width;
         }
 
     }

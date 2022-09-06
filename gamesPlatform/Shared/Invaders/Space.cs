@@ -6,11 +6,11 @@
         public List<LaserShot> shotsFired;
         public List<AlienShip> invaders;
 
-        public Space()
+        public Space((int row, int col) limits)
         {
-            this.player = new PlayerShip();
-            this.shotsFired = new List<LaserShot>();
-            this.invaders = new List<AlienShip>();
+            player = new PlayerShip(limits.row - (int)Math.Round(limits.row * 0.10), limits.col / 2);
+            shotsFired = new List<LaserShot>();
+            invaders = new List<AlienShip>();
             setupInvaders();
         }
         public void fireLazor(GameActor whoFired)
@@ -23,41 +23,66 @@
             invaders.Add(new AlienShip(50, 400));
         }
 
+        public void clearWreckedShips()
+        {
+            invaders.RemoveAll(i => i.healthPoints <= 0);
+        }
+
         public void parseKeyDown(string input, bool beingHeld)
         {
-            if (input.Equals(" ") && player.canShoot is true)
+            if (input.Equals(" "))
             {
-                fireLazor(player);
-                player.shotTimeout();
+                if (player.canShoot is true)
+                {
+                    fireLazor(player);
+                    player.shotTimeout();
+                }
             }
             else
             {
-                if (player.movingNow is not Direction.none && beingHeld is false)
-                {
-                    player.movingOverlap = player.movingNow;
-                }
-                if (input.Equals("a"))
-                    player.movingNow = Direction.left;
-                else if (input.Equals("d"))
-                    player.movingNow = Direction.right;
+                if (input.Equals("a") || input.Equals("ArrowLeft"))
+                    player.movingDir = Direction.left;
+                else if (input.Equals("d") || input.Equals("ArrowRight"))
+                    player.movingDir = Direction.right;
             }
         }
 
         public void parseKeyUp(string input)
         {
-            if (input.Equals(" "))
-                return;
-            else
+            if (!input.Equals(" "))
+                player.movingDir = Direction.none;
+        }
+
+        public void hitCheck()
+        {
+            foreach (var shot in shotsFired)
             {
-                if (player.movingOverlap is Direction.none)
+                if (shot.fromPlayer)
                 {
-                    player.movingNow = Direction.none;
+                    foreach (var inv in invaders)
+                    {
+                        if (shot.row > inv.row + inv.model.height) continue;
+                        Console.WriteLine("checking");
+                        if (shot.col >= inv.col && shot.col <= inv.col + inv.model.width)
+                        {
+                            inv.healthPoints--;
+                            shot.hit = true;
+                            Console.WriteLine("hit");
+                        }
+                    }
                 }
                 else
                 {
-                    player.movingNow = player.movingOverlap;
-                    player.movingOverlap = Direction.none;
+                    if (shot.row < player.row) continue;
+
+                    if (shot.col >= player.col && shot.col + LaserShot.length <= shot.col + player.model.width)
+                    {
+                        player.healthPoints--;
+                        shot.hit = true;
+                        Console.WriteLine("hit");
+                    }
                 }
+
             }
         }
 

@@ -17,4 +17,8 @@
     <ProjectReference Include="..\Shared\gamesPlatform.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\img\invaderAssets\" />
+  </ItemGroup>
+
 </Project>

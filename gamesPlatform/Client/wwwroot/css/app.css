@@ -5,6 +5,10 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
+#main-card-container {
+    flex-direction: column;
+}
+
 #index-footer {
     position: fixed;
     bottom: 0;
@@ -85,4 +89,20 @@ a, .btn-link {
     --color-highlight-hsat: #F29849;
     --color-highlight-lsat: #F2884B;
     --color-light-background-lsat: #BF544B;
+}
+
+.game-button {
+    border: hidden;
+    border-radius: 0.5em;
+    padding: 0 1rem;
+    margin: 0.4rem;
+}
+
+.dark-bg {
+    background-color: var(--color-dark-background);
+    color: var(--color-highlight-hsat);
+}
+
+.soft-shadow {
+    box-shadow: var(--color-light-background-hsat) 4px 4px;
 }

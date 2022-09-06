@@ -78,7 +78,10 @@
     private void increaseSpeed(Object? sender, EventArgs e)
     {
         if (turnManager.Enabled)
+        {
             turnManager.Interval = 1300 / gameBoard.snake.size;
+            if (isMobile) jsRuntime.InvokeVoidAsync("vibrateFeedback");
+        }
     }
 
     private void refreshAfterUpload(int newID)

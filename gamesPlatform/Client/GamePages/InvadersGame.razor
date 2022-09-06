@@ -11,6 +11,7 @@
                 <span> Best: @highScore?.scoreValue  </span>
             }
         </div>
+        <span> Time:@currentScore?.turn </span>
         <div>
             <button type="button" class="soft-shadow game-button" @onclick=startGame>start</button>
             <button type="button" class="soft-shadow game-button" @onclick=resetGame>reset</button>
@@ -33,11 +34,10 @@
 
     public InvadersGame()
     {
-        space = new Space();
-        alienControl = new Timer(600) { AutoReset = true, Enabled = false };
-        alienControl.Elapsed += updateInvaderPositions;
-        mainGameControl = new Timer(15) { AutoReset = true, Enabled = false };
-        mainGameControl.Elapsed += refresh;
+        alienControl = new Timer(700) { AutoReset = true, Enabled = false };
+        alienControl.Elapsed += updateInvaderState;
+        mainGameControl = new Timer(10) { AutoReset = true, Enabled = false };
+        mainGameControl.Elapsed += updateGameState;
         currentScore = new Score(AppID.Invaders);
     }
 
@@ -47,6 +47,7 @@
         {
             await _gameScreen.setCanvasSize();
             limits = _gameScreen.getDimensions();
+            space = new Space(limits);
             StateHasChanged();
         }
     }
@@ -58,16 +59,23 @@
             return;
         else
         {
-            mainGameControl.Enabled = true;
-            alienControl.Enabled = true;
+            toggleControlObjects();
         }
+    }
+
+    public void toggleControlObjects()
+    {
+        mainGameControl.Enabled = !mainGameControl.Enabled;
+        alienControl.Enabled = !alienControl.Enabled;
     }
 
     private void resetGame()
     {
-        mainGameControl.Enabled = false;
+        if (mainGameControl.Enabled)
+            toggleControlObjects();
         currentScore = new Score(AppID.Invaders);
-        space = new Space();
+        space = new Space(limits);
+        _gameScreen.clear();
     }
 
     private void keyDownInputHandler(KeyboardEventArgs e)
@@ -80,26 +88,25 @@
         space.parseKeyUp(e.Key);
     }
 
-    public async void refresh(Object? o, ElapsedEventArgs e)
+    public async void updateGameState(Object? o, ElapsedEventArgs e)
     {
         space.player.updatePosition(limits.row, limits.col);
         foreach (var s in space.shotsFired)
         {
             s.updatePosition();
         }
-
-
-        space.shotsFired.RemoveAll(s => s.row <= 0);
+        space.hitCheck();
+        space.shotsFired.RemoveAll(s => s.row <= 0 || s.row >= limits.row || s.hit);
         drawGameState();
     }
 
-    private async void updateInvaderPositions(Object? o, EventArgs e)
+    private async void updateInvaderState(Object? o, EventArgs e)
     {
         foreach (var a in space.invaders)
         {
             a.updatePosition(limits.row, limits.col);
-            Console.WriteLine(limits);
         }
+        // TODO - speed up 
     }
 
     private async void drawGameState()
@@ -107,19 +114,19 @@
         await _gameScreen.clear();
         await _gameScreen.canvasReference.BeginBatchAsync();
         await _gameScreen.canvasReference.SetFillStyleAsync("white");
-        await _gameScreen.canvasReference.FillRectAsync(0, 0, limits.col, limits.row);
-        await _gameScreen.canvasReference.FillRectAsync(space.player.col, space.player.row, 10, 20);
+        await _gameScreen.canvasReference.FillRectAsync(space.player.col, space.player.row, 
+            space.player.model.width, space.player.model.height);
 
         await _gameScreen.canvasReference.SetFillStyleAsync("yellow");
         foreach (var s in space.shotsFired)
         {
-            await _gameScreen.canvasReference.FillRectAsync(s.col, s.row, 10, LaserShot.length);
+            await _gameScreen.canvasReference.FillRectAsync(s.col, s.row, 6, LaserShot.length);
         }
 
         await _gameScreen.canvasReference.SetFillStyleAsync("red");
         foreach (var a in space.invaders)
         {
-            await _gameScreen.canvasReference.FillRectAsync(a.col, a.row, a.shipWidth, a.shipHeight);
+            await _gameScreen.canvasReference.FillRectAsync(a.col, a.row, a.model.width, a.model.height);
         }
 
         await _gameScreen.canvasReference.EndBatchAsync();

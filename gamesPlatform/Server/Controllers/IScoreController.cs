@@ -5,8 +5,8 @@ namespace gamesPlatform.Server.Controllers
 {
     public interface IScoreController
     {
-        public Task<ActionResult<IEnumerable<Score>>> dbAddScore(Score s);
-        public Task<ActionResult<IEnumerable<Score>>> dbGetLeaderboard(int appID);
-        public Task<ActionResult<Score>> dbGetScore(int scoreID);
+        Task<ActionResult<IEnumerable<Score>>> dbAddScore(Score s);
+        Task<ActionResult<IEnumerable<Score>>> dbGetLeaderboard(int appID);
+        Task<ActionResult<Score>> dbGetScore(int scoreID);
     }
 }
