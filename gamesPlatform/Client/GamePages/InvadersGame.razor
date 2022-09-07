@@ -21,6 +21,9 @@
         <ResponsiveCanvas @ref=_gameScreen appID=AppID.Invaders />
     </div>
 </main>
+
+<img class="visually-hidden" src="/img/invaderAssets/invader assets.png" @ref=@assetSheet />  
+
 @code {
     private ResponsiveCanvas _gameScreen;
     private (int row, int col) limits;
@@ -31,10 +34,11 @@
     private Timer alienControl;
 
     private Space space;
+    private ElementReference assetSheet;
 
     public InvadersGame()
     {
-        alienControl = new Timer(700) { AutoReset = true, Enabled = false };
+        alienControl = new Timer(800) { AutoReset = true, Enabled = false };
         alienControl.Elapsed += updateInvaderState;
         mainGameControl = new Timer(10) { AutoReset = true, Enabled = false };
         mainGameControl.Elapsed += updateGameState;
@@ -126,7 +130,10 @@
         await _gameScreen.canvasReference.SetFillStyleAsync("red");
         foreach (var a in space.invaders)
         {
-            await _gameScreen.canvasReference.FillRectAsync(a.col, a.row, a.model.width, a.model.height);
+            await _gameScreen.canvasReference.DrawImageAsync(
+                assetSheet, 
+                100, 100, a.model.width, a.model.height, a.col, a.row, a.model.width, a.model.height);
+            //await _gameScreen.canvasReference.FillRectAsync(a.col, a.row, a.model.width, a.model.height);
         }
 
         await _gameScreen.canvasReference.EndBatchAsync();

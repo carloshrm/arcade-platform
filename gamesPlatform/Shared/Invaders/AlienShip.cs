@@ -4,7 +4,7 @@
     {
         public static readonly ShipModel[] availableModels = new ShipModel[]
         {
-            new ShipModel { type = 1, width = 20, height = 20 },
+            new ShipModel { type = 1, width = 100, height = 100 },
         };
 
         public override int healthPoints { get; set; }
@@ -31,7 +31,7 @@
                 movingDirection = movingDirection == Direction.left ? Direction.right : Direction.left;
                 return;
             }
-            col += (int)movingDirection * model.width;
+            col += (int)movingDirection * (model.width / 2);
         }
 
     }

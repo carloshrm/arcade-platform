@@ -62,7 +62,6 @@
                     foreach (var inv in invaders)
                     {
                         if (shot.row > inv.row + inv.model.height) continue;
-                        Console.WriteLine("checking");
                         if (shot.col >= inv.col && shot.col <= inv.col + inv.model.width)
                         {
                             inv.healthPoints--;
@@ -73,7 +72,7 @@
                 }
                 else
                 {
-                    if (shot.row < player.row) continue;
+                    if (shot.row < player.row + player.model.height) continue;
 
                     if (shot.col >= player.col && shot.col + LaserShot.length <= shot.col + player.model.width)
                     {

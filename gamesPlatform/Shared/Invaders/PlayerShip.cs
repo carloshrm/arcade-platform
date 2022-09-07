@@ -14,7 +14,7 @@
         {
             this.row = row;
             this.col = col;
-            model = new ShipModel() { type = 0, width = 30, height = 30 };
+            model = new ShipModel() { type = 0, width = 20, height = 20 };
             movingDir = Direction.none;
             canShoot = true;
             healthPoints = 1;
