@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gamesPlatform.Server", "gamesPlatform\Server\gamesPlatform.Server.csproj", "{6240FD37-2816-40A6-BFC7-CCDCDFB85A71}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "cmArcade.Server", "gamesPlatform\Server\cmArcade.Server.csproj", "{6240FD37-2816-40A6-BFC7-CCDCDFB85A71}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gamesPlatform.Client", "gamesPlatform\Client\gamesPlatform.Client.csproj", "{4422C414-A2B3-435A-833C-E08BAD1AACE3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "cmArcade.Client", "gamesPlatform\Client\cmArcade.Client.csproj", "{4422C414-A2B3-435A-833C-E08BAD1AACE3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gamesPlatform.Shared", "gamesPlatform\Shared\gamesPlatform.Shared.csproj", "{B1AAD203-9A9B-430E-B4B2-0319C9891ACC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "cmArcade.Shared", "gamesPlatform\Shared\cmArcade.Shared.csproj", "{B1AAD203-9A9B-430E-B4B2-0319C9891ACC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

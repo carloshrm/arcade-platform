@@ -1,10 +1,10 @@
-﻿using Dapper;
-using gamesPlatform.Shared;
+﻿using cmArcade.Shared;
+using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 using System.Data;
 
-namespace gamesPlatform.Server.Controllers
+namespace cmArcade.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -13,9 +13,9 @@ namespace gamesPlatform.Server.Controllers
         private NpgsqlConnection connection { get; }
         private NpgsqlConnectionStringBuilder connectionString { get; }
 
-        public ScoreController()
+        public ScoreController(IConfiguration config)
         {
-            var envString = Environment.GetEnvironmentVariable("EXTERNAL_DB");
+            var envString = config.GetConnectionString("external_db");
             if (envString?.Equals(string.Empty) == false)
             {
                 var dbURI = new Uri(envString);
@@ -33,7 +33,7 @@ namespace gamesPlatform.Server.Controllers
                 connection = new NpgsqlConnection(connectionString.ToString());
             }
             else
-                throw new ArgumentException("invalid DATABASE_URL");
+                throw new ArgumentException("invalid url");
         }
 
         private async Task<T?> runQueryFirst<T>(string query, object vals)

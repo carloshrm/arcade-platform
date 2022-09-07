@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "gamesPlatform": {
+    "cmArcade": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {

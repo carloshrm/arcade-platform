@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "gamesPlatform.Shared": {
+    "cmArcade.Shared": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {

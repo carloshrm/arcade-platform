@@ -1,6 +1,6 @@
-﻿using gamesPlatform.Shared;
+﻿using cmArcade.Shared;
 
-namespace gamesPlatform.Client.Services
+namespace cmArcade.Client.Services
 {
     public interface IScoreService
     {

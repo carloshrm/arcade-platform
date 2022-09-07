@@ -1,7 +1,7 @@
-﻿using gamesPlatform.Shared;
+﻿using cmArcade.Shared;
 using Microsoft.AspNetCore.Mvc;
 
-namespace gamesPlatform.Server.Controllers
+namespace cmArcade.Server.Controllers
 {
     public interface IScoreController
     {

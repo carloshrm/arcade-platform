@@ -1,6 +1,6 @@
-using gamesPlatform.Server.Controllers;
+using cmArcade.Server.Controllers;
 
-namespace gamesPlatform
+namespace cmArcade
 {
     public class Program
     {

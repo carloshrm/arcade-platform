@@ -1,4 +1,4 @@
-﻿namespace gamesPlatform.Shared
+﻿namespace cmArcade.Shared
 {
     public abstract class GameActor
     {

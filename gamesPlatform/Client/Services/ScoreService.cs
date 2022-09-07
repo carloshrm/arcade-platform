@@ -1,8 +1,8 @@
 ﻿using Blazored.LocalStorage;
-using gamesPlatform.Shared;
+using cmArcade.Shared;
 using System.Net.Http.Json;
 
-namespace gamesPlatform.Client.Services
+namespace cmArcade.Client.Services
 {
     public class ScoreService : IScoreService
     {

@@ -19,8 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Client\gamesPlatform.Client.csproj" />
-    <ProjectReference Include="..\Shared\gamesPlatform.Shared.csproj" />
+    <ProjectReference Include="..\Client\cmArcade.Client.csproj" />
+    <ProjectReference Include="..\Shared\cmArcade.Shared.csproj" />
   </ItemGroup>
 
 

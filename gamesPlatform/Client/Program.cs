@@ -1,8 +1,8 @@
 using Blazored.LocalStorage;
-using gamesPlatform.Client.Services;
+using cmArcade.Client.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
-namespace gamesPlatform.Client
+namespace cmArcade.Client
 {
     public class Program
     {

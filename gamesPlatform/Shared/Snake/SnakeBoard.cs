@@ -1,6 +1,6 @@
 ﻿using Blazor.Extensions.Canvas.Canvas2D;
 
-namespace gamesPlatform.Shared
+namespace cmArcade.Shared
 {
     public class SnakeBoard
     {
