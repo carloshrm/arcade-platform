@@ -18,19 +18,7 @@ namespace cmArcade.Server.Controllers
             var envString = config.GetConnectionString("external_db");
             if (envString?.Equals(string.Empty) == false)
             {
-                var dbURI = new Uri(envString);
-                var dbUserInfo = dbURI.UserInfo.Split(":");
-                connectionString = new NpgsqlConnectionStringBuilder
-                {
-                    Username = dbUserInfo.FirstOrDefault(),
-                    Password = dbUserInfo.LastOrDefault(),
-                    Host = dbURI.Host,
-                    Port = dbURI.Port,
-                    Database = dbURI.LocalPath.Substring(1),
-                    //SslMode = SslMode.Require,
-                    //TrustServerCertificate = true
-                };
-                connection = new NpgsqlConnection(connectionString.ToString());
+                connection = new NpgsqlConnection(envString);
             }
             else
                 throw new ArgumentException("invalid url");
