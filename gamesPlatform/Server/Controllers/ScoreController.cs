@@ -15,7 +15,7 @@ namespace cmArcade.Server.Controllers
 
         public ScoreController(IConfiguration config)
         {
-            var envString = config.GetConnectionString("external_db");
+            var envString = config.GetValue<string>("external_db");
             if (envString?.Equals(string.Empty) == false)
             {
                 connection = new NpgsqlConnection(envString);
