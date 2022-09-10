@@ -10,14 +10,14 @@
 
         public LaserShot(GameActor actor)
         {
-            this.fromPlayer = actor is PlayerShip;
-            this.row = actor.row;
-            this.col = actor.col;
+            fromPlayer = actor is PlayerShip;
+            row = actor.row;
+            col = actor.col + (actor.model.width / 2) - 2;
         }
 
         public void updatePosition()
         {
-            this.row += fromPlayer ? -6 : 4;
+            row += fromPlayer ? -6 : 4;
         }
 
     }

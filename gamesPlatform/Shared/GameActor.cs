@@ -6,6 +6,6 @@
         public abstract int col { get; set; }
         public abstract int healthPoints { get; set; }
         public abstract ShipModel model { get; set; }
-        public abstract void updatePosition(int rowEdge, int colEdge);
+        public abstract bool updatePosition(int rowEdge, int colEdge);
     }
 }

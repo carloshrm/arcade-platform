@@ -14,16 +14,15 @@
         {
             this.row = row;
             this.col = col;
-            model = new ShipModel() { type = 0, width = 20, height = 20 };
+            model = ShipModel.availableModels[0];
             movingDir = Direction.none;
             canShoot = true;
             healthPoints = 1;
             accel = 0;
         }
 
-        public override void updatePosition(int rowEdge, int colEdge)
+        public override bool updatePosition(int rowEdge, int colEdge)
         {
-
             if ((col >= 0 && movingDir == Direction.left) || (col <= colEdge - model.width - 1 && movingDir == Direction.right))
                 col += (int)accel;
 
@@ -34,6 +33,8 @@
 
             if (movingDir == Direction.none)
                 accel = accel > 0 ? (accel - 0.1) : (accel + 0.1);
+
+            return true;
         }
 
         public async Task shotTimeout()

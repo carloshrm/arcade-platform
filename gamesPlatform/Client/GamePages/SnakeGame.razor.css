@@ -13,8 +13,9 @@
 
 #main-content {
     overflow: hidden;
-    height: 100vh;
+    height: 100%;
     background-color: #fffefe;
+    z-index: 1;
 }
 
 #score-display {
@@ -31,14 +32,10 @@
 }
 
 #game-controls {
+    color: black;
     display: flex;
-    flex-flow: column;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid black;
-    border-radius: 20px;
-    width: 70%;
-    margin: 0 auto;
+    justify-content: space-around;
+    padding: 1em 0;
 }
 
 #post-game-container {

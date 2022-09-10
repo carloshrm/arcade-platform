@@ -1,7 +1,26 @@
-﻿#main-content {
-    background-color: #00090f !important;
+﻿* {
+    overflow: hidden !important;
+    font-family: 'Press Start 2P', cursive !important;
+    outline: none;
+}
+
+#main-content {
+    background-color: #0f0f0f !important;
     overflow: hidden;
     height: 100vh;
+}
+
+#game-controls {
+    display: flex;
+    justify-content: space-around;
+    color: white;
+    padding: 1em;
+    margin-bottom: 1em;
+}
+
+#score-display {
+    margin: 0.4em;
+    font-size: 18px;
 }
 
 #game-container {
@@ -12,4 +31,3 @@
     background-color: black;
     box-shadow: #1c003490 0px 0px 40px 5px;
 }
-

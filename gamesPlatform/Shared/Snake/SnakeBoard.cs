@@ -9,6 +9,7 @@ namespace cmArcade.Shared
         private (int r, int c) limits { get; set; }
         private (int r, int c) foodPosition { get; set; }
         public SnakePlayer snake { get; set; }
+
         public event EventHandler ateFood;
 
         public SnakeBoard((int width, int height) dimensions, (int r, int c) limits, Canvas2DContext c)
@@ -16,7 +17,7 @@ namespace cmArcade.Shared
             this.limits = limits;
             scaleFactor = (dimensions.height / limits.r, dimensions.width / limits.c);
             snake = new SnakePlayer(2, limits);
-            ateFood += snake.feedSnake;
+            ateFood += snake.growSnake;
             ateFood += makeFood;
             makeFood(this, EventArgs.Empty);
             canvasContext = c;

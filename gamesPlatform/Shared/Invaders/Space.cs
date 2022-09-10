@@ -2,30 +2,62 @@
 {
     public class Space
     {
-        public PlayerShip player;
-        public List<LaserShot> shotsFired;
-        public List<AlienShip> invaders;
+        public const int baseScore = 8;
+
+        private static Random rng = new Random();
+        public PlayerShip player { get; set; }
+        public List<LaserShot> shotsFired { get; set; }
+        public List<AlienShip> invaders { get; set; }
+
+        private int invaderShotCount;
 
         public Space((int row, int col) limits)
         {
             player = new PlayerShip(limits.row - (int)Math.Round(limits.row * 0.10), limits.col / 2);
             shotsFired = new List<LaserShot>();
             invaders = new List<AlienShip>();
-            setupInvaders();
+            invaderShotCount = 0;
+            setupInvaders(limits);
         }
         public void fireLazor(GameActor whoFired)
         {
             shotsFired.Add(new LaserShot(whoFired));
         }
 
-        public void setupInvaders()
+        public void invaderAttack()
         {
-            invaders.Add(new AlienShip(50, 400));
+            if (invaderShotCount < 2)
+            {
+                bool fired = false;
+                foreach (var inv in invaders)
+                {
+                    if ((inv.col < player.col && player.movingDir == Direction.left) ||
+                        (inv.col > player.col && player.movingDir == Direction.right))
+                    {
+                        fireLazor(inv);
+                        fired = true;
+                    }
+                    if (fired)
+                    {
+                        invaderShotCount++;
+                        return;
+                    }
+                }
+                if (!fired)
+                {
+                    fireLazor(invaders[rng.Next(invaders.Count)]);
+                    invaderShotCount++;
+                }
+            }
         }
 
-        public void clearWreckedShips()
+        public void setupInvaders((int row, int col) limits)
         {
-            invaders.RemoveAll(i => i.healthPoints <= 0);
+            var perRow = (double)limits.col / ShipModel.availableModels[1].width / 2;
+            for (int i = 1; i < perRow; i++)
+            {
+                invaders.Add(new AlienShip(limits.row / 10, (ShipModel.availableModels[1].width + (ShipModel.availableModels[1].width / 2)) * i, 1));
+            }
         }
 
         public void parseKeyDown(string input, bool beingHeld)

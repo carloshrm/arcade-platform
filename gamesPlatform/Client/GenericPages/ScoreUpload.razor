@@ -2,7 +2,7 @@
 
 <div id="score-upload-container">
     <button id="close-upload-button" class="btn game-button" type="button" @onclick=@(() => callback(-1))>X</button>
-    <h3>Upload: @info.appID </h3>
+    <h3>Upload: </h3>
     <p>High Score: @info.scoreValue</p>
     <p>Date: @info.runStart</p>
     <p>Time: @info.runLength.ToString("mm\\:ss")</p>
@@ -25,25 +25,25 @@
     [Parameter] public Score info { get; set; }
     [Parameter] public Action<int> callback { get; set; }
 
-    private bool sent = false;
     private string errorMessage = "";
 
     private async Task uploadScore()
     {
-        if (sent) 
+        if (info.id != -1) 
             return;
-        try
+        else
         {
-            sent = true;
-            if (info.nickname == "") info.nickname = "|❛ ᴗ ❛.)";  
-            int newID = await scoreService.setScore(info);
-            callback(newID);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-            sent = false;
-            errorMessage = "Upload failed, try again later.";
+            try
+            {
+                if (info.nickname.Length == 0) info.nickname = "|❛ ᴗ ❛.)";  
+                int newID = await scoreService.setScore(info);
+                callback(newID);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                errorMessage = "Upload failed, try again later.";
+            }
         }
     }
 }
