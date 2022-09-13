@@ -1,18 +1,17 @@
 ﻿* {
-    overflow: hidden !important;
     font-family: 'Press Start 2P', cursive !important;
     outline: none;
 }
 
 #main-content {
+    display: flex;
+    flex-direction: column;
     background-color: #0f0f0f !important;
-    overflow: hidden;
-    height: 100vh;
+    padding-bottom: 10em;
 }
 
 #game-controls {
-    display: flex;
-    justify-content: space-around;
+    flex-grow: 1;
     color: white;
     padding: 1em;
     margin-bottom: 1em;
@@ -24,9 +23,6 @@
 }
 
 #game-container {
-    display: flex;
-    width: fit-content;
-    height: fit-content;
     margin: 1em auto;
     background-color: black;
     box-shadow: #1c003490 0px 0px 40px 5px;

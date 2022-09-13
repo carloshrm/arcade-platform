@@ -3,6 +3,8 @@
 
 body {
     font-family: 'Montserrat', sans-serif;
+    height: 100vh;
+    overflow: hidden;
 }
 
 #main-card-container {
