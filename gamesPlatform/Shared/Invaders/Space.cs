@@ -26,37 +26,48 @@
 
         public void invaderAttack()
         {
-            if (invaderShotCount < 2)
+            if (rng.Next(10) > 7)
             {
-                bool fired = false;
-                foreach (var inv in invaders)
+                if (invaderShotCount < 2)
                 {
-                    if ((inv.col < player.col && player.movingDir == Direction.left) ||
-                        (inv.col > player.col && player.movingDir == Direction.right))
+                    bool fired = false;
+                    foreach (var inv in invaders)
                     {
-                        fireLazor(inv);
-                        fired = true;
+                        if ((inv.col < player.col && player.movingDir == Direction.left) ||
+                            (inv.col > player.col && player.movingDir == Direction.right))
+                        {
+                            fireLazor(inv);
+                            fired = true;
+                        }
+                        if (fired)
+                        {
+                            invaderShotCount++;
+                            return;
+                        }
                     }
-                    if (fired)
+                    if (!fired)
                     {
+                        fireLazor(invaders[rng.Next(invaders.Count)]);
                         invaderShotCount++;
-                        return;
                     }
-                }
-                if (!fired)
-                {
-                    fireLazor(invaders[rng.Next(invaders.Count)]);
-                    invaderShotCount++;
                 }
             }
         }
 
         public void setupInvaders((int row, int col) limits)
         {
-            var perRow = (double)limits.col / ShipModel.availableModels[1].width / 2;
-            for (int i = 1; i < perRow; i++)
+            int invadersPerRow = 6;
+            var colSize = limits.col * 0.8 / invadersPerRow;
+            for (int j = 1; j < ShipModel.availableModels.Length; j++)
             {
-                invaders.Add(new AlienShip(limits.row / 10, (ShipModel.availableModels[1].width + (ShipModel.availableModels[1].width / 2)) * i, 1));
+                var model = ShipModel.availableModels[j];
+                var rowPos = (model.type * (limits.row / 8)) + model.height;
+
+                for (int i = 1; i < invadersPerRow; i++)
+                {
+                    var colPos = (colSize * i) + (colSize - (model.width / 2));
+                    invaders.Add(new AlienShip(rowPos, (int)colPos, model));
+                }
             }
         }
 
@@ -85,6 +96,12 @@
                 player.movingDir = Direction.none;
         }
 
+        public void shotCleanup((int r, int c) limits)
+        {
+            shotsFired.RemoveAll(s => s.row <= 0 || s.row >= limits.r || s.hit);
+            invaderShotCount = shotsFired.Count(x => !x.fromPlayer);
+        }
+
         public void hitCheck()
         {
             foreach (var shot in shotsFired)
@@ -99,6 +116,7 @@
                             inv.healthPoints--;
                             shot.hit = true;
                             Console.WriteLine("hit");
+                            break;
                         }
                     }
                 }

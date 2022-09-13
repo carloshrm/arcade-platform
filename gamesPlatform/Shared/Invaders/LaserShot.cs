@@ -17,7 +17,7 @@
 
         public void updatePosition()
         {
-            row += fromPlayer ? -6 : 4;
+            row += fromPlayer ? -8 : 4;
         }
 
     }

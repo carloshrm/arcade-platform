@@ -102,14 +102,17 @@
             s.updatePosition();
         }
         space.hitCheck();
-        space.shotsFired.RemoveAll(s => s.row <= 0 || s.row >= limits.row || s.hit);
+        space.shotCleanup(limits);
         drawGameState();
     }
 
     private async void updateInvaderState(Object? o, EventArgs e)
     {
         bool touchedEdge = false;
-        space.invaders.ForEach(i => { if (i.updatePosition(limits.row, limits.col)) touchedEdge = true; });
+        space.invaders.ForEach(i => { 
+            if (i.updatePosition(limits.row, limits.col)) touchedEdge = true;
+            i.model.spriteSelect = i.model.spriteSelect == 0 ? 1 : 0;
+        });
         if (touchedEdge) 
         {
             AlienShip.flipDirection();
@@ -128,6 +131,7 @@
             else
                 return false;
         });
+        space.invaderAttack();
         // TODO - speed up 
     }
 
@@ -135,10 +139,17 @@
     {
         await gameScreen.clear();
         await gameScreen.canvasReference.BeginBatchAsync();
+
         var p = space.player;
         await gameScreen.canvasReference.DrawImageAsync(
             playerAssets,
-            p.model.spriteRow, p.model.spriteSelect * p.model.width,
+            p.stepCount * p.model.width, 1 * p.model.height,
+            p.model.width, p.model.height,
+            p.col + 1, p.row + p.model.height - 5,
+            p.model.width, p.model.height);
+        await gameScreen.canvasReference.DrawImageAsync(
+            playerAssets,
+            p.model.spriteSelect * p.model.width, p.model.spriteRow * p.model.height,
             p.model.width, p.model.height,
             p.col, p.row,
             p.model.width, p.model.height);
@@ -149,12 +160,11 @@
             await gameScreen.canvasReference.FillRectAsync(s.col, s.row, 4, LaserShot.length);
         }
 
-        await gameScreen.canvasReference.SetFillStyleAsync("red");
         foreach (var a in space.invaders)
         {
             await gameScreen.canvasReference.DrawImageAsync(
                 invaderAssets, //asset
-                a.model.spriteRow, a.model.spriteSelect * a.model.width, //asset position on sheet
+                a.model.spriteSelect * a.model.width, a.model.spriteRow * a.model.height, //asset position on sheet
                 a.model.width, a.model.height, //asset scale
                 a.col, a.row, //render coords
                 a.model.width, a.model.height); //render scale

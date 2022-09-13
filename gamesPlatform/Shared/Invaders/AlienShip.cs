@@ -8,13 +8,14 @@
         public override ShipModel model { get; set; }
 
         private static Direction movingDirection = Direction.right;
+        private static int stepSize = 20;
 
-        public AlienShip(int row, int col, int modelID)
+        public AlienShip(int row, int col, ShipModel model)
         {
             this.row = row;
             this.col = col;
+            this.model = model;
             healthPoints = 1;
-            model = ShipModel.availableModels[modelID];
         }
 
         public static void flipDirection()
@@ -24,7 +25,7 @@
 
         public override bool updatePosition(int rowEdge, int colEdge)
         {
-            col += (int)movingDirection * (model.width / 2);
+            col += (int)movingDirection * stepSize;
             return col <= 0 || col >= colEdge - model.width;
         }
 
