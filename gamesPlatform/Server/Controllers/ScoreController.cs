@@ -34,6 +34,7 @@ namespace cmArcade.Server.Controllers
             }
             catch (Exception e)
             {
+                Console.WriteLine(e.Message);
                 return default;
             }
             finally

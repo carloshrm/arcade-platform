@@ -22,12 +22,17 @@
     </div>
 </main>
 
-<img class="visually-hidden" src="/img/invaderAssets/invader assets.png" @ref=@invaderAssets />
-<img class="visually-hidden" src="/img/invaderAssets/player assets.png" @ref=@playerAssets />
+@foreach (var s in ShipModel.availableModels)
+{
+    <img hidden src=@($"/img/invaderAssets/{s.spriteId}.png") @ref=@(assets[s.spriteId]) />
+}
+<img hidden src=@($"/img/invaderAssets/splash.png") @ref=@(assets[-1]) />
+<img hidden src=@($"/img/invaderAssets/laser.png") @ref=@(assets[-2]) />
 
 @code {
-    private ResponsiveCanvas gameScreen;
+    private ResponsiveCanvas? gameScreen;
     private (int row, int col) limits;
+    private double scale;
     private Score currentScore;
     private Score highScore;
 
@@ -35,27 +40,42 @@
     private Timer invaderControl;
 
     private Space space;
-    private ElementReference invaderAssets;
-    private ElementReference playerAssets;
+    private Dictionary<int, ElementReference> assets;
 
     public InvadersGame()
     {
         invaderControl = new Timer(800) { AutoReset = true, Enabled = false };
         invaderControl.Elapsed += updateInvaderState;
-        mainGameControl = new Timer(10) { AutoReset = true, Enabled = false };
+        mainGameControl = new Timer(15) { AutoReset = true, Enabled = false };
         mainGameControl.Elapsed += updateGameState;
         currentScore = new Score(AppID.Invaders);
+        highScore = currentScore;
+        assets = new Dictionary<int, ElementReference>();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await gameScreen.setCanvasSize();
-            limits = gameScreen.getDimensions();
-            space = new Space(limits);
+            if (gameScreen != null)
+            {
+                await gameScreen.setCanvasSize();
+                limits = gameScreen.getDimensions();
+                space = new Space(limits);
+                setScale();
+            }
             StateHasChanged();
+            highScore = await scoreService.readLocalScore(AppID.Snake);
         }
+    }
+
+    private void setScale()
+    {
+        (int w, int h) = gameScreen.getScreenSize();
+        if (w > 1000 || h > 1000) 
+            scale = 1.2;
+        else if (w < 600 || h < 600) 
+            scale = 0.8;
     }
 
     public void startGame()
@@ -96,26 +116,27 @@
 
     public async void updateGameState(Object? o, ElapsedEventArgs e)
     {
+        space.hitDetection();
         space.player.updatePosition(limits.row, limits.col);
+        space.updateSpecialInvader(limits);
         foreach (var s in space.shotsFired)
         {
-            s.updatePosition();
+            s.updatePosition(limits.row, limits.col);
         }
-        space.hitCheck();
-        space.shotCleanup(limits);
         drawGameState();
     }
 
     private async void updateInvaderState(Object? o, EventArgs e)
     {
+        space.shotCleanup(limits);
         bool touchedEdge = false;
         space.invaders.ForEach(i => { 
             if (i.updatePosition(limits.row, limits.col)) touchedEdge = true;
-            i.model.spriteSelect = i.model.spriteSelect == 0 ? 1 : 0;
+            i.model.spriteSelect = i.model.spriteSelect == 1 ? 0 : 1;
         });
         if (touchedEdge) 
         {
-            AlienShip.flipDirection();
+            InvaderShip.flipDirection();
             space.invaders.ForEach(i =>
                 {
                     i.dropRow(limits.row);
@@ -125,51 +146,44 @@
         space.invaders.RemoveAll(i => { 
             if (i.healthPoints <= 0)
             {
-                currentScore.scoreValue += Space.baseScore / i.model.type;
+                currentScore.scoreValue += Space.baseScore * i.model.spriteId;
                 return true;
             }
             else
                 return false;
         });
         space.invaderAttack();
+        space.invaderStepCount++;
         // TODO - speed up 
+        // TODO - refactor cleanups into methods using GameObject
+    }
+
+    private async Task drawObject(GameObject a)
+    {
+        await gameScreen.canvasReference.DrawImageAsync(
+            assets[a.model.spriteId], // asset IMG reference
+            a.model.spriteSelect * a.model.width, 0 * a.model.height, // asset position in reference png
+            a.model.width, a.model.height, // asset size in png
+            a.col, a.row, // canvas coords for rendering
+            a.model.width * scale, a.model.height * scale); // size for rendering in canvas
+    }
+
+    private async Task drawSet(IEnumerable<GameObject> list)
+    {
+        foreach (var o in list)
+        {
+            await drawObject(o);
+        }
     }
 
     private async void drawGameState()
     {
         await gameScreen.clear();
         await gameScreen.canvasReference.BeginBatchAsync();
-
-        var p = space.player;
-        await gameScreen.canvasReference.DrawImageAsync(
-            playerAssets,
-            p.stepCount * p.model.width, 1 * p.model.height,
-            p.model.width, p.model.height,
-            p.col + 1, p.row + p.model.height - 5,
-            p.model.width, p.model.height);
-        await gameScreen.canvasReference.DrawImageAsync(
-            playerAssets,
-            p.model.spriteSelect * p.model.width, p.model.spriteRow * p.model.height,
-            p.model.width, p.model.height,
-            p.col, p.row,
-            p.model.width, p.model.height);
-
-        await gameScreen.canvasReference.SetFillStyleAsync("yellow");
-        foreach (var s in space.shotsFired)
-        {
-            await gameScreen.canvasReference.FillRectAsync(s.col, s.row, 4, LaserShot.length);
-        }
-
-        foreach (var a in space.invaders)
-        {
-            await gameScreen.canvasReference.DrawImageAsync(
-                invaderAssets, //asset
-                a.model.spriteSelect * a.model.width, a.model.spriteRow * a.model.height, //asset position on sheet
-                a.model.width, a.model.height, //asset scale
-                a.col, a.row, //render coords
-                a.model.width, a.model.height); //render scale
-        }
-
+        await drawSet(space.invaders);
+        await drawSet(space.shotsFired);
+        await drawObject(space.player);
+        if (space.specialInvader != null) await drawObject(space.specialInvader);
         await gameScreen.canvasReference.EndBatchAsync();
     }
 }

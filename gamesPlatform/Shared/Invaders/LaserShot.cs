@@ -1,24 +1,36 @@
-﻿namespace cmArcade.Shared
-{
-    public class LaserShot
-    {
-        public const int length = 20;
-        public int col { get; set; }
-        public int row { get; set; }
-        public bool fromPlayer { get; set; }
-        public bool hit { get; set; }
+﻿using cmArcade.Shared.Invaders;
 
-        public LaserShot(GameActor actor)
+namespace cmArcade.Shared
+{
+    public partial class LaserShot : GameObject
+    {
+        public override int row { get; set; }
+        public override int col { get; set; }
+        public override int healthPoints { get; set; } = 0;
+        public override GameAsset model { get; set; }
+        public bool hitSomething { get; set; }
+        public bool fromPlayer { get; set; }
+
+        public LaserShot(GameObject actor)
         {
             fromPlayer = actor is PlayerShip;
             row = actor.row;
             col = actor.col + (actor.model.width / 2) - 2;
+            model = new LaserModel();
+            model.spriteSelect = fromPlayer ? 0 : 1;
         }
 
-        public void updatePosition()
+        public void hit()
         {
-            row += fromPlayer ? -8 : 4;
+            model = new HitEffect();
+            hitSomething = true;
         }
 
+        public override bool updatePosition(int rowEdge, int colEdge)
+        {
+            if (!hitSomething)
+                row += fromPlayer ? -8 : 4;
+            return true;
+        }
     }
 }

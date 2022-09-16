@@ -13,6 +13,8 @@
 
     public int componentWidth { get; set; }
     public int componentHeight { get; set; }
+    public long windowWidth { get; set; }
+    public long windowHeight { get; set; }
     public (int r, int c) baseResolution { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -44,8 +46,8 @@
 
     public async Task setCanvasSize()
     {
-        double windowWidth = await jsRuntime.InvokeAsync<long>("getWindowWidth");
-        double windowHeight = await jsRuntime.InvokeAsync<long>("getWindowHeight");
+        windowWidth = await jsRuntime.InvokeAsync<long>("getWindowWidth");
+        windowHeight = await jsRuntime.InvokeAsync<long>("getWindowHeight");
 
         if (appID == AppID.Snake)
         {
@@ -65,8 +67,6 @@
         }
         else if (appID == AppID.Invaders)
         {
-            Console.WriteLine(appID);
-
             (componentWidth, componentHeight) = baseResolution;
         }
 
@@ -81,5 +81,10 @@
     public (int, int) getDimensions()
     {
         return (componentHeight, componentWidth);
+    }
+
+    public (int, int) getScreenSize()
+    {
+        return ((int)windowWidth, (int)windowHeight);
     }
 }

@@ -1,19 +1,20 @@
 ﻿namespace cmArcade.Shared
 {
-    public record ShipModel
+    public class ShipModel : GameAsset
     {
-        public int type { get; set; }
-        public int width { get; init; }
-        public int height { get; init; }
-        public int spriteSelect { get; set; }
-        public int spriteRow { get; init; } = 0;
+        public override int spriteId { get; set; }
+        public override int width { get; init; }
+        public override int height { get; init; }
+        public override int spriteSelect { get; set; }
 
         public static readonly ShipModel[] availableModels = new ShipModel[]
         {
-            new ShipModel { type = 0, width = 30, height = 28, spriteSelect = 0, spriteRow = 0 },
-            new ShipModel { type = 1, width = 80, height = 40, spriteSelect = 0, spriteRow = 0 },
-            new ShipModel { type = 2, width = 32, height = 40, spriteSelect = 0, spriteRow = 1 },
-            new ShipModel { type = 3, width = 32, height = 40, spriteSelect = 0, spriteRow = 1 },
+            new ShipModel { spriteId = 0, width = 60, height = 64, spriteSelect = 0 },
+            new ShipModel { spriteId = 1, width = 30, height = 30, spriteSelect = 0 },
+            new ShipModel { spriteId = 2, width = 38, height = 34, spriteSelect = 0 },
+            new ShipModel { spriteId = 3, width = 32, height = 32, spriteSelect = 0 },
+            new ShipModel { spriteId = 4, width = 40, height = 40, spriteSelect = 0 },
+            new ShipModel { spriteId = 5, width = 55, height = 40, spriteSelect = 0 },
         };
     };
 
