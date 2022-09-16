@@ -76,7 +76,7 @@
         {
             if (specialInvader == null)
             {
-                if (invaderStepCount % 9 == 0)
+                if (rng.Next(10) > 8)
                 {
                     setupSpecialInvader(limits);
                 }
@@ -124,11 +124,13 @@
         {
             bool check(GameObject g, GameObject s)
             {
-                return s.col >= g.col &&
-                                s.col <= g.col + g.model.width &&
-                                s.row <= g.row + g.model.height &&
-                                s.row > g.row;
+                return
+                    s.col >= g.col &&
+                    s.col <= g.col + g.model.width &&
+                    s.row <= g.row + g.model.height &&
+                    s.row > g.row;
             }
+
             foreach (var shot in shotsFired)
             {
                 if (!shot.hitSomething)

@@ -29,21 +29,16 @@
 
     private async Task uploadScore()
     {
-        if (info.id != -1) 
-            return;
-        else
+        try
         {
-            try
-            {
-                if (info.nickname.Length == 0) info.nickname = "|❛ ᴗ ❛.)";  
-                int newID = await scoreService.setScore(info);
-                callback(newID);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                errorMessage = "Upload failed, try again later.";
-            }
+            if (info.nickname.Length == 0) info.nickname = "|❛ ᴗ ❛.)";  
+            int newID = await scoreService.setScore(info);
+            callback(newID);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            errorMessage = "Upload failed, try again later.";
         }
     }
 }

@@ -26,10 +26,10 @@
                 <h2>Game Over...</h2>
                 <h4>Score: @currentScore?.scoreValue</h4>
                 <h4>Best: @highScore?.scoreValue</h4>
-                <button type="button" @onclick=@(() => { if (highScore?.id != -1) showScoreUpload = true; })>Pin on leaderboard!</button>
+                <button type="button" @onclick=@(() => { if (canUpload) showScoreUpload = true; })>Pin on leaderboard!</button>
                 <LeaderboardView appID=AppID.Snake @ref=_leaderboard />
             </div>
-            @if (showScoreUpload)
+            @if (showScoreUpload && canUpload)
             {
                 <ScoreUpload info=@highScore callback=@uploadCallback/>
             }
@@ -47,6 +47,7 @@
     private Action<int> uploadCallback;
     private bool showScoreUpload { get; set; }
     private bool isMobile = false;
+    private bool canUpload = true;
 
     private SnakeBoard? gameBoard;
     private Score currentScore;
@@ -88,6 +89,7 @@
     private void refreshAfterUpload(int newID)
     {
         showScoreUpload = false;
+        canUpload = false;
         if (newID != -1)
         {
             highScore.id = newID;
@@ -148,7 +150,10 @@
         {
             turnManager.Enabled = false;
             if (currentScore.scoreValue > highScore.scoreValue)
+            {
                 highScore = currentScore;
+                canUpload = true;
+            }
         }
         canMove = true;
         StateHasChanged();

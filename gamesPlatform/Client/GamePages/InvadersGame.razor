@@ -129,6 +129,7 @@
     private async void updateInvaderState(Object? o, EventArgs e)
     {
         space.shotCleanup(limits);
+
         bool touchedEdge = false;
         space.invaders.ForEach(i => { 
             if (i.updatePosition(limits.row, limits.col)) touchedEdge = true;
@@ -143,6 +144,7 @@
                     i.updatePosition(limits.row, limits.col);
                 });
         }
+
         space.invaders.RemoveAll(i => { 
             if (i.healthPoints <= 0)
             {
@@ -152,6 +154,7 @@
             else
                 return false;
         });
+        if (space.specialInvader.healthPoints <= 0) space.specialInvader = null;
         space.invaderAttack();
         space.invaderStepCount++;
         // TODO - speed up 
