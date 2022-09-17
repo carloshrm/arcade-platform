@@ -1,25 +1,23 @@
 ﻿@page "/snakegame"
 @inject IJSRuntime jsRuntime
 @inject IScoreService scoreService
+@implements IDisposable
 @layout MainLayout
 
 <main id="main-content">
     <div id="game-controls">
-            <div id="score-display">
-                <span> Score:@currentScore?.scoreValue </span>
-                @if (highScore?.scoreValue > 0)
-                {
-                    <span> Best: @highScore?.scoreValue  </span>
-                }
-                <span> Time:@currentScore?.runLength.ToString("mm\\:ss") </span>
-            </div>
+        <div id="score-display">
+            <span> Score:@currentScore?.scoreValue </span>
+                @if (highScore?.scoreValue > 0) { <span> Best: @highScore?.scoreValue  </span> }
+            <span> Time:@currentScore?.runLength.ToString("mm\\:ss") </span>
+        </div>
         <div>
             <button type="button" class="soft-shadow game-button @((turnCount > 0 && turnManager.Enabled) ? "dark-bg" : "")" @onclick=startGame>start</button>
             <button type="button" class="soft-shadow game-button" @onclick=setupNewGame>reset</button>
         </div>
     </div>
     <div id="game-container" class="soft-shadow" tabindex="0" @onkeydown=@((e) => playerInputHandler(e.Key))>
-        <ResponsiveCanvas @ref=_gameScreen appID=AppID.Snake/>
+        <ResponsiveCanvas @ref=gameScreen appID=AppID.Snake/>
         @if (turnCount > 0 && !turnManager.Enabled)
         {
             <div id="post-game-container" class="dark-bg soft-shadow">
@@ -27,23 +25,17 @@
                 <h4>Score: @currentScore?.scoreValue</h4>
                 <h4>Best: @highScore?.scoreValue</h4>
                 <button type="button" @onclick=@(() => { if (canUpload) showScoreUpload = true; })>Pin on leaderboard!</button>
-                <LeaderboardView appID=AppID.Snake @ref=_leaderboard />
+                <LeaderboardView appID=AppID.Snake @ref=leaderboard />
             </div>
-            @if (showScoreUpload && canUpload)
-            {
-                <ScoreUpload info=@highScore callback=@uploadCallback/>
-            }
+            @if (showScoreUpload && canUpload) { <ScoreUpload info=@highScore callback=@uploadCallback/> }
         }
     </div>
-    @if (isMobile)
-    {
-        <TouchDPad inputCallback=playerInputHandler />
-    }
+    @if (isMobile) { <TouchDPad inputCallback=playerInputHandler /> }
 </main>
 
 @code {
-    private ResponsiveCanvas? _gameScreen;
-    private LeaderboardView? _leaderboard;
+    private ResponsiveCanvas? gameScreen;
+    private LeaderboardView? leaderboard;
     private Action<int> uploadCallback;
     private bool showScoreUpload { get; set; }
     private bool isMobile = false;
@@ -93,7 +85,7 @@
         if (newID != -1)
         {
             highScore.id = newID;
-            _leaderboard.refresh();
+            leaderboard.refresh();
         }
         StateHasChanged();
     }
@@ -130,12 +122,12 @@
         turnCount = 0;
         turnManager.Enabled = false;
         turnManager.Interval = 400;
-        await _gameScreen.setCanvasSize();
-        await _gameScreen.clear();
+        await gameScreen.setCanvasSize();
+        await gameScreen.clear();
         gameBoard = new SnakeBoard(
-            _gameScreen.getDimensions(),
-            _gameScreen.baseResolution,
-            _gameScreen.canvasReference);
+            gameScreen.getDimensions(),
+            gameScreen.baseResolution,
+            gameScreen.canvasReference);
         gameBoard.ateFood += increaseSpeed;
     }
 
@@ -158,5 +150,11 @@
         }
         canMove = true;
         StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        gameScreen?.Dispose();
+        turnManager.Dispose();
     }
 }

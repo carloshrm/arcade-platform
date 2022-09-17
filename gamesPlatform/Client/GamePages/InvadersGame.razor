@@ -1,6 +1,7 @@
 ﻿@page "/invaders"
 @inject IJSRuntime jsRuntime
 @inject IScoreService scoreService
+@implements IDisposable
 
 <main id="main-content">
     <div id="game-controls">
@@ -10,7 +11,7 @@
             {
                 <span> Best: @highScore?.scoreValue  </span>
             }
-            <span> Round:@currentScore?.turn </span>
+            <span> Level:@currentScore?.turn </span>
         </div>
         <div>
             <button type="button" class="soft-shadow game-button" @onclick=startGame>start</button>
@@ -46,7 +47,7 @@
     {
         invaderControl = new Timer(800) { AutoReset = true, Enabled = false };
         invaderControl.Elapsed += updateInvaderState;
-        mainGameControl = new Timer(15) { AutoReset = true, Enabled = false };
+        mainGameControl = new Timer(20) { AutoReset = true, Enabled = false };
         mainGameControl.Elapsed += updateGameState;
         currentScore = new Score(AppID.Invaders);
         highScore = currentScore;
@@ -84,9 +85,7 @@
         if (mainGameControl.Enabled)
             return;
         else
-        {
             toggleControlObjects();
-        }
     }
 
     public void toggleControlObjects()
@@ -97,16 +96,16 @@
 
     private void resetGame()
     {
-        if (mainGameControl.Enabled)
-            toggleControlObjects();
+        if (mainGameControl.Enabled) toggleControlObjects();
+
         currentScore = new Score(AppID.Invaders);
         space = new Space(limits);
-        gameScreen.clear();
+        gameScreen?.clear();
     }
 
     private void keyDownInputHandler(KeyboardEventArgs e)
     {
-        space.parseKeyDown(e.Key, e.Repeat);
+        space.parseKeyDown(e.Key);
     }
 
     private void keyUpInputHandler(KeyboardEventArgs e)
@@ -145,20 +144,11 @@
                 });
         }
 
-        space.invaders.RemoveAll(i => { 
-            if (i.healthPoints <= 0)
-            {
-                currentScore.scoreValue += Space.baseScore * i.model.spriteId;
-                return true;
-            }
-            else
-                return false;
-        });
-        if (space.specialInvader.healthPoints <= 0) space.specialInvader = null;
+        currentScore.scoreValue += space.invaderCleanup();
         space.invaderAttack();
-        space.invaderStepCount++;
-        // TODO - speed up 
-        // TODO - refactor cleanups into methods using GameObject
+
+        invaderControl.Interval = space.invaders.Count / 0.06;
+        //TODO check game over- show screen
     }
 
     private async Task drawObject(GameObject a)
@@ -188,5 +178,12 @@
         await drawObject(space.player);
         if (space.specialInvader != null) await drawObject(space.specialInvader);
         await gameScreen.canvasReference.EndBatchAsync();
+    }
+
+    public void Dispose()
+    {
+        gameScreen?.Dispose();
+        invaderControl.Dispose();
+        mainGameControl.Dispose();
     }
 }

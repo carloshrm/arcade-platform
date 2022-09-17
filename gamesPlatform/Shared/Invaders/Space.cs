@@ -8,8 +8,8 @@
         public PlayerShip player { get; set; }
         public List<LaserShot> shotsFired { get; set; }
         public List<InvaderShip> invaders { get; set; }
-        public InvaderShip? specialInvader { get; set; }
-        public int invaderStepCount { get; set; }
+        public InvaderShip specialInvader { get; set; }
+        public bool specialIsActive { get; set; }
 
         private int invaderShotCount;
 
@@ -19,9 +19,8 @@
             shotsFired = new List<LaserShot>();
             invaders = new List<InvaderShip>();
             invaderShotCount = 0;
-            invaderStepCount = 1;
-            specialInvader = null;
             setupInvaders(limits);
+            setupSpecialInvader(limits);
         }
         public void fireShot(GameObject whoFired)
         {
@@ -30,9 +29,9 @@
 
         public void invaderAttack()
         {
-            if (rng.Next(10) > 7 && invaderShotCount < 2)
+            if (rng.Next(10) > 6 && invaderShotCount < 2)
             {
-                foreach (var inv in invaders)
+                foreach (var inv in invaders.OrderByDescending(x => x.row))
                 {
                     if ((inv.col < player.col && player.movingDir == Direction.left) ||
                         (inv.col > player.col && player.movingDir == Direction.right))
@@ -42,8 +41,6 @@
                         return;
                     }
                 }
-                fireShot(invaders[rng.Next(invaders.Count)]);
-                invaderShotCount++;
             }
         }
 
@@ -66,34 +63,23 @@
 
         public void setupSpecialInvader((int row, int col) limits)
         {
+            specialIsActive = false;
             var model = ShipModel.availableModels.Last();
-            var rowPos = model.height;
-            var colPos = limits.col - model.width;
-            specialInvader = new InvaderShip(rowPos, colPos, model);
+            specialInvader = new InvaderShip(model.height, limits.col + model.width + 10, model);
         }
 
         public void updateSpecialInvader((int row, int col) limits)
         {
-            if (specialInvader == null)
-            {
-                if (rng.Next(10) > 8)
-                {
-                    setupSpecialInvader(limits);
-                }
-            }
-            else
-            {
-                specialInvader.col -= 3;
-                if (specialInvader.col <= 0)
-                    specialInvader = null;
-            }
+            if (invaders.Count % 9 == 0) specialIsActive = true;
+            if (specialIsActive) specialInvader.col -= 3;
+            if (specialInvader.col <= 0 - specialInvader.model.width || specialInvader.healthPoints <= 0) setupSpecialInvader(limits);
         }
 
-        public void parseKeyDown(string input, bool beingHeld)
+        public void parseKeyDown(string input)
         {
             if (input.Equals(" "))
             {
-                if (player.canShoot is true)
+                if (player.canShoot)
                 {
                     fireShot(player);
                     player.shotTimeout();
@@ -120,6 +106,23 @@
             invaderShotCount = shotsFired.Count(x => !x.fromPlayer);
         }
 
+        public int invaderCleanup()
+        {
+            int calculatedScore = 0;
+            invaders.RemoveAll(i =>
+            {
+                if (i.healthPoints <= 0)
+                {
+                    calculatedScore += Space.baseScore * i.model.spriteId;
+                    return true;
+                }
+                else
+                    return false;
+            });
+            if (specialInvader.healthPoints <= 0) calculatedScore += baseScore * 10;
+            return calculatedScore;
+        }
+
         public void hitDetection()
         {
             bool check(GameObject g, GameObject s)
@@ -137,7 +140,7 @@
                 {
                     if (shot.fromPlayer)
                     {
-                        if (specialInvader != null && check(specialInvader, shot))
+                        if (check(specialInvader, shot))
                         {
                             specialInvader.healthPoints--;
                             shot.hit();

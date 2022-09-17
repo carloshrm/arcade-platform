@@ -29,7 +29,7 @@ namespace cmArcade.Shared
         public override bool updatePosition(int rowEdge, int colEdge)
         {
             if (!hitSomething)
-                row += fromPlayer ? -8 : 4;
+                row += fromPlayer ? -10 : 6;
             return true;
         }
     }

@@ -2,6 +2,7 @@
 @inject IJSRuntime jsRuntime
 @using Blazor.Extensions
 @using Blazor.Extensions.Canvas.Canvas2D
+@implements IDisposable
 
 <BECanvas Width="@componentWidth" Height="@componentHeight" @ref="_componentReference" />
 
@@ -86,5 +87,10 @@
     public (int, int) getScreenSize()
     {
         return ((int)windowWidth, (int)windowHeight);
+    }
+
+    public void Dispose()
+    {
+        canvasReference?.Dispose();
     }
 }
