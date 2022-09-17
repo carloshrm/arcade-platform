@@ -129,6 +129,7 @@
     {
         turnCount = 0;
         turnManager.Enabled = false;
+        turnManager.Interval = 400;
         await _gameScreen.setCanvasSize();
         await _gameScreen.clear();
         gameBoard = new SnakeBoard(
