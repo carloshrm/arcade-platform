@@ -54,7 +54,7 @@ namespace cmArcade.Client.Services
 
         public async Task setLocalScore(Score highScore)
         {
-            await _localStorage.SetItemAsync<Score>("highScore", highScore);
+            await _localStorage.SetItemAsync<Score>($"highScore_{highScore.appID}", highScore);
         }
     }
 }

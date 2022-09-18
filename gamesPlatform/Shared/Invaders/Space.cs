@@ -11,7 +11,9 @@
         public InvaderShip specialInvader { get; set; }
         public bool specialIsActive { get; set; }
 
+        public event EventHandler gameOver;
         private int invaderShotCount;
+        private (int row, int col) limits;
 
         public Space((int row, int col) limits)
         {
@@ -19,9 +21,20 @@
             shotsFired = new List<LaserShot>();
             invaders = new List<InvaderShip>();
             invaderShotCount = 0;
-            setupInvaders(limits);
-            setupSpecialInvader(limits);
+            this.limits = limits;
+            setupCommonInvaders();
+            setupSpecialInvader();
         }
+
+        public async Task updateGameState()
+        {
+            hitDetection();
+
+            player.updatePosition(limits);
+            updateSpecialInvader();
+            shotsFired.ForEach(s => s.updatePosition(limits));
+        }
+
         public void fireShot(GameObject whoFired)
         {
             shotsFired.Add(new LaserShot(whoFired));
@@ -44,35 +57,37 @@
             }
         }
 
-        public void setupInvaders((int row, int col) limits)
+        public void setupCommonInvaders()
         {
             int invadersPerRow = 12;
+            int tallestInvader = ShipModel.invaderShips.Max(x => x.height) + 10;
+            int rowPos = limits.row / 20;
             int colSize = (int)(limits.col * 0.8 / invadersPerRow);
-            for (int j = 1; j < ShipModel.availableModels.Length - 1; j++)
+            for (int i = 0; i < 4; i++)
             {
-                var model = ShipModel.availableModels[j];
-                var rowPos = (model.spriteId * (limits.row / 14)) + model.height;
+                var model = ShipModel.invaderShips[i];
+                rowPos += tallestInvader;
 
-                for (int i = 1; i < invadersPerRow; i++)
+                for (int j = 1; j < invadersPerRow; j++)
                 {
-                    var colPos = (colSize * i) + (colSize - (model.width / 2));
+                    var colPos = (colSize * j) + (colSize - (model.width / 2));
                     invaders.Add(new InvaderShip(rowPos, colPos, model));
                 }
             }
         }
 
-        public void setupSpecialInvader((int row, int col) limits)
+        public void setupSpecialInvader()
         {
             specialIsActive = false;
-            var model = ShipModel.availableModels.Last();
+            var model = ShipModel.invaderShips.Last();
             specialInvader = new InvaderShip(model.height, limits.col + model.width + 10, model);
         }
 
-        public void updateSpecialInvader((int row, int col) limits)
+        public void updateSpecialInvader()
         {
             if (invaders.Count % 9 == 0) specialIsActive = true;
             if (specialIsActive) specialInvader.col -= 3;
-            if (specialInvader.col <= 0 - specialInvader.model.width || specialInvader.healthPoints <= 0) setupSpecialInvader(limits);
+            if (specialInvader.col <= 0 - specialInvader.model.width || specialInvader.healthPoints <= 0) setupSpecialInvader();
         }
 
         public void parseKeyDown(string input)
@@ -100,10 +115,40 @@
                 player.movingDir = Direction.none;
         }
 
-        public void shotCleanup((int r, int c) limits)
+        public void updateSpaceState()
         {
-            shotsFired.RemoveAll(s => s.row <= 0 || s.row >= limits.r || s.hitSomething);
+            shotsFired.RemoveAll(s => s.row <= 0 || s.row >= limits.row || s.hitSomething);
             invaderShotCount = shotsFired.Count(x => !x.fromPlayer);
+
+            bool touchedEdge = false;
+            invaders.ForEach(i =>
+            {
+                if (i.updatePosition(limits)) touchedEdge = true;
+                i.animate();
+            });
+
+            if (touchedEdge)
+            {
+                InvaderShip.flipDirection();
+                invaders.ForEach(i =>
+                {
+                    i.dropRow(limits.row);
+                    i.updatePosition(limits);
+                });
+            }
+            checkGameOver();
+        }
+
+        public void checkGameOver()
+        {
+            if (player.healthPoints <= 0) gameOver?.Invoke(this, EventArgs.Empty);
+            else
+            {
+                foreach (var inv in invaders)
+                {
+                    if (inv.row >= player.row) gameOver?.Invoke(this, EventArgs.Empty);
+                }
+            }
         }
 
         public int invaderCleanup()

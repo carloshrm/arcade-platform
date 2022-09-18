@@ -6,6 +6,7 @@
         public abstract int col { get; set; }
         public abstract int healthPoints { get; set; }
         public abstract GameAsset model { get; set; }
-        public abstract bool updatePosition(int rowEdge, int colEdge);
+        public abstract int spriteSelect { get; set; }
+        public abstract bool updatePosition((int row, int col) limits);
     }
 }

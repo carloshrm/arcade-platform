@@ -20,19 +20,33 @@
     </div>
     <div id="game-container" tabindex="0" @onkeydown=keyDownInputHandler @onkeyup=keyUpInputHandler>
         <ResponsiveCanvas @ref=gameScreen appID=AppID.Invaders />
+        @if (currentScore?.turn > 0 && gameOver)
+        {
+            <div id="post-game-container" class="dark-bg soft-shadow">
+                <h2>Game Over...</h2>
+                <h4>Score: @currentScore?.scoreValue</h4>
+                <h4>Best: @highScore?.scoreValue</h4>
+                <button type="button" @onclick=@(() => { if (canUpload) showScoreUpload = true; })>Pin on leaderboard!</button>
+                <LeaderboardView appID=AppID.Invaders @ref=leaderboard />
+            </div>
+            @if (showScoreUpload && canUpload)
+            {
+                <ScoreUpload info=@highScore callback=@uploadCallback />
+            }
+        }
     </div>
 </main>
 
-@foreach (var s in ShipModel.availableModels)
+@foreach (var s in ShipModel.invaderShips)
 {
     <img hidden src=@($"/img/invaderAssets/{s.spriteId}.png") @ref=@(assets[s.spriteId]) />
 }
 <img hidden src=@($"/img/invaderAssets/splash.png") @ref=@(assets[-1]) />
 <img hidden src=@($"/img/invaderAssets/laser.png") @ref=@(assets[-2]) />
+<img hidden src=@($"/img/invaderAssets/player.png") @ref=@(assets[ShipModel.playerShip.spriteId]) />
 
 @code {
     private ResponsiveCanvas? gameScreen;
-    private (int row, int col) limits;
     private double scale;
     private Score currentScore;
     private Score highScore;
@@ -43,15 +57,28 @@
     private Space space;
     private Dictionary<int, ElementReference> assets;
 
+    // TODO - refactor into post game component
+    // TODO - refactor score into service
+    private bool gameOver = false;
+    private bool canUpload = false;
+    private bool showScoreUpload = false;
+    private LeaderboardView? leaderboard;
+    private Action<int> uploadCallback;
+
     public InvadersGame()
     {
         invaderControl = new Timer(800) { AutoReset = true, Enabled = false };
-        invaderControl.Elapsed += updateInvaderState;
+        invaderControl.Elapsed += invaderStep;
         mainGameControl = new Timer(20) { AutoReset = true, Enabled = false };
-        mainGameControl.Elapsed += updateGameState;
+        mainGameControl.Elapsed += runGame;
         currentScore = new Score(AppID.Invaders);
         highScore = currentScore;
         assets = new Dictionary<int, ElementReference>();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        highScore = await scoreService.readLocalScore(AppID.Invaders);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -61,13 +88,19 @@
             if (gameScreen != null)
             {
                 await gameScreen.setCanvasSize();
-                limits = gameScreen.getDimensions();
-                space = new Space(limits);
+                space = new Space(gameScreen.getDimensions());
                 setScale();
             }
+            highScore = await scoreService.readLocalScore(AppID.Invaders);
+            space.gameOver += stopGame;
             StateHasChanged();
-            highScore = await scoreService.readLocalScore(AppID.Snake);
         }
+    }
+
+    private async void runGame(Object? o, ElapsedEventArgs e)
+    {
+        await space.updateGameState();
+        drawGame();
     }
 
     private void setScale()
@@ -79,28 +112,40 @@
             scale = 0.8;
     }
 
-    public void startGame()
+    private void startGame()
     {
         jsRuntime.InvokeVoidAsync("setFocus");
         if (mainGameControl.Enabled)
             return;
         else
+        {
+            if (currentScore.scoreValue > 0)
+                resetGame();
+            currentScore.turn = 1;
             toggleControlObjects();
+        }
     }
 
-    public void toggleControlObjects()
+    private void toggleControlObjects()
     {
         mainGameControl.Enabled = !mainGameControl.Enabled;
         invaderControl.Enabled = !invaderControl.Enabled;
     }
 
+    private void nextRound()
+    {
+        space = new Space(gameScreen.getDimensions());
+        gameScreen?.clear();
+        currentScore.turn++;
+    }
+
     private void resetGame()
     {
         if (mainGameControl.Enabled) toggleControlObjects();
-
         currentScore = new Score(AppID.Invaders);
-        space = new Space(limits);
-        gameScreen?.clear();
+        space = new Space(gameScreen.getDimensions());
+        gameOver = false;
+        gameScreen.clear();
     }
 
     private void keyDownInputHandler(KeyboardEventArgs e)
@@ -113,52 +158,36 @@
         space.parseKeyUp(e.Key);
     }
 
-    public async void updateGameState(Object? o, ElapsedEventArgs e)
+    private void stopGame(Object? o, EventArgs e)
     {
-        space.hitDetection();
-        space.player.updatePosition(limits.row, limits.col);
-        space.updateSpecialInvader(limits);
-        foreach (var s in space.shotsFired)
+        gameOver = true;
+        toggleControlObjects();
+        if (currentScore.scoreValue > highScore.scoreValue)
         {
-            s.updatePosition(limits.row, limits.col);
+            highScore = currentScore;
+            scoreService.setLocalScore(highScore);
+            canUpload = true;
         }
-        drawGameState();
+        StateHasChanged();
     }
 
-    private async void updateInvaderState(Object? o, EventArgs e)
+    private void invaderStep(Object? o, EventArgs e)
     {
-        space.shotCleanup(limits);
-
-        bool touchedEdge = false;
-        space.invaders.ForEach(i => { 
-            if (i.updatePosition(limits.row, limits.col)) touchedEdge = true;
-            i.model.spriteSelect = i.model.spriteSelect == 1 ? 0 : 1;
-        });
-        if (touchedEdge) 
-        {
-            InvaderShip.flipDirection();
-            space.invaders.ForEach(i =>
-                {
-                    i.dropRow(limits.row);
-                    i.updatePosition(limits.row, limits.col);
-                });
-        }
-
-        currentScore.scoreValue += space.invaderCleanup();
+        space.updateSpaceState();
+        currentScore.scoreValue += currentScore.turn * space.invaderCleanup();
         space.invaderAttack();
-
         invaderControl.Interval = space.invaders.Count / 0.06;
-        //TODO check game over- show screen
+        if (space.invaders.Count == 0) nextRound();
     }
 
-    private async Task drawObject(GameObject a)
+    private async Task drawObject(GameObject obj)
     {
         await gameScreen.canvasReference.DrawImageAsync(
-            assets[a.model.spriteId], // asset IMG reference
-            a.model.spriteSelect * a.model.width, 0 * a.model.height, // asset position in reference png
-            a.model.width, a.model.height, // asset size in png
-            a.col, a.row, // canvas coords for rendering
-            a.model.width * scale, a.model.height * scale); // size for rendering in canvas
+            assets[obj.model.spriteId], // asset IMG reference
+            obj.spriteSelect * obj.model.width, 0 * obj.model.height, // asset position in reference png
+            obj.model.width, obj.model.height, // asset size in png
+            obj.col, obj.row, // canvas coords for rendering
+            obj.model.width * scale, obj.model.height * scale); // size for rendering in canvas
     }
 
     private async Task drawSet(IEnumerable<GameObject> list)
@@ -169,7 +198,7 @@
         }
     }
 
-    private async void drawGameState()
+    private async void drawGame()
     {
         await gameScreen.clear();
         await gameScreen.canvasReference.BeginBatchAsync();

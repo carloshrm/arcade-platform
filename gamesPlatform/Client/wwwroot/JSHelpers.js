@@ -15,5 +15,5 @@ function isMobile() {
 }
 
 function vibrateFeedback() {
-    navigator.vibrate(50);
+    navigator.vibrate([50]);
 }

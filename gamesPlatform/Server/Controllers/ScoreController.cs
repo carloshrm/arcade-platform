@@ -11,7 +11,7 @@ namespace cmArcade.Server.Controllers
     public class ScoreController : ControllerBase, IScoreController
     {
         private NpgsqlConnection connection { get; }
-        private NpgsqlConnectionStringBuilder connectionString { get; }
+        //private NpgsqlConnectionStringBuilder connectionString { get; }
 
         public ScoreController(IConfiguration config)
         {

@@ -8,6 +8,7 @@ namespace cmArcade.Shared
         public override int col { get; set; }
         public override int healthPoints { get; set; } = 0;
         public override GameAsset model { get; set; }
+        public override int spriteSelect { get; set; }
         public bool hitSomething { get; set; }
         public bool fromPlayer { get; set; }
 
@@ -17,16 +18,17 @@ namespace cmArcade.Shared
             row = actor.row;
             col = actor.col + (actor.model.width / 2) - 2;
             model = new LaserModel();
-            model.spriteSelect = fromPlayer ? 0 : 1;
+            spriteSelect = fromPlayer ? 0 : 1;
         }
 
         public void hit()
         {
             model = new HitEffect();
+            spriteSelect = new Random().Next(0, 4);
             hitSomething = true;
         }
 
-        public override bool updatePosition(int rowEdge, int colEdge)
+        public override bool updatePosition((int row, int col) limits)
         {
             if (!hitSomething)
                 row += fromPlayer ? -10 : 6;
