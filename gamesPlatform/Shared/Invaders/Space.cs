@@ -10,10 +10,10 @@
         public List<InvaderShip> invaders { get; set; }
         public InvaderShip specialInvader { get; set; }
         public bool specialIsActive { get; set; }
+        public (int row, int col) limits { get; set; }
 
-        public event EventHandler gameOver;
+        public event EventHandler? gameOver;
         private int invaderShotCount;
-        private (int row, int col) limits;
 
         public Space((int row, int col) limits)
         {
@@ -46,8 +46,9 @@
             {
                 foreach (var inv in invaders.OrderByDescending(x => x.row))
                 {
-                    if ((inv.col < player.col && player.movingDir == Direction.left) ||
-                        (inv.col > player.col && player.movingDir == Direction.right))
+                    if (inv.col == player.col ||
+                       (inv.col < player.col && player.movingDir == Direction.left) ||
+                       (inv.col > player.col && player.movingDir == Direction.right))
                     {
                         fireShot(inv);
                         invaderShotCount++;
@@ -59,7 +60,7 @@
 
         public void setupCommonInvaders()
         {
-            int invadersPerRow = 12;
+            int invadersPerRow = 10;
             int tallestInvader = ShipModel.invaderShips.Max(x => x.height) + 10;
             int rowPos = limits.row / 20;
             int colSize = (int)(limits.col * 0.8 / invadersPerRow);
@@ -68,7 +69,7 @@
                 var model = ShipModel.invaderShips[i];
                 rowPos += tallestInvader;
 
-                for (int j = 1; j < invadersPerRow; j++)
+                for (int j = 1; j <= invadersPerRow; j++)
                 {
                     var colPos = (colSize * j) + (colSize - (model.width / 2));
                     invaders.Add(new InvaderShip(rowPos, colPos, model));
@@ -76,18 +77,24 @@
             }
         }
 
-        public void setupSpecialInvader()
+        private void setupSpecialInvader()
         {
             specialIsActive = false;
             var model = ShipModel.invaderShips.Last();
             specialInvader = new InvaderShip(model.height, limits.col + model.width + 10, model);
         }
 
-        public void updateSpecialInvader()
+        private void updateSpecialInvader()
         {
-            if (invaders.Count % 9 == 0) specialIsActive = true;
-            if (specialIsActive) specialInvader.col -= 3;
-            if (specialInvader.col <= 0 - specialInvader.model.width || specialInvader.healthPoints <= 0) setupSpecialInvader();
+            if (specialIsActive)
+                specialInvader.col -= 3;
+            if (specialInvader.col <= 0 - specialInvader.model.width || specialInvader.healthPoints <= 0)
+                setupSpecialInvader();
+        }
+
+        public void sendSpecial()
+        {
+            if (rng.Next(10) >= 9) specialIsActive = true;
         }
 
         public void parseKeyDown(string input)
@@ -158,7 +165,7 @@
             {
                 if (i.healthPoints <= 0)
                 {
-                    calculatedScore += Space.baseScore * i.model.spriteId;
+                    calculatedScore += baseScore * (i.row / 10);
                     return true;
                 }
                 else

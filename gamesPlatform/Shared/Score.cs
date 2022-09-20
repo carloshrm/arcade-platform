@@ -20,7 +20,7 @@ namespace cmArcade.Shared
             scoreValue = 0;
             runStart = DateTime.Now;
             runLength = TimeSpan.Zero;
-            nickname = String.Empty;
+            nickname = string.Empty;
             turn = 0;
         }
 

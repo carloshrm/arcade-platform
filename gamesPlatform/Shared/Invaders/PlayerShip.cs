@@ -43,7 +43,10 @@
         public async Task shotTimeout()
         {
             canShoot = false;
-            await Task.Delay(500);
+            spriteSelect = 1;
+            await Task.Delay(250);
+            spriteSelect = 0;
+            await Task.Delay(250);
             canShoot = true;
         }
     }

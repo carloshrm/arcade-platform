@@ -11,17 +11,11 @@
 }
 
 #game-controls {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-items: center;
     color: white;
     padding: 1em;
-    margin-bottom: 1em;
-}
-
-#score-display {
-    margin: 0.4em;
-    font-size: 18px;
 }
 
 #game-container {

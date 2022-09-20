@@ -1,6 +1,4 @@
-﻿using cmArcade.Shared.Invaders;
-
-namespace cmArcade.Shared
+﻿namespace cmArcade.Shared
 {
     public partial class LaserShot : GameObject
     {
@@ -17,13 +15,13 @@ namespace cmArcade.Shared
             fromPlayer = actor is PlayerShip;
             row = actor.row;
             col = actor.col + (actor.model.width / 2) - 2;
-            model = new LaserModel();
+            model = GameDecal.GetDecal("laser");
             spriteSelect = fromPlayer ? 0 : 1;
         }
 
         public void hit()
         {
-            model = new HitEffect();
+            model = GameDecal.GetDecal("hit");
             spriteSelect = new Random().Next(0, 4);
             hitSomething = true;
         }

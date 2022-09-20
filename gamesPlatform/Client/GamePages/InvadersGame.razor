@@ -5,18 +5,8 @@
 
 <main id="main-content">
     <div id="game-controls">
-        <div id="score-display">
-            <span> Score:@currentScore?.scoreValue </span>
-            @if (highScore?.scoreValue > 0)
-            {
-                <span> Best: @highScore?.scoreValue  </span>
-            }
-            <span> Level:@currentScore?.turn </span>
-        </div>
-        <div>
             <button type="button" class="soft-shadow game-button" @onclick=startGame>start</button>
             <button type="button" class="soft-shadow game-button" @onclick=resetGame>reset</button>
-        </div>
     </div>
     <div id="game-container" tabindex="0" @onkeydown=keyDownInputHandler @onkeyup=keyUpInputHandler>
         <ResponsiveCanvas @ref=gameScreen appID=AppID.Invaders />
@@ -37,12 +27,10 @@
     </div>
 </main>
 
-@foreach (var s in ShipModel.invaderShips)
+@foreach (var a in new List<GameAsset>().Concat(ShipModel.invaderShips).Concat(GameDecal.decals))
 {
-    <img hidden src=@($"/img/invaderAssets/{s.spriteId}.png") @ref=@(assets[s.spriteId]) />
+    <img hidden src =@($"/img/invaderAssets/{a.spriteId}.png") @ref=assets[a.spriteId] />
 }
-<img hidden src=@($"/img/invaderAssets/splash.png") @ref=@(assets[-1]) />
-<img hidden src=@($"/img/invaderAssets/laser.png") @ref=@(assets[-2]) />
 <img hidden src=@($"/img/invaderAssets/player.png") @ref=@(assets[ShipModel.playerShip.spriteId]) />
 
 @code {
@@ -50,12 +38,13 @@
     private double scale;
     private Score currentScore;
     private Score highScore;
+    private bool combo = false;
 
     private Timer mainGameControl;
     private Timer invaderControl;
 
     private Space space;
-    private Dictionary<int, ElementReference> assets;
+    private Dictionary<string, ElementReference> assets;
 
     // TODO - refactor into post game component
     // TODO - refactor score into service
@@ -69,16 +58,11 @@
     {
         invaderControl = new Timer(800) { AutoReset = true, Enabled = false };
         invaderControl.Elapsed += invaderStep;
-        mainGameControl = new Timer(20) { AutoReset = true, Enabled = false };
+        mainGameControl = new Timer(1000 / 60) { AutoReset = true, Enabled = false };
         mainGameControl.Elapsed += runGame;
         currentScore = new Score(AppID.Invaders);
         highScore = currentScore;
-        assets = new Dictionary<int, ElementReference>();
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        highScore = await scoreService.readLocalScore(AppID.Invaders);
+        assets = new Dictionary<string, ElementReference>();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -173,11 +157,14 @@
 
     private void invaderStep(Object? o, EventArgs e)
     {
-        space.updateSpaceState();
-        currentScore.scoreValue += currentScore.turn * space.invaderCleanup();
-        space.invaderAttack();
-        invaderControl.Interval = space.invaders.Count / 0.06;
         if (space.invaders.Count == 0) nextRound();
+        space.updateSpaceState();
+        var stepScore = space.invaderCleanup();
+        currentScore.scoreValue += currentScore.turn * stepScore * (combo ? 2 : 1);
+        combo = stepScore != 0;
+        space.invaderAttack();
+        invaderControl.Interval = space.invaders.Count / 0.05;
+        space.sendSpecial();
     }
 
     private async Task drawObject(GameObject obj)
@@ -192,16 +179,34 @@
 
     private async Task drawSet(IEnumerable<GameObject> list)
     {
-        foreach (var o in list)
+        foreach (var o in list) { await drawObject(o); }
+    }
+
+    private async Task drawUI()
+    {
+        await gameScreen.canvasReference.SetFontAsync("16px \"Press Start 2P\"");
+        await gameScreen.canvasReference.SetFillStyleAsync("White");
+        await gameScreen.canvasReference.FillTextAsync(getUIText(), 10, 20);
+        for (int i = 1; i <= space.player.healthPoints; i++)
         {
-            await drawObject(o);
+            await gameScreen.canvasReference.DrawImageAsync(assets["heart"], (16 * i), 40);
         }
+    }
+
+    private string getUIText()
+    {
+        var text = new StringBuilder();
+        text.Append($"Score:{currentScore.scoreValue}\t");
+        if (highScore.scoreValue > 0) text.Append($"Best:{highScore.scoreValue}\t");
+        text.Append($"Level:{currentScore.turn}");
+        return text.ToString();
     }
 
     private async void drawGame()
     {
         await gameScreen.clear();
         await gameScreen.canvasReference.BeginBatchAsync();
+        await drawUI();
         await drawSet(space.invaders);
         await drawSet(space.shotsFired);
         await drawObject(space.player);
