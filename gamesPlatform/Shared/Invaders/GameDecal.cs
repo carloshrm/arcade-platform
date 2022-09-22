@@ -19,6 +19,7 @@
             new GameDecal { spriteId = "laser", width = 4, height = 20 },
             new GameDecal { spriteId = "heart", width = 14, height = 14 },
             new GameDecal { spriteId = "splash", width = 18, height = 16 },
+            new GameDecal { spriteId = "barrier", width = 100, height = 70 },
         };
 
         public static GameDecal GetDecal(string name)

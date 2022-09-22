@@ -2,6 +2,7 @@
 @inject IJSRuntime jsRuntime
 @inject IScoreService scoreService
 @implements IDisposable
+@using cmArcade.Shared.Invaders
 
 <main id="main-content">
     <div id="game-controls">
@@ -62,6 +63,7 @@
         mainGameControl.Elapsed += runGame;
         currentScore = new Score(AppID.Invaders);
         highScore = currentScore;
+        scale = 1;
         assets = new Dictionary<string, ElementReference>();
     }
 
@@ -189,7 +191,7 @@
         await gameScreen.canvasReference.FillTextAsync(getUIText(), 10, 20);
         for (int i = 1; i <= space.player.healthPoints; i++)
         {
-            await gameScreen.canvasReference.DrawImageAsync(assets["heart"], (16 * i), 40);
+            await gameScreen.canvasReference.DrawImageAsync(assets["heart"], gameScreen.componentWidth - (20 * i), 0);
         }
     }
 
@@ -209,6 +211,7 @@
         await drawUI();
         await drawSet(space.invaders);
         await drawSet(space.shotsFired);
+        await drawSet(space.barriers);
         await drawObject(space.player);
         if (space.specialInvader != null) await drawObject(space.specialInvader);
         await gameScreen.canvasReference.EndBatchAsync();

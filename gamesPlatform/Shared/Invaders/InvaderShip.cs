@@ -1,4 +1,4 @@
-﻿namespace cmArcade.Shared
+﻿namespace cmArcade.Shared.Invaders
 {
     public class InvaderShip : GameObject
     {

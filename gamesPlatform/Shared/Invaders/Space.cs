@@ -1,38 +1,49 @@
-﻿namespace cmArcade.Shared
+﻿namespace cmArcade.Shared.Invaders
 {
     public class Space
     {
-        public const int baseScore = 8;
-
         private static Random rng = new Random();
+        private int invaderShotCount = 0;
+        public const int baseScore = 8;
+        public (int row, int col) limits { get; set; }
+
         public PlayerShip player { get; set; }
-        public List<LaserShot> shotsFired { get; set; }
         public List<InvaderShip> invaders { get; set; }
         public InvaderShip specialInvader { get; set; }
         public bool specialIsActive { get; set; }
-        public (int row, int col) limits { get; set; }
+        public List<FieldBarrier> barriers { get; set; }
+
+        public List<LaserShot> shotsFired { get; set; }
 
         public event EventHandler? gameOver;
-        private int invaderShotCount;
 
         public Space((int row, int col) limits)
         {
-            player = new PlayerShip(limits.row - (int)Math.Round(limits.row * 0.10), limits.col / 2);
+            player = new PlayerShip(limits.row - (limits.row / 10), limits.col / 2);
             shotsFired = new List<LaserShot>();
             invaders = new List<InvaderShip>();
-            invaderShotCount = 0;
+            barriers = new List<FieldBarrier>();
             this.limits = limits;
             setupCommonInvaders();
             setupSpecialInvader();
+            setupBarriers();
         }
 
         public async Task updateGameState()
         {
             hitDetection();
-
             player.updatePosition(limits);
             updateSpecialInvader();
             shotsFired.ForEach(s => s.updatePosition(limits));
+        }
+
+        public void setupBarriers()
+        {
+            int row = (int)(limits.row * 0.80);
+            int col = limits.col / 6;
+            barriers.Add(new FieldBarrier(row, col));
+            barriers.Add(new FieldBarrier(row, limits.col - col));
+            barriers.Add(new FieldBarrier(row, col * 3));
         }
 
         public void fireShot(GameObject whoFired)
@@ -42,7 +53,7 @@
 
         public void invaderAttack()
         {
-            if (rng.Next(10) > 6 && invaderShotCount < 2)
+            if (rng.Next(10) > 7 && invaderShotCount < 3)
             {
                 foreach (var inv in invaders.OrderByDescending(x => x.row))
                 {
@@ -94,7 +105,7 @@
 
         public void sendSpecial()
         {
-            if (rng.Next(10) >= 9) specialIsActive = true;
+            if (invaders.Count % 9 == 0) specialIsActive = true;
         }
 
         public void parseKeyDown(string input)
@@ -190,6 +201,14 @@
             {
                 if (!shot.hitSomething)
                 {
+                    foreach (var b in barriers.Where(b => b.healthPoints > 0))
+                    {
+                        if (check(b, shot))
+                        {
+                            shot.hit();
+                            b.hit();
+                        }
+                    }
                     if (shot.fromPlayer)
                     {
                         if (check(specialInvader, shot))
@@ -203,7 +222,6 @@
                             {
                                 inv.healthPoints--;
                                 shot.hit();
-                                Console.WriteLine("hit");
                             }
                         }
                     }
@@ -213,7 +231,6 @@
                         {
                             player.healthPoints--;
                             shot.hit();
-                            Console.WriteLine("hit");
                         }
                     }
                 }
