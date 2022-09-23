@@ -121,7 +121,7 @@
             return;
         else
         {
-            if (currentScore.scoreValue > 0)
+            if (gameOver)
                 resetGame();
             currentScore.turn = 1;
             currentScore.runStart = DateTime.Now;
@@ -145,7 +145,7 @@
             await gameScreen.canvasReference.FillTextAsync($"Next round in {i}...", 50, 50);
             await Task.Delay(1000);
         }
-        space = new Space(gameScreen.getDimensions());
+        space.nextRound();
         currentScore.turn++;
         toggleControlObjects();
     }
@@ -173,7 +173,7 @@
     {
         gameOver = true;
         toggleControlObjects();
-        currentScore.runLength = currentScore.runStart - DateTime.Now;
+        currentScore.runLength = DateTime.Now - currentScore.runStart;
         if (currentScore.scoreValue > highScore.scoreValue)
         {
             highScore = currentScore;

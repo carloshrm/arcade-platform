@@ -31,6 +31,13 @@ namespace cmArcade.Shared.Invaders
             setupBarriers();
         }
 
+        public void nextRound()
+        {
+            setupCommonInvaders();
+            setupSpecialInvader();
+            setupBarriers();
+        }
+
         public async void updateGameState(Object? o, ElapsedEventArgs e)
         {
             hitDetection();
@@ -86,7 +93,6 @@ namespace cmArcade.Shared.Invaders
             int tallestInvader = ShipModel.invaderShips.Max(x => x.height) + 10;
             int rowPos = limits.row / 20;
             int colSize = (int)(limits.col * 0.8 / invadersPerRow);
-            Console.WriteLine(colSize);
             for (int i = 0; i < 4; i++)
             {
                 var model = ShipModel.invaderShips[i];
