@@ -30,7 +30,7 @@
 
         public override bool updatePosition((int row, int col) limits)
         {
-            col += (int)movingDirection * 20;
+            col += (int)movingDirection * 18;
             return col <= 0 + model.width || col >= limits.col - (model.width * 1.5);
         }
 
