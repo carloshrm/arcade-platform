@@ -1,4 +1,6 @@
-﻿namespace cmArcade.Shared.Invaders
+﻿using System.Timers;
+
+namespace cmArcade.Shared.Invaders
 {
     public class Space
     {
@@ -29,7 +31,7 @@
             setupBarriers();
         }
 
-        public async Task updateGameState()
+        public async void updateGameState(Object? o, ElapsedEventArgs e)
         {
             hitDetection();
             player.updatePosition(limits);
@@ -55,17 +57,26 @@
         {
             if (rng.Next(10) > 7 && invaderShotCount < 3)
             {
-                foreach (var inv in invaders.OrderByDescending(x => x.row))
+                int i = invaders.Count - 1;
+                if (i <= 0)
                 {
-                    if (inv.col == player.col ||
-                       (inv.col < player.col && player.movingDir == Direction.left) ||
-                       (inv.col > player.col && player.movingDir == Direction.right))
-                    {
-                        fireShot(inv);
-                        invaderShotCount++;
-                        return;
-                    }
+                    fireShot(invaders[i]);
+                    invaderShotCount++;
+                    return;
                 }
+                int currentDistance = int.MaxValue;
+                int previousDistance;
+                do
+                {
+                    previousDistance = currentDistance;
+                    currentDistance = Math.Abs(player.col - invaders[i].col);
+                    i--;
+                }
+                while (currentDistance <= previousDistance);
+
+                i += player.movingDir == Direction.left ? -1 : 2;
+                fireShot(invaders[i]);
+                invaderShotCount++;
             }
         }
 
@@ -75,14 +86,15 @@
             int tallestInvader = ShipModel.invaderShips.Max(x => x.height) + 10;
             int rowPos = limits.row / 20;
             int colSize = (int)(limits.col * 0.8 / invadersPerRow);
+            Console.WriteLine(colSize);
             for (int i = 0; i < 4; i++)
             {
                 var model = ShipModel.invaderShips[i];
                 rowPos += tallestInvader;
 
-                for (int j = 1; j <= invadersPerRow; j++)
+                for (int j = 0; j < invadersPerRow; j++)
                 {
-                    var colPos = (colSize * j) + (colSize - (model.width / 2));
+                    var colPos = (colSize * (j + 1)) - (model.width / 2);
                     invaders.Add(new InvaderShip(rowPos, colPos, model));
                 }
             }
@@ -99,13 +111,13 @@
         {
             if (specialIsActive)
                 specialInvader.col -= 3;
-            if (specialInvader.col <= 0 - specialInvader.model.width || specialInvader.healthPoints <= 0)
-                setupSpecialInvader();
         }
 
         public void sendSpecial()
         {
             if (invaders.Count % 9 == 0) specialIsActive = true;
+            if (specialInvader.col <= 0 - specialInvader.model.width || specialInvader.healthPoints <= 0)
+                setupSpecialInvader();
         }
 
         public void parseKeyDown(string input)
@@ -182,7 +194,7 @@
                 else
                     return false;
             });
-            if (specialInvader.healthPoints <= 0) calculatedScore += baseScore * 10;
+            if (specialInvader.healthPoints <= 0) calculatedScore += baseScore * 8;
             return calculatedScore;
         }
 
