@@ -199,7 +199,7 @@
     {
         await gameScreen.canvasReference.DrawImageAsync(
             assets[obj.model.spriteId], // asset IMG reference
-            obj.spriteSelect * obj.model.width, 0 * obj.model.height, // asset position in reference png
+            obj.spriteSelect * obj.model.width, 0 * obj.model.height, // asset position on reference png
             obj.model.width, obj.model.height, // asset size in png
             obj.col, obj.row, // canvas coords for rendering
             obj.model.width * scale, obj.model.height * scale); // size for rendering in canvas
