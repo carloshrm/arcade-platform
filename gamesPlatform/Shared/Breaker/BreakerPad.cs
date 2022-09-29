@@ -13,16 +13,23 @@
 
         public override bool updatePosition((int row, int col) limits)
         {
-            if ((col >= 0 && movingDir == Direction.left) || (col <= limits.col - model.width - 1 && movingDir == Direction.right))
+            if (col >= 0 && col <= limits.col - model.width - 1)
                 col += (int)accel;
+            else if (col < 0)
+                col = 1;
+            else
+                col = limits.col - model.width - 2;
 
             if (movingDir == Direction.right)
-                accel = 6;
+            {
+                accel = accel >= 6 ? 6 : accel + 0.5;
+            }
             else if (movingDir == Direction.left)
-                accel = -6;
-
-            if (movingDir == Direction.none)
-                accel = accel > 0 ? (accel - 0.01) : (accel + 0.01);
+            {
+                accel = accel <= -6 ? -6 : accel - 0.5;
+            }
+            else
+                accel = accel > 0 ? (accel - 0.5) : (accel + 0.5);
 
             return true;
         }
