@@ -1,0 +1,83 @@
+﻿@page "/breaker"
+@inject IJSRuntime jsRuntime
+@inject IScoreService scoreService
+@implements IDisposable
+
+<main id="main-content">
+    <div id="game-controls">
+        <button type="button" class="soft-shadow game-button" @onclick=startGame>start</button>
+        <button type="button" class="soft-shadow game-button" @onclick=resetGame>reset</button>
+    </div>
+    <div id="game-container" tabindex="0" @onkeydown=keyDownInputHandler @onkeyup=keyUpInputHandler>
+        <ResponsiveCanvas @ref=gameScreen appID=AppID.Breaker />
+        @if (currentScore?.turn > 0 && gameOver)
+        {
+            <div id="post-game-container" class="dark-bg soft-shadow">
+                <h2>Game Over...</h2>
+                <h4>Score: @currentScore?.scoreValue</h4>
+                <h4>Best: @highScore?.scoreValue</h4>
+                @if (canUpload)
+                {
+                    <button type="button" @onclick=@(() => showScoreUpload = true )>Pin on leaderboard!</button>
+                }
+                <LeaderboardView appID=AppID.Invaders @ref=leaderboard />
+            </div>
+            @if (showScoreUpload && canUpload)
+            {
+                <ScoreUpload info=@highScore callback=@uploadCallback />
+            }
+        }
+    </div>
+</main>
+
+@code {
+    private ResponsiveCanvas? gameScreen;
+    private Score currentScore;
+    private Score highScore;
+
+    private Timer gameControl;
+    private Timer canvasRefresh;
+
+    private bool gameOver = false;
+    private bool canUpload = false;
+    private bool showScoreUpload = false;
+    private LeaderboardView? leaderboard;
+    private Action<int> uploadCallback;
+
+    public BreakerGame()
+    {
+        gameControl = new Timer(10) { AutoReset = true, Enabled = false };
+        canvasRefresh = new Timer(1000 / 60) { AutoReset = true, Enabled = false };
+    }
+
+    private void toggleControlObjects()
+    {
+        gameControl.Enabled = !gameControl.Enabled;
+        canvasRefresh.Enabled = !canvasRefresh.Enabled;
+    }
+
+    private void startGame() 
+    {
+
+    }
+
+    private void resetGame()
+    {
+
+    }
+
+    private void keyDownInputHandler(KeyboardEventArgs e)
+    {
+        //space.parseKeyDown(e.Key);
+    }
+
+    private void keyUpInputHandler(KeyboardEventArgs e)
+    {
+        //space.parseKeyUp(e.Key);
+    }
+
+    public void Dispose()
+    {
+        canvasRefresh.Dispose();
+    }
+}

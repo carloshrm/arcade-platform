@@ -58,12 +58,6 @@ namespace cmArcade.Shared.Invaders
             if (rng.Next(10) > 7 && invaderShotCount < 3)
             {
                 int i = invaders.Count - 1;
-                if (i <= 0)
-                {
-                    fireShot(invaders[i]);
-                    invaderShotCount++;
-                    return;
-                }
                 int currentDistance = int.MaxValue;
                 int previousDistance;
                 do
