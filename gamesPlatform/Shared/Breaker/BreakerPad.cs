@@ -1,6 +1,6 @@
 ﻿namespace cmArcade.Shared.Breaker
 {
-    internal class BreakerPad : GameObject
+    public class BreakerPad : GameObject
     {
         public override int row { get; set; }
         public override int col { get; set; }
@@ -9,7 +9,27 @@
         public override int spriteSelect { get; set; }
         public Direction movingDir { get; set; }
         public double accel { get; set; }
+        public double weight { get; set; }
 
+        public BreakerPad(int row, int col)
+        {
+            this.row = row;
+            this.col = col;
+            model = PadModel.playerPad;
+            movingDir = Direction.none;
+            healthPoints = 3;
+            accel = 0;
+            weight = 0.5;
+            spriteSelect = 0;
+        }
+
+        public void setWeight(double w)
+        {
+            if (w > 0)
+                weight = w;
+            else
+                throw new ArgumentException("weight should be positive");
+        }
 
         public override bool updatePosition((int row, int col) limits)
         {
@@ -22,14 +42,14 @@
 
             if (movingDir == Direction.right)
             {
-                accel = accel >= 6 ? 6 : accel + 0.5;
+                accel = accel >= 6 ? 6 : accel + weight;
             }
             else if (movingDir == Direction.left)
             {
-                accel = accel <= -6 ? -6 : accel - 0.5;
+                accel = accel <= -6 ? -6 : accel - weight;
             }
             else
-                accel = accel > 0 ? (accel - 0.5) : (accel + 0.5);
+                accel = accel > 0 ? (accel - weight) : (accel + weight);
 
             return true;
         }

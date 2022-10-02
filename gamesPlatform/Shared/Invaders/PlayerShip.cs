@@ -35,11 +35,11 @@
 
             if (movingDir == Direction.right)
             {
-                accel = accel >= 6 ? 6 : accel + 0.5;
+                accel = 6;
             }
             else if (movingDir == Direction.left)
             {
-                accel = accel <= -6 ? -6 : accel - 0.5;
+                accel = -6;
             }
             else
                 accel = accel > 0 ? (accel - 0.5) : (accel + 0.5);

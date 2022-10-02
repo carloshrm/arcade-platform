@@ -10,7 +10,7 @@
 
         public FieldBarrier(int row, int col)
         {
-            model = GameDecal.GetDecal("barrier");
+            model = GameDecal.getInvaderDecal("barrier");
             this.row = row;
             this.col = col - (model.width / 2);
             healthPoints = 6;

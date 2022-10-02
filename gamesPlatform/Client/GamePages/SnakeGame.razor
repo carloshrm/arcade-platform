@@ -24,7 +24,7 @@
                 <h2>Game Over...</h2>
                 <h4>Score: @currentScore?.scoreValue</h4>
                 <h4>Best: @highScore?.scoreValue</h4>
-                <button type="button" class="soft-shadow game-button" @onclick=@(() => { if (canUpload) showScoreUpload = true; })>Pin on leaderboard!</button>
+                <button type="button" class="soft-shadow game-button" @onclick=@(() => { if (canUpload) showScoreUpload = true; })>Upload!</button>
                 <LeaderboardView appID=AppID.Snake @ref=leaderboard />
             </div>
             @if (showScoreUpload && canUpload) { <ScoreUpload info=@highScore callback=@uploadCallback/> }

@@ -15,13 +15,13 @@
             fromPlayer = actor is PlayerShip;
             row = actor.row;
             col = actor.col + (actor.model.width / 2) - 2;
-            model = GameDecal.GetDecal("laser");
+            model = GameDecal.getInvaderDecal("laser");
             spriteSelect = fromPlayer ? 0 : 1;
         }
 
         public void hit()
         {
-            model = GameDecal.GetDecal("hit");
+            model = GameDecal.getInvaderDecal("hit");
             spriteSelect = new Random().Next(0, 4);
             hitSomething = true;
         }

@@ -13,18 +13,18 @@
             height = 22;
         }
 
-        public static readonly GameDecal[] decals = new GameDecal[]
+        public static readonly GameDecal[] invaderDecals = new GameDecal[]
         {
             new GameDecal { spriteId = "hit", width = 24, height = 22 },
             new GameDecal { spriteId = "laser", width = 4, height = 20 },
-            new GameDecal { spriteId = "heart", width = 14, height = 14 },
+            new GameDecal { spriteId = "heart", width = 28, height = 28 },
             new GameDecal { spriteId = "splash", width = 18, height = 16 },
             new GameDecal { spriteId = "barrier", width = 100, height = 70 },
         };
 
-        public static GameDecal GetDecal(string name)
+        public static GameDecal getInvaderDecal(string name)
         {
-            return Array.Find(decals, x => x.spriteId == name);
+            return Array.Find(invaderDecals, x => x.spriteId == name);
         }
     }
 }

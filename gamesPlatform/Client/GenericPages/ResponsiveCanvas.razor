@@ -11,12 +11,20 @@
 
     private BECanvasComponent? _componentReference { get; set; }
     public Canvas2DContext? canvasReference { get; set; }
+    public Dictionary<string, ElementReference> assets;
+
+    public ResponsiveCanvas()
+    {
+        assets = new Dictionary<string, ElementReference>();
+    }
 
     public int componentWidth { get; set; }
     public int componentHeight { get; set; }
     public long windowWidth { get; set; }
     public long windowHeight { get; set; }
     public (int r, int c) baseResolution { get; set; }
+
+
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -66,11 +74,26 @@
                 componentHeight = width - (width % baseResolution.r);
             }
         }
-        else if (appID == AppID.Invaders)
+        else
         {
             (componentWidth, componentHeight) = baseResolution;
         }
         StateHasChanged();
+    }
+
+    public async Task drawObject(GameObject obj)
+    {
+        await canvasReference.DrawImageAsync(
+            assets[obj.model.spriteId], // asset IMG reference
+            obj.spriteSelect * obj.model.width, 0 * obj.model.height, // asset position on reference png
+            obj.model.width, obj.model.height, // asset size in png
+            obj.col, obj.row, // canvas coords for rendering
+            obj.model.width, obj.model.height); // size for rendering in canvas
+    }
+
+    public async Task drawSet(IEnumerable<GameObject> list)
+    {
+        foreach (var o in list) { await drawObject(o); }
     }
 
     public async Task clear()
