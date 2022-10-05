@@ -41,7 +41,7 @@
 
 
 @code {
-    private BreakerField game;
+    private cmArcade.Shared.Breaker.BreakerGame game;
 
     private ResponsiveCanvas? gameScreen;
     private Score currentScore;
@@ -74,7 +74,7 @@
                 await gameScreen.setCanvasSize();
                 await gameScreen.canvasReference.SetFontAsync("16px \"Press Start 2P\"");
                 await gameScreen.canvasReference.SetFillStyleAsync("White");
-                game = new BreakerField(gameScreen.getDimensions());
+                    game = new cmArcade.Shared.Breaker.BreakerGame(gameScreen.getDimensions());
             }
             highScore = await scoreService.readLocalScore(AppID.Breaker);
             canUpload = highScore.id == -1;
@@ -109,7 +109,7 @@
     {
         if (gameControl.Enabled) toggleControlObjects();
         currentScore = new Score(AppID.Breaker);
-        game = new BreakerField(gameScreen.getDimensions());
+            game = new cmArcade.Shared.Breaker.BreakerGame(gameScreen.getDimensions());
         gameOver = false;
         gameScreen.clear();
     }
