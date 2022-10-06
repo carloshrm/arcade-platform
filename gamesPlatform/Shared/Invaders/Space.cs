@@ -37,7 +37,7 @@
             setupBarriers();
         }
 
-        public async void updateGameState(Object? o, ElapsedEventArgs e)
+        public async void updateGameState()
         {
             hitDetection();
             player.updatePosition(limits);
