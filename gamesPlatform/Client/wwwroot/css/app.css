@@ -6,6 +6,7 @@ body {
     font-family: 'Montserrat', sans-serif;
     height: 100vh;
     overflow: hidden;
+    background-color: var(--color-light-background-lsat);
 }
 
 #main-card-container {
@@ -32,7 +33,7 @@ a, .btn-link {
 
 .btn-primary {
     color: #fff;
-    background-color: #1b6ec2;
+    background-color: var(--color-dark-background);
     border-color: #1861ac;
 }
 
@@ -82,11 +83,11 @@ a, .btn-link {
     }
 
 :root {
-    --color-light-background-hsat:#A65665;
-    --color-dark-background: #593C59;
-    --color-highlight-hsat: #F29849;
-    --color-highlight-lsat: #F2884B;
-    --color-light-background-lsat: #BF544B;
+    --color-light-background-hsat: #122620;
+    --color-dark-background: #122620;
+    --color-highlight-hsat: #D6AD60;
+    --color-highlight-lsat: #B68D40;
+    --color-light-background-lsat: #F4EBD0;
 }
 
 .game-button {

@@ -1,31 +1,30 @@
-﻿using System.Timers;
-
-namespace cmArcade.Shared.Invaders
+﻿namespace cmArcade.Shared.Invaders
 {
     public class Space
     {
         private static Random rng = new Random();
         private int invaderShotCount = 0;
         public const int baseScore = 8;
-        public (int row, int col) limits { get; set; }
+        public event EventHandler? gameOver;
+        public double difficultyRatio = 1;
 
+        public (int row, int col) limits { get; set; }
         public PlayerShip player { get; set; }
         public List<InvaderShip> invaders { get; set; }
         public InvaderShip specialInvader { get; set; }
         public bool specialIsActive { get; set; }
         public List<FieldBarrier> barriers { get; set; }
-
         public List<LaserShot> shotsFired { get; set; }
 
-        public event EventHandler? gameOver;
 
-        public Space((int row, int col) limits)
+        public Space((int row, int col) limits, bool isNextRound = false)
         {
             player = new PlayerShip(limits.row - (limits.row / 10), limits.col / 2);
             shotsFired = new List<LaserShot>();
             invaders = new List<InvaderShip>();
             barriers = new List<FieldBarrier>();
             this.limits = limits;
+            if (isNextRound) difficultyRatio += 0.1;
             setupCommonInvaders();
             setupSpecialInvader();
             setupBarriers();
@@ -62,15 +61,9 @@ namespace cmArcade.Shared.Invaders
 
         public void invaderAttack()
         {
-            if (rng.Next(10) > 7 && invaderShotCount < 3)
+            if (rng.Next(10) > 7 && invaderShotCount < (int)Math.Round(3 * difficultyRatio))
             {
                 int i = invaders.Count - 1;
-                if (i <= 0)
-                {
-                    fireShot(invaders[i]);
-                    invaderShotCount++;
-                    return;
-                }
                 int currentDistance = int.MaxValue;
                 int previousDistance;
                 do
@@ -89,13 +82,13 @@ namespace cmArcade.Shared.Invaders
 
         public void setupCommonInvaders()
         {
-            int invadersPerRow = 10;
-            int tallestInvader = ShipModel.invaderShips.Max(x => x.height) + 10;
+            int invadersPerRow = (int)Math.Ceiling(8 * difficultyRatio);
+            int tallestInvader = ShipModel.invaderShips.Values.Max(x => x.height) + 10;
             int rowPos = limits.row / 20;
             int colSize = (int)(limits.col * 0.8 / invadersPerRow);
             for (int i = 0; i < 4; i++)
             {
-                var model = ShipModel.invaderShips[i];
+                var model = ShipModel.invaderShips[(i + 1).ToString()];
                 rowPos += tallestInvader;
 
                 for (int j = 0; j < invadersPerRow; j++)
@@ -109,7 +102,7 @@ namespace cmArcade.Shared.Invaders
         private void setupSpecialInvader()
         {
             specialIsActive = false;
-            var model = ShipModel.invaderShips.Last();
+            var model = ShipModel.invaderShips.Last().Value;
             specialInvader = new InvaderShip(model.height, limits.col + model.width + 10, model);
         }
 
@@ -128,7 +121,7 @@ namespace cmArcade.Shared.Invaders
 
         public void parseKeyDown(string input)
         {
-            if (input.Equals(" "))
+            if (input.Equals(" ") || input.Equals("ArrowUp"))
             {
                 if (player.canShoot)
                 {
@@ -175,9 +168,10 @@ namespace cmArcade.Shared.Invaders
             checkGameOver();
         }
 
-        public void checkGameOver()
+        private void checkGameOver()
         {
-            if (player.healthPoints <= 0) gameOver?.Invoke(this, EventArgs.Empty);
+            if (player.healthPoints <= 0)
+                gameOver?.Invoke(this, EventArgs.Empty);
             else
             {
                 foreach (var inv in invaders)

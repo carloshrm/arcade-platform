@@ -1,0 +1,154 @@
+﻿@page "/breaker"
+@inject IJSRuntime jsRuntime
+@inject IScoreService scoreService
+@implements IDisposable
+@using cmArcade.Shared.Breaker
+
+<main id="main-content">
+    <div id="game-controls">
+        <button type="button" class="soft-shadow game-button" @onclick=startGame>start</button>
+        <button type="button" class="soft-shadow game-button" @onclick=resetGame>reset</button>
+    </div>
+    <div id="game-container" tabindex="0" @onkeydown=keyDownInputHandler @onkeyup=keyUpInputHandler>
+        <ResponsiveCanvas @ref=gameScreen appID=AppID.Breaker />
+        @if (currentScore?.turn > 0 && gameOver)
+        {
+            <div id="post-game-container" class="dark-bg soft-shadow">
+                <h2>Game Over...</h2>
+                <h4>Score: @currentScore?.scoreValue</h4>
+                <h4>Best: @highScore?.scoreValue</h4>
+                @if (canUpload)
+                {
+                    <button type="button" @onclick=@(() => showScoreUpload = true )>Upload!</button>
+                }
+                <LeaderboardView appID=AppID.Breaker @ref=leaderboard />
+            </div>
+            @if (showScoreUpload && canUpload)
+            {
+                <ScoreUpload info=@highScore callback=@uploadCallback />
+            }
+        }
+    </div>
+</main>
+
+<img hidden src=@($"/img/breakerAssets/player.png") @ref=@(gameScreen.assets[PadModel.playerPad.spriteId]) />
+<img hidden src=@($"/img/breakerAssets/ball.png") @ref=@(gameScreen.assets[BallModel.breakerBall.spriteId]) />
+<img hidden src=@($"/img/breakerAssets/blocks.png") @ref=@(gameScreen.assets[BlockModel.block.spriteId]) />
+
+
+@code {
+    private cmArcade.Shared.Breaker.BreakerGame game;
+
+    private ResponsiveCanvas? gameScreen;
+    private Score currentScore;
+    private Score highScore;
+
+    private Timer gameControl;
+    private Timer canvasRefresh;
+
+    private bool gameOver = false;
+    private bool canUpload = false;
+    private bool showScoreUpload = false;
+    private LeaderboardView? leaderboard;
+    private Action<int> uploadCallback;
+
+    public BreakerGame()
+    {
+        gameControl = new Timer(10) { AutoReset = true, Enabled = false };
+        canvasRefresh = new Timer(1000 / 60) { AutoReset = true, Enabled = false };
+        currentScore = new Score(AppID.Breaker);
+        highScore = currentScore;
+        //uploadCallback = new Action<int>(refreshAfterUpload);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (gameScreen != null)
+            {
+                await gameScreen.setCanvasSize();
+                await gameScreen.canvasReference.SetFontAsync("16px \"Press Start 2P\"");
+                await gameScreen.canvasReference.SetFillStyleAsync("black");
+                game = new cmArcade.Shared.Breaker.BreakerGame(gameScreen.getDimensions());
+            }
+            highScore = await scoreService.readLocalScore(AppID.Breaker);
+            canUpload = highScore.id == -1;
+            gameControl.Elapsed += runGame;
+            canvasRefresh.Elapsed += drawGame;
+            StateHasChanged();
+        }
+    }
+
+    private void toggleControlObjects()
+    {
+        gameControl.Enabled = !gameControl.Enabled;
+        canvasRefresh.Enabled = !canvasRefresh.Enabled;
+    }
+
+    private void startGame() 
+    {
+        jsRuntime.InvokeVoidAsync("setFocus");
+        if (gameControl.Enabled)
+            return;
+        else
+        {
+            if (currentScore.scoreValue > 0)
+                resetGame();
+            currentScore.turn = 1;
+            currentScore.runStart = DateTime.Now;
+            toggleControlObjects();
+        }
+    }
+
+    private void resetGame()
+    {
+        if (gameControl.Enabled) toggleControlObjects();
+        currentScore = new Score(AppID.Breaker);
+        game = new cmArcade.Shared.Breaker.BreakerGame(gameScreen.getDimensions());
+        gameOver = false;
+        gameScreen.clear();
+    }
+
+    private void keyDownInputHandler(KeyboardEventArgs e)
+    {
+        game.parseKeyDown(e.Key);
+    }
+
+    private void keyUpInputHandler(KeyboardEventArgs e)
+    {
+        game.parseKeyUp(e.Key);
+    }
+
+    public void Dispose()
+    {
+        canvasRefresh.Dispose();
+        gameControl.Dispose();
+    }
+
+
+    private string getUIText()
+    {
+        var text = new StringBuilder();
+        text.Append($"Score:{currentScore.scoreValue}\t");
+        if (highScore.scoreValue > 0) text.Append($"Best:{highScore.scoreValue}\t");
+        text.Append($"Level:{currentScore.turn}");
+        return text.ToString();
+    }
+
+    private async void runGame(Object? o, ElapsedEventArgs e)
+    {
+        currentScore.scoreValue += game.updateFieldState();
+    }
+
+    private async void drawGame(Object? o, ElapsedEventArgs e)
+    {
+        await gameScreen.clear();
+        await gameScreen.canvasReference.BeginBatchAsync();        
+        await gameScreen.canvasReference.FillTextAsync(getUIText(), 10, 20);
+        await gameScreen.drawObject(game.player);
+        await gameScreen.drawSet(game.balls);
+        await gameScreen.drawSet(game.blocks);
+        await gameScreen.canvasReference.EndBatchAsync();
+    }
+}

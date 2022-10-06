@@ -4,7 +4,7 @@ a {
     font-weight: bold;
     padding: 0.4em 1em;
     border-radius: 2em;
-    background-color: var(--color-highlight-lsat);
+    background-color: var(--color-highlight-hsat);
 }
 
 ul {
@@ -17,6 +17,6 @@ ul {
 }
 
 #main-header {
-    background-color: black;
+    background-color: var(--color-dark-background);
     color: white;
 }

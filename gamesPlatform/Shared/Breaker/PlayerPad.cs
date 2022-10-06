@@ -1,27 +1,41 @@
-﻿namespace cmArcade.Shared.Invaders
+﻿namespace cmArcade.Shared.Breaker
 {
-    public class PlayerShip : GameObject
+    public class PlayerPad : GameObject
     {
-        public override int healthPoints { get; set; }
         public override int row { get; set; }
         public override int col { get; set; }
+        public override int healthPoints { get; set; }
         public override GraphicAsset model { get; set; }
         public override int spriteSelect { get; set; }
         public Direction movingDir { get; set; }
         public double accel { get; set; }
+        public double weight { get; set; }
 
-        public bool canShoot { get; set; }
-
-        public PlayerShip(int row, int col)
+        public PlayerPad(int row, int col)
         {
             this.row = row;
             this.col = col;
-            model = ShipModel.playerShip;
+            model = PadModel.playerPad;
             movingDir = Direction.none;
-            canShoot = true;
             healthPoints = 3;
             accel = 0;
+            weight = 0.5;
             spriteSelect = 0;
+        }
+
+        public void setWeight(double w)
+        {
+            if (w > 0)
+                weight = w;
+            else
+                throw new ArgumentException("weight should be positive");
+        }
+
+        public bool loseLife()
+        {
+            healthPoints--;
+            //cracked sprite
+            return healthPoints <= 0;
         }
 
         public override bool updatePosition((int row, int col) limits)
@@ -35,27 +49,16 @@
 
             if (movingDir == Direction.right)
             {
-                accel = 6;
+                accel = accel >= 6 ? 6 : accel + weight;
             }
             else if (movingDir == Direction.left)
             {
-                accel = -6;
+                accel = accel <= -6 ? -6 : accel - weight;
             }
             else
-                accel = accel > 0 ? (accel - 0.5) : (accel + 0.5);
+                accel = accel > 0 ? (accel - weight) : (accel + weight);
 
             return true;
         }
-
-        public async Task shotTimeout()
-        {
-            canShoot = false;
-            spriteSelect = 1;
-            await Task.Delay(250);
-            spriteSelect = 0;
-            await Task.Delay(250);
-            canShoot = true;
-        }
     }
-
 }
