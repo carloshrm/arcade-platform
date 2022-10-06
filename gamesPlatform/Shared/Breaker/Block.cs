@@ -14,7 +14,7 @@
             this.row = row;
             this.col = col - (model.width / 2);
             this.healthPoints = 1;
-            this.spriteSelect = 1;
+            this.spriteSelect = 0;
         }
 
         public override bool updatePosition((int row, int col) limits)

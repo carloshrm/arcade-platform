@@ -69,8 +69,8 @@
             {
                 await gameScreen.setCanvasSize();
                 await gameScreen.canvasReference.SetFontAsync("16px \"Press Start 2P\"");
-                await gameScreen.canvasReference.SetFillStyleAsync("White");
-                    game = new cmArcade.Shared.Breaker.BreakerGame(gameScreen.getDimensions());
+                await gameScreen.canvasReference.SetFillStyleAsync("black");
+                game = new cmArcade.Shared.Breaker.BreakerGame(gameScreen.getDimensions());
             }
             highScore = await scoreService.readLocalScore(AppID.Breaker);
             canUpload = highScore.id == -1;
@@ -105,7 +105,7 @@
     {
         if (gameControl.Enabled) toggleControlObjects();
         currentScore = new Score(AppID.Breaker);
-            game = new cmArcade.Shared.Breaker.BreakerGame(gameScreen.getDimensions());
+        game = new cmArcade.Shared.Breaker.BreakerGame(gameScreen.getDimensions());
         gameOver = false;
         gameScreen.clear();
     }
@@ -126,16 +126,29 @@
         gameControl.Dispose();
     }
 
+
+    private string getUIText()
+    {
+        var text = new StringBuilder();
+        text.Append($"Score:{currentScore.scoreValue}\t");
+        if (highScore.scoreValue > 0) text.Append($"Best:{highScore.scoreValue}\t");
+        text.Append($"Level:{currentScore.turn}");
+        return text.ToString();
+    }
+
     private async void runGame(Object? o, ElapsedEventArgs e)
     {
-        game.updateFieldState();
+        currentScore.scoreValue += game.updateFieldState();
     }
 
     private async void drawGame(Object? o, ElapsedEventArgs e)
     {
         await gameScreen.clear();
+        await gameScreen.canvasReference.BeginBatchAsync();        
+        await gameScreen.canvasReference.FillTextAsync(getUIText(), 10, 20);
         await gameScreen.drawObject(game.player);
         await gameScreen.drawSet(game.balls);
         await gameScreen.drawSet(game.blocks);
+        await gameScreen.canvasReference.EndBatchAsync();
     }
 }

@@ -7,6 +7,7 @@
         public List<Ball> balls { get; set; }
         public (int row, int col) limits { get; set; }
 
+        private int baseScore = 420;
         private static int blkPerRow = 10;
         private static int blkRows = 3;
         private int blkRowPos;
@@ -41,19 +42,43 @@
             balls.Add(new Ball(row, col));
         }
 
-        public void updateFieldState()
+        public int updateFieldState()
         {
             player.updatePosition(limits);
             checkCollision();
-            balls.RemoveAll(b => !b.updatePosition(limits));
-            blocks.RemoveAll(bk => bk.healthPoints <= 0);
+            if (balls.RemoveAll(b => !b.updatePosition(limits)) > 0)
+            {
+                if (player.loseLife())
+                {
+                    //game over
+                }
+            }
             if (balls.Count == 0) setBall(limits.row / 2, player.col);
+            return blockCleanup();
+        }
+
+        private int blockCleanup()
+        {
+            int totalScore = 0;
+            blocks.RemoveAll(b =>
+            {
+                if (b.healthPoints <= 0)
+                {
+                    totalScore += baseScore + (b.spriteSelect * baseScore);
+                    return true;
+                }
+                else
+                    return false;
+            });
+            return totalScore;
         }
 
         private void checkCollision()
         {
             foreach (var ball in balls)
             {
+                if (ball.bounceLock) continue;
+
                 // TODO - fix multiple collisions bug
                 if (checkHit(ball, player))
                 {

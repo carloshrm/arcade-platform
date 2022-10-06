@@ -31,6 +31,13 @@
                 throw new ArgumentException("weight should be positive");
         }
 
+        public bool loseLife()
+        {
+            healthPoints--;
+            //cracked sprite
+            return healthPoints <= 0;
+        }
+
         public override bool updatePosition((int row, int col) limits)
         {
             if (col >= 0 && col <= limits.col - model.width - 1)
