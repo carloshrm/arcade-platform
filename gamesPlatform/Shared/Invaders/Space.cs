@@ -76,13 +76,12 @@
         public void setupCommonInvaders()
         {
             int invadersPerRow = (int)Math.Ceiling(8 * difficultyRatio);
-            int tallestInvader = ShipModel.invaderShips.Max(x => x.height) + 10;
+            int tallestInvader = ShipModel.invaderShips.Values.Max(x => x.height) + 10;
             int rowPos = limits.row / 20;
             int colSize = (int)(limits.col * 0.8 / invadersPerRow);
-            Console.WriteLine(colSize);
             for (int i = 0; i < 4; i++)
             {
-                var model = ShipModel.invaderShips[i];
+                var model = ShipModel.invaderShips[(i + 1).ToString()];
                 rowPos += tallestInvader;
 
                 for (int j = 0; j < invadersPerRow; j++)
@@ -96,7 +95,7 @@
         private void setupSpecialInvader()
         {
             specialIsActive = false;
-            var model = ShipModel.invaderShips.Last();
+            var model = ShipModel.invaderShips.Last().Value;
             specialInvader = new InvaderShip(model.height, limits.col + model.width + 10, model);
         }
 
@@ -162,9 +161,10 @@
             checkGameOver();
         }
 
-        public void checkGameOver()
+        private void checkGameOver()
         {
-            if (player.healthPoints <= 0) gameOver?.Invoke(this, EventArgs.Empty);
+            if (player.healthPoints <= 0)
+                gameOver?.Invoke(this, EventArgs.Empty);
             else
             {
                 foreach (var inv in invaders)
