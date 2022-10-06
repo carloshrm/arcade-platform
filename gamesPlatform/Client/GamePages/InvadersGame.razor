@@ -31,9 +31,9 @@
     </div>
 </main>
 
-@foreach (var a in new List<GraphicAsset>().Concat(ShipModel.invaderShips).Concat(GameDecal.invaderDecals))
+@foreach (var id in new List<string>().Concat(ShipModel.invaderShips.Keys).Concat(GameDecal.invaderDecals.Keys))
 {
-    <img hidden src =@($"/img/invaderAssets/{a.spriteId}.png") @ref=gameScreen.assets[a.spriteId] />
+    <img hidden src =@($"/img/invaderAssets/{id}.png") @ref=gameScreen.assets[id] />
 }
 <img hidden src=@($"/img/invaderAssets/player.png") @ref=@(gameScreen.assets[ShipModel.playerShip.spriteId]) />
 
@@ -138,6 +138,7 @@
         if (spaceControl.Enabled) toggleControlObjects();
         currentScore = new Score(AppID.Invaders);
         game = new Space(gameScreen.getDimensions());
+        game.gameOver += stopGame;
         gameOver = false;
         gameScreen.clear();
     }
@@ -209,7 +210,7 @@
         invaderControl.Interval = game.invaders.Count / 0.05;
         game.sendSpecial();
     }
-    
+
     private async Task drawUI()
     {
         await gameScreen.canvasReference.FillTextAsync(getUIText(), 10, 20);
@@ -232,6 +233,7 @@
     {
         await gameScreen.clear();
         await gameScreen.canvasReference.BeginBatchAsync();
+        await gameScreen.canvasReference.DrawImageAsync(gameScreen.assets["bg"], 0, 0);
         await drawUI();
         await gameScreen.drawSet(game.invaders);
         await gameScreen.drawSet(game.shotsFired);
