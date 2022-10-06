@@ -17,11 +17,9 @@ namespace cmArcade.Server.Controllers
         {
             var envString = config.GetValue<string>("external_db");
             if (envString?.Equals(string.Empty) == false)
-            {
                 connection = new NpgsqlConnection(envString);
-            }
             else
-                throw new ArgumentException("invalid url");
+                throw new ArgumentException("invalid db string");
         }
 
         private async Task<T?> runQueryFirst<T>(string query, object vals)

@@ -30,7 +30,14 @@
             setupBarriers();
         }
 
-        public void updateGameState()
+        public void nextRound()
+        {
+            setupCommonInvaders();
+            setupSpecialInvader();
+            setupBarriers();
+        }
+
+        public async void updateGameState(Object? o, ElapsedEventArgs e)
         {
             hitDetection();
             player.updatePosition(limits);

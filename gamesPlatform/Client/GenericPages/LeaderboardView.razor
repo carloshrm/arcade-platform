@@ -53,7 +53,10 @@
         try
         {
             var databaseLeaderboard = await scoreService.getLeaderboard(appID);
-            localLeaderboard = databaseLeaderboard.OrderByDescending(x => x.scoreValue).ToList();
+            if (databaseLeaderboard.Count() == 0)
+                statusMessage = "No scores have been registered yet.";
+            else
+                localLeaderboard = databaseLeaderboard.OrderByDescending(x => x.scoreValue).ToList();
         }
         catch (Exception e)
         {
