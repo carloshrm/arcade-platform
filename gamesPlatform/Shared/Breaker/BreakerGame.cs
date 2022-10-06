@@ -2,22 +2,43 @@
 {
     public class BreakerGame
     {
-        public BreakerPad player { get; set; }
-        //list<blocks>
-        public List<BreakerBall> balls { get; set; }
+        public PlayerPad player { get; set; }
+        public List<Block> blocks { get; set; }
+        public List<Ball> balls { get; set; }
         public (int row, int col) limits { get; set; }
+
+        private static int blkPerRow = 10;
+        private static int blkRows = 3;
+        private int blkRowPos;
 
         public BreakerGame((int row, int col) limits)
         {
-            this.player = new BreakerPad(limits.row - (limits.row / 14), limits.col / 2);
-            this.balls = new List<BreakerBall>();
             this.limits = limits;
-            setBall(limits.row / 2, player.col + (player.model.width / 2) + 10);
+            player = new PlayerPad(limits.row - (limits.row / 14), limits.col / 2);
+            balls = new List<Ball>();
+            blocks = new List<Block>();
+            blkRowPos = limits.row / 8;
+            setBall(limits.row / 2, limits.col / 2);
+            setBlocks();
+        }
+
+        private void setBlocks()
+        {
+            int colOffset = limits.col / blkPerRow;
+            int padding = colOffset - BlockModel.block.width;
+            for (int i = 1; i <= blkRows; i++)
+            {
+                for (int j = 0; j < blkPerRow; j++)
+                {
+                    blocks.Add(new Block(blkRowPos + ((int)(BlockModel.block.height * 1.2) * i),
+                        (colOffset * j) + (BlockModel.block.width / 2) + (padding / 2)));
+                }
+            }
         }
 
         private void setBall(int row, int col)
         {
-            balls.Add(new BreakerBall(row, col));
+            balls.Add(new Ball(row, col));
         }
 
         public void updateFieldState()
@@ -25,25 +46,38 @@
             player.updatePosition(limits);
             checkCollision();
             balls.RemoveAll(b => !b.updatePosition(limits));
+            blocks.RemoveAll(bk => bk.healthPoints <= 0);
             if (balls.Count == 0) setBall(limits.row / 2, player.col);
         }
 
         private void checkCollision()
         {
-            foreach (var b in balls)
+            foreach (var ball in balls)
             {
-                if (checkHit(b, player))
+                // TODO - fix multiple collisions bug
+                if (checkHit(ball, player))
                 {
-                    b.bounce(-1, -1);
-                    b.offsetVector(calcOffsetPercentage(b, player.col, player.model.width));
+                    ball.bounce(-1, -1);
+                    ball.offsetVector(calcOffsetPercentage(ball, player.col, player.model.width));
                 }
-                else if ((b.col <= 0) || (b.col >= limits.col))
+                else if ((ball.col <= 0) || (ball.col + ball.model.width >= limits.col))
                 {
-                    b.bounce(1, -1);
+                    ball.bounce(1, -1);
                 }
-                else if (b.row <= 0)
+                else if (ball.row <= 0)
                 {
-                    b.bounce(-1, 1);
+                    ball.bounce(-1, 1);
+                }
+                else
+                {
+                    foreach (var blk in blocks)
+                    {
+                        if (checkHit(ball, blk))
+                        {
+                            ball.bounce(-1, 1);
+                            blk.hit();
+                        }
+                    }
                 }
             }
 

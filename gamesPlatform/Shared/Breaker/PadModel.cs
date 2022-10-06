@@ -1,6 +1,6 @@
 ﻿namespace cmArcade.Shared.Breaker
 {
-    public class PadModel : GameAsset
+    public class PadModel : GraphicAsset
     {
         public override string spriteId { get; set; }
         public override int width { get; init; }

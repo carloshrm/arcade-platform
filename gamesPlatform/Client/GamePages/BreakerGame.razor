@@ -31,13 +31,9 @@
     </div>
 </main>
 
-@*
-@foreach (var a in new List<GameAsset>().Concat(PadModel.))
-{
-    <img hidden src=@($"/img/invaderAssets/{a.spriteId}.png") @ref=assets[a.spriteId] />
-}*@
 <img hidden src=@($"/img/breakerAssets/player.png") @ref=@(gameScreen.assets[PadModel.playerPad.spriteId]) />
 <img hidden src=@($"/img/breakerAssets/ball.png") @ref=@(gameScreen.assets[BallModel.breakerBall.spriteId]) />
+<img hidden src=@($"/img/breakerAssets/blocks.png") @ref=@(gameScreen.assets[BlockModel.block.spriteId]) />
 
 
 @code {
@@ -140,5 +136,6 @@
         await gameScreen.clear();
         await gameScreen.drawObject(game.player);
         await gameScreen.drawSet(game.balls);
+        await gameScreen.drawSet(game.blocks);
     }
 }

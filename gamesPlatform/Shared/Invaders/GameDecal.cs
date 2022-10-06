@@ -1,6 +1,6 @@
 ﻿namespace cmArcade.Shared
 {
-    public class GameDecal : GameAsset
+    public class GameDecal : GraphicAsset
     {
         public override string spriteId { get; set; }
         public override int width { get; init; }

@@ -31,7 +31,7 @@
     </div>
 </main>
 
-@foreach (var a in new List<GameAsset>().Concat(ShipModel.invaderShips).Concat(GameDecal.invaderDecals))
+@foreach (var a in new List<GraphicAsset>().Concat(ShipModel.invaderShips).Concat(GameDecal.invaderDecals))
 {
     <img hidden src =@($"/img/invaderAssets/{a.spriteId}.png") @ref=gameScreen.assets[a.spriteId] />
 }

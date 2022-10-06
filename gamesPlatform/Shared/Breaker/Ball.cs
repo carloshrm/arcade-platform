@@ -1,15 +1,15 @@
 ﻿namespace cmArcade.Shared.Breaker
 {
-    public class BreakerBall : GameObject
+    public class Ball : GameObject
     {
         public override int row { get; set; }
         public override int col { get; set; }
         public override int healthPoints { get; set; }
-        public override GameAsset model { get; set; }
+        public override GraphicAsset model { get; set; }
         public override int spriteSelect { get; set; }
         private (int row, int col) movementVector;
 
-        public BreakerBall(int row, int col)
+        public Ball(int row, int col)
         {
             model = BallModel.breakerBall;
             this.row = row;
@@ -28,8 +28,7 @@
 
         public void offsetVector(int accel)
         {
-            movementVector.col -= accel / 10;
-            Console.WriteLine(movementVector);
+            movementVector.col = accel / -10;
         }
 
         public override bool updatePosition((int row, int col) limits)

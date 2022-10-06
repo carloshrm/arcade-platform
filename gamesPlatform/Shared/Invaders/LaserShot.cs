@@ -5,7 +5,7 @@
         public override int row { get; set; }
         public override int col { get; set; }
         public override int healthPoints { get; set; } = 0;
-        public override GameAsset model { get; set; }
+        public override GraphicAsset model { get; set; }
         public override int spriteSelect { get; set; }
         public bool hitSomething { get; set; }
         public bool fromPlayer { get; set; }

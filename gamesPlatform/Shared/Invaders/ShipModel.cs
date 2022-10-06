@@ -1,6 +1,6 @@
 ﻿namespace cmArcade.Shared.Invaders
 {
-    public class ShipModel : GameAsset
+    public class ShipModel : GraphicAsset
     {
         public override string spriteId { get; set; }
         public override int width { get; init; }

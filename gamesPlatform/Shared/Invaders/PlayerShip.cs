@@ -5,7 +5,7 @@
         public override int healthPoints { get; set; }
         public override int row { get; set; }
         public override int col { get; set; }
-        public override GameAsset model { get; set; }
+        public override GraphicAsset model { get; set; }
         public override int spriteSelect { get; set; }
         public Direction movingDir { get; set; }
         public double accel { get; set; }
