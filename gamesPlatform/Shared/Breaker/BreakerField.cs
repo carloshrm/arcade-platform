@@ -1,25 +1,27 @@
 ﻿namespace cmArcade.Shared.Breaker
 {
-    public class BreakerGame
+    public class BreakerField
     {
         public PlayerPad player { get; set; }
         public List<Block> blocks { get; set; }
         public List<Ball> balls { get; set; }
         public (int row, int col) limits { get; set; }
 
+        public bool ballOnHold;
         private int baseScore = 420;
         private static int blkPerRow = 10;
         private static int blkRows = 3;
         private int blkRowPos;
 
-        public BreakerGame((int row, int col) limits)
+        public BreakerField((int row, int col) limits)
         {
             this.limits = limits;
             player = new PlayerPad(limits.row - (limits.row / 14), limits.col / 2);
             balls = new List<Ball>();
             blocks = new List<Block>();
             blkRowPos = limits.row / 8;
-            setBall(limits.row / 2, limits.col / 2);
+            ballOnHold = true;
+            setBall();
             setBlocks();
         }
 
@@ -37,9 +39,9 @@
             }
         }
 
-        private void setBall(int row, int col)
+        private void setBall()
         {
-            balls.Add(new Ball(row, col));
+            balls.Add(new Ball(player.row - (limits.row / 10), player.col + (player.model.width / 2)));
         }
 
         public int updateFieldState()
@@ -48,13 +50,31 @@
             checkCollision();
             if (balls.RemoveAll(b => !b.updatePosition(limits)) > 0)
             {
-                if (player.loseLife())
+                player.loseLife();
+            }
+            updateBallState();
+            return blockCleanup();
+        }
+
+        public bool checkGameOver()
+        {
+            return player.healthPoints <= 0;
+        }
+
+        private void updateBallState()
+        {
+            if (!ballOnHold)
+            {
+                if (balls.Count == 0)
                 {
-                    //game over
+                    ballOnHold = true;
+                    setBall();
                 }
             }
-            if (balls.Count == 0) setBall(limits.row / 2, player.col);
-            return blockCleanup();
+            else
+            {
+                balls.First().follow(player.col + (player.model.width / 2));
+            }
         }
 
         private int blockCleanup()
@@ -77,9 +97,6 @@
         {
             foreach (var ball in balls)
             {
-                if (ball.bounceLock) continue;
-
-                // TODO - fix multiple collisions bug
                 if (checkHit(ball, player))
                 {
                     ball.bounce(-1, -1);
@@ -100,7 +117,7 @@
                         if (checkHit(ball, blk))
                         {
                             ball.bounce(-1, 1);
-                            blk.hit();
+                            if (!ball.breakLock) blk.hit();
                         }
                     }
                 }
@@ -125,6 +142,14 @@
                 player.movingDir = Direction.left;
             if (input.Equals("d") || input.Equals("ArrowRight"))
                 player.movingDir = Direction.right;
+            if (input.Equals(" ") || input.Equals("ArrowUp"))
+            {
+                if (ballOnHold)
+                {
+                    ballOnHold = false;
+                    balls.First().shoot();
+                }
+            }
         }
 
         public void parseKeyUp(string input)

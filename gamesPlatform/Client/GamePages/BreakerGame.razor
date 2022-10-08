@@ -6,7 +6,7 @@
 
 <main id="main-content">
     <div id="game-controls">
-        <button type="button" class="soft-shadow game-button" @onclick=startGame>start</button>
+        <button type="button" class="soft-shadow game-button @((currentScore.scoreValue > 0 && gameControl.Enabled) ? "dark-bg" : "")" @onclick=startGame>start</button>
         <button type="button" class="soft-shadow game-button" @onclick=resetGame>reset</button>
     </div>
     <div id="game-container" tabindex="0" @onkeydown=keyDownInputHandler @onkeyup=keyUpInputHandler>
@@ -34,10 +34,10 @@
 <img hidden src=@($"/img/breakerAssets/player.png") @ref=@(gameScreen.assets[PadModel.playerPad.spriteId]) />
 <img hidden src=@($"/img/breakerAssets/ball.png") @ref=@(gameScreen.assets[BallModel.breakerBall.spriteId]) />
 <img hidden src=@($"/img/breakerAssets/blocks.png") @ref=@(gameScreen.assets[BlockModel.block.spriteId]) />
-
+<img hidden src=@($"/img/genericAssets/heart.png") @ref=@(gameScreen.assets["heart"]) />
 
 @code {
-    private cmArcade.Shared.Breaker.BreakerGame game;
+    private BreakerField game;
 
     private ResponsiveCanvas? gameScreen;
     private Score currentScore;
@@ -70,7 +70,7 @@
                 await gameScreen.setCanvasSize();
                 await gameScreen.canvasReference.SetFontAsync("16px \"Press Start 2P\"");
                 await gameScreen.canvasReference.SetFillStyleAsync("black");
-                game = new cmArcade.Shared.Breaker.BreakerGame(gameScreen.getDimensions());
+                game = new BreakerField(gameScreen.getDimensions());
             }
             highScore = await scoreService.readLocalScore(AppID.Breaker);
             canUpload = highScore.id == -1;
@@ -103,11 +103,26 @@
 
     private void resetGame()
     {
+        jsRuntime.InvokeVoidAsync("setFocus");
         if (gameControl.Enabled) toggleControlObjects();
         currentScore = new Score(AppID.Breaker);
-        game = new cmArcade.Shared.Breaker.BreakerGame(gameScreen.getDimensions());
+        game = new BreakerField(gameScreen.getDimensions());
         gameOver = false;
         gameScreen.clear();
+    }
+
+    private void stopGame()
+    {
+        gameOver = true;
+        toggleControlObjects();
+        currentScore.runLength = DateTime.Now - currentScore.runStart;
+        if (currentScore.scoreValue > highScore.scoreValue)
+        {
+            highScore = currentScore;
+            scoreService.setLocalScore(highScore);
+            canUpload = true;
+        }
+        StateHasChanged();
     }
 
     private void keyDownInputHandler(KeyboardEventArgs e)
@@ -120,18 +135,12 @@
         game.parseKeyUp(e.Key);
     }
 
-    public void Dispose()
-    {
-        canvasRefresh.Dispose();
-        gameControl.Dispose();
-    }
-
-
     private string getUIText()
     {
         var text = new StringBuilder();
-        text.Append($"Score:{currentScore.scoreValue}\t");
-        if (highScore.scoreValue > 0) text.Append($"Best:{highScore.scoreValue}\t");
+        text.Append($"Score:{currentScore.scoreValue}\t ");
+        if (highScore.scoreValue > 0) text.Append($"Best:{highScore.scoreValue}\t ");
+        text.Append($"Time:{currentScore.runLength.ToString("mm\\:ss")} ");
         text.Append($"Level:{currentScore.turn}");
         return text.ToString();
     }
@@ -139,6 +148,7 @@
     private async void runGame(Object? o, ElapsedEventArgs e)
     {
         currentScore.scoreValue += game.updateFieldState();
+        if (game.checkGameOver()) stopGame();
     }
 
     private async void drawGame(Object? o, ElapsedEventArgs e)
@@ -146,9 +156,20 @@
         await gameScreen.clear();
         await gameScreen.canvasReference.BeginBatchAsync();        
         await gameScreen.canvasReference.FillTextAsync(getUIText(), 10, 20);
+        for (int i = 1; i <= game.player.healthPoints; i++)
+        {
+            await gameScreen.canvasReference.DrawImageAsync(gameScreen.assets["heart"], gameScreen.componentWidth - (40 * i), 10);
+        }
         await gameScreen.drawObject(game.player);
         await gameScreen.drawSet(game.balls);
         await gameScreen.drawSet(game.blocks);
         await gameScreen.canvasReference.EndBatchAsync();
+    }
+
+    public void Dispose()
+    {
+        gameScreen?.Dispose();
+        gameControl.Dispose();
+        canvasRefresh.Dispose();
     }
 }

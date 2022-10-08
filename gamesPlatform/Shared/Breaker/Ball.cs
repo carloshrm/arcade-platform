@@ -8,27 +8,36 @@
         public override GraphicAsset model { get; set; }
         public override int spriteSelect { get; set; }
         private (int row, int col) movementVector;
-        public bool bounceLock = false;
+        public bool breakLock = false;
 
         public Ball(int row, int col)
         {
             model = BallModel.breakerBall;
             this.row = row;
-            this.col = col;
+            this.col = col - (model.width / 2);
             healthPoints = 0;
             spriteSelect = 0;
-            movementVector = (4, 0);
+            movementVector = (0, 0);
+        }
 
+        public void follow(int c)
+        {
+            this.col = c - (model.width / 2);
+        }
+
+        public void shoot()
+        {
+            movementVector = (4, 0);
         }
 
         private void lockBounce()
         {
-            if (bounceLock) return;
+            if (breakLock) return;
             else
             {
-                bounceLock = true;
-                Task.Delay(300);
-                bounceLock = false;
+                breakLock = true;
+                Task.Delay(200);
+                breakLock = false;
             }
         }
 
