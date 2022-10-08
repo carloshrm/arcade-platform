@@ -6,8 +6,8 @@
 
 <main id="main-content">
     <div id="game-controls">
-            <button type="button" class="soft-shadow game-button" @onclick=startGame>start</button>
-            <button type="button" class="soft-shadow game-button" @onclick=resetGame>reset</button>
+        <button type="button" class="soft-shadow game-button @((currentScore.scoreValue > 0 && spaceControl.Enabled) ? "dark-bg" : "")" @onclick=startGame>start</button>
+        <button type="button" class="soft-shadow game-button" @onclick=resetGame>reset</button>
     </div>
     <div id="game-container" tabindex="0" @onkeydown=keyDownInputHandler @onkeyup=keyUpInputHandler @onclick=clickHandler>
         <ResponsiveCanvas @ref=gameScreen appID=AppID.Invaders />
@@ -35,7 +35,8 @@
 {
     <img hidden src =@($"/img/invaderAssets/{id}.png") @ref=gameScreen.assets[id] />
 }
-<img hidden src=@($"/img/invaderAssets/player.png") @ref=@(gameScreen.assets[ShipModel.playerShip.spriteId]) />
+<img hidden src=@($"/img/invaderAssets/{ShipModel.playerShip.spriteId}.png") @ref=@(gameScreen.assets[ShipModel.playerShip.spriteId]) />
+<img hidden src=@($"/img/genericAssets/heart.png") @ref=@(gameScreen.assets["heart"]) />
 
 @code {
     private ResponsiveCanvas? gameScreen;
@@ -83,7 +84,6 @@
             }
             highScore = await scoreService.readLocalScore(AppID.Invaders);
             canUpload = highScore.id == -1;
-            game.gameOver += stopGame;
             invaderControl.Elapsed += invaderStep;
             spaceControl.Elapsed += runGame;
             canvasRefresh.Elapsed += drawGame;
@@ -120,7 +120,7 @@
     private void startGame()
     {
         jsRuntime.InvokeVoidAsync("setFocus");
-        if (spaceControl.Enabled)
+        if (spaceControl.Enabled && !gameOver)
             return;
         else
         {
@@ -138,7 +138,6 @@
         if (spaceControl.Enabled) toggleControlObjects();
         currentScore = new Score(AppID.Invaders);
         game = new Space(gameScreen.getDimensions());
-        game.gameOver += stopGame;
         gameOver = false;
         gameScreen.clear();
     }
@@ -155,13 +154,12 @@
         toggleControlObjects();
         for (int i = 3; i != 0; i--)
         {
-            await gameScreen?.clear();
+            await gameScreen.canvasReference.DrawImageAsync(gameScreen.assets["bg"], 0, 0);
             await gameScreen.canvasReference.FillTextAsync($"Next round in {i}...", 50, 50);
             await Task.Delay(1000);
         }
-
-        game = new Space(gameScreen.getDimensions(), true);
-        game.nextRound();
+        game = new Space(gameScreen.getDimensions());
+        game.nextRound(currentScore.turn);
         currentScore.turn++;
         toggleControlObjects();
     }
@@ -178,19 +176,23 @@
 
     private void clickHandler(MouseEventArgs e)
     {
-        if (e.Button == 0)
+        if (e.Button == 0 && !gameOver)
         {
-            if (!spaceControl.Enabled) 
-                startGame();
-            else
+            if (spaceControl.Enabled) 
+            {
                 game.parseKeyDown(" ");
+                return;
+            }
+            else
+            {
+                startGame();
+            }
         }
     }
 
-    private void stopGame(Object? o, EventArgs e)
+    private void stopGame()
     {
         gameOver = true;
-        toggleControlObjects();
         currentScore.runLength = DateTime.Now - currentScore.runStart;
         if (currentScore.scoreValue > highScore.scoreValue)
         {
@@ -198,6 +200,7 @@
             scoreService.setLocalScore(highScore);
             canUpload = true;
         }
+        toggleControlObjects();
         StateHasChanged();
     }
 
@@ -205,12 +208,17 @@
     {
         if (game.invaders.Count == 0) nextRound();
         game.updateSpaceState();
-        var stepScore = game.invaderCleanup();
-        currentScore.scoreValue += currentScore.turn * stepScore * (combo ? 2 : 1);
-        combo = stepScore != 0;
+        setScore(game.invaderCleanup());
+        if (game.checkGameOver()) stopGame();
+        invaderControl.Interval = (game.invaders.Count / 0.05) / currentScore.turn;
         game.invaderAttack();
-        invaderControl.Interval = game.invaders.Count / 0.05;
         game.sendSpecial();
+    }
+
+    private void setScore(int score)
+    {
+        currentScore.scoreValue += currentScore.turn * score * (combo ? 2 : 1);
+        combo = score != 0;
     }
 
     private async Task drawUI()
