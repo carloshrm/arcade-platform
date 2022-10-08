@@ -5,8 +5,9 @@
         private static Random rng = new Random();
         private int invaderShotCount = 0;
         public const int baseScore = 8;
-        public event EventHandler? gameOver;
         public double difficultyRatio = 1;
+        public bool isNextRound = false;
+
 
         public (int row, int col) limits { get; set; }
         public PlayerShip player { get; set; }
@@ -17,24 +18,21 @@
         public List<LaserShot> shotsFired { get; set; }
 
 
-        public Space((int row, int col) limits, bool isNextRound = false)
+        public Space((int row, int col) limits)
         {
             player = new PlayerShip(limits.row - (limits.row / 10), limits.col / 2);
             shotsFired = new List<LaserShot>();
             invaders = new List<InvaderShip>();
             barriers = new List<FieldBarrier>();
             this.limits = limits;
-            if (isNextRound) difficultyRatio += 0.1;
             setupCommonInvaders();
             setupSpecialInvader();
             setupBarriers();
         }
 
-        public void nextRound()
+        public void nextRound(int diffUp)
         {
-            setupCommonInvaders();
-            setupSpecialInvader();
-            setupBarriers();
+            difficultyRatio += diffUp / 10.0;
         }
 
         public async void updateGameState()
@@ -43,6 +41,7 @@
             player.updatePosition(limits);
             updateSpecialInvader();
             shotsFired.ForEach(s => s.updatePosition(limits));
+            Console.WriteLine("invader update");
         }
 
         public void setupBarriers()
@@ -91,9 +90,9 @@
                 var model = ShipModel.invaderShips[(i + 1).ToString()];
                 rowPos += tallestInvader;
 
-                for (int j = 0; j < invadersPerRow; j++)
+                for (int j = 1; j <= invadersPerRow; j++)
                 {
-                    var colPos = (colSize * (j + 1)) - (model.width / 2);
+                    var colPos = (colSize * j) - (model.width / 2);
                     invaders.Add(new InvaderShip(rowPos, colPos, model));
                 }
             }
@@ -165,19 +164,20 @@
                     i.updatePosition(limits);
                 });
             }
-            checkGameOver();
         }
 
-        private void checkGameOver()
+        public bool checkGameOver()
         {
             if (player.healthPoints <= 0)
-                gameOver?.Invoke(this, EventArgs.Empty);
+                return true;
             else
             {
                 foreach (var inv in invaders)
                 {
-                    if (inv.row >= player.row) gameOver?.Invoke(this, EventArgs.Empty);
+                    if (inv.row >= player.row)
+                        return true;
                 }
+                return false;
             }
         }
 

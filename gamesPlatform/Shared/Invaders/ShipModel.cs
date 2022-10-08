@@ -6,7 +6,7 @@
         public override int width { get; init; }
         public override int height { get; init; }
 
-        public static readonly ShipModel playerShip = new ShipModel { spriteId = "p", width = 60, height = 64 };
+        public static readonly ShipModel playerShip = new ShipModel { spriteId = "player", width = 60, height = 64 };
 
         public static readonly IReadOnlyDictionary<string, ShipModel> invaderShips = new Dictionary<string, ShipModel>
         {
