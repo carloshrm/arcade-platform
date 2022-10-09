@@ -8,7 +8,7 @@
         public override GraphicAsset model { get; set; }
         public override int spriteSelect { get; set; }
         private (int row, int col) movementVector;
-        public bool breakLock = false;
+        public bool breakingTimeout = false;
 
         public Ball(int row, int col)
         {
@@ -30,14 +30,14 @@
             movementVector = (4, 0);
         }
 
-        private void lockBounce()
+        private void lockBreak()
         {
-            if (breakLock) return;
+            if (breakingTimeout) return;
             else
             {
-                breakLock = true;
-                Task.Delay(200);
-                breakLock = false;
+                breakingTimeout = true;
+                Task.Delay(350);
+                breakingTimeout = false;
             }
         }
 
@@ -46,7 +46,7 @@
             movementVector = (movementVector.row * rDir, movementVector.col * cDir);
             if (Math.Abs(movementVector.col) >= 6)
                 movementVector.col = (int)(movementVector.col * 0.8);
-            lockBounce();
+            lockBreak();
         }
 
         public void offsetVector(int accel)

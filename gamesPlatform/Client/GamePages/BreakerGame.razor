@@ -33,7 +33,11 @@
 
 <img hidden src=@($"/img/breakerAssets/player.png") @ref=@(gameScreen.assets[PadModel.playerPad.spriteId]) />
 <img hidden src=@($"/img/breakerAssets/ball.png") @ref=@(gameScreen.assets[BallModel.breakerBall.spriteId]) />
-<img hidden src=@($"/img/breakerAssets/blocks.png") @ref=@(gameScreen.assets[BlockModel.block.spriteId]) />
+<img hidden src=@($"/img/breakerAssets/crack.png") @ref=@(gameScreen.assets["crack"]) />
+@foreach (var bm in BlockModel.blocks)
+{
+    <img hidden src=@($"/img/breakerAssets/{bm.spriteId}.png") @ref=@(gameScreen.assets[bm.spriteId]) />    
+}
 <img hidden src=@($"/img/genericAssets/heart.png") @ref=@(gameScreen.assets["heart"]) />
 
 @code {
@@ -58,7 +62,7 @@
         canvasRefresh = new Timer(1000 / 60) { AutoReset = true, Enabled = false };
         currentScore = new Score(AppID.Breaker);
         highScore = currentScore;
-        //uploadCallback = new Action<int>(refreshAfterUpload);
+        uploadCallback = new Action<int>(refreshAfterUpload);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -78,6 +82,18 @@
             canvasRefresh.Elapsed += drawGame;
             StateHasChanged();
         }
+    }
+
+    private void refreshAfterUpload(int newID)
+    {
+        showScoreUpload = false;
+        if (newID != -1)
+        {
+            canUpload = false;
+            highScore.id = newID;
+            leaderboard.refresh();
+        }
+        StateHasChanged();
     }
 
     private void toggleControlObjects()
@@ -156,6 +172,10 @@
         await gameScreen.clear();
         await gameScreen.canvasReference.BeginBatchAsync();        
         await gameScreen.canvasReference.FillTextAsync(getUIText(), 10, 20);
+        if (game.ballOnHold)
+        {
+            await gameScreen.canvasReference.FillTextAsync("hit spacebar to release the ball", gameScreen.componentWidth / 4, gameScreen.componentWidth / 2);
+        }
         for (int i = 1; i <= game.player.healthPoints; i++)
         {
             await gameScreen.canvasReference.DrawImageAsync(gameScreen.assets["heart"], gameScreen.componentWidth - (40 * i), 10);

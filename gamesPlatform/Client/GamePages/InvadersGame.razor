@@ -80,7 +80,6 @@
                 await gameScreen.canvasReference.SetFontAsync("16px \"Press Start 2P\"");
                 await gameScreen.canvasReference.SetFillStyleAsync("black");
                 game = new Space(gameScreen.getDimensions());
-                setScale();
             }
             highScore = await scoreService.readLocalScore(AppID.Invaders);
             canUpload = highScore.id == -1;
@@ -94,15 +93,6 @@
     public async void runGame(Object? o, ElapsedEventArgs e)
     {
         game.updateGameState();
-    }
-
-    private void setScale()
-    {
-        (int w, int h) = gameScreen.getScreenSize();
-        if (w > 1000 || h > 1000) 
-            scale = 1.2;
-        else if (w < 600 || h < 600) 
-            scale = 0.8;
     }
 
     private void refreshAfterUpload(int newID)

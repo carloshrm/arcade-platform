@@ -20,7 +20,8 @@
 #game-container {
     margin: 1em auto;
     background-color: white;
-    box-shadow: var(--color-highlight-lsat) 0px 0px 40px 5px;
+    border: 2px solid var(--color-dark-background);
+    border-bottom: none;
 }
 
 #post-game-container {

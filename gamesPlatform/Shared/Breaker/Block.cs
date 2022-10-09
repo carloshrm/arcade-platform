@@ -7,14 +7,17 @@
         public override int healthPoints { get; set; }
         public override GraphicAsset model { get; set; }
         public override int spriteSelect { get; set; }
-
-        public Block(int row, int col)
+        public override List<GraphicAsset>? decals { get; set; }
+        public int scoreMultiplier { get; init; }
+        public Block(int row, int col, BlockModel model)
         {
-            this.model = BlockModel.block;
+            this.model = model;
             this.row = row;
             this.col = col - (model.width / 2);
-            this.healthPoints = 1;
+            this.healthPoints = model.HP;
+            this.scoreMultiplier = model.HP / 2;
             this.spriteSelect = 0;
+            decals = new List<GraphicAsset>();
         }
 
         public override bool updatePosition((int row, int col) limits)
@@ -25,7 +28,7 @@
         public void hit()
         {
             healthPoints--;
-            //spriteSelect
+            if (healthPoints > 0) decals.Add(GameDecal.breakerDecals["crack"]);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace cmArcade.Shared
+﻿using cmArcade.Shared.Breaker;
+
+namespace cmArcade.Shared
 {
     public class GameDecal : GraphicAsset
     {
@@ -18,6 +20,11 @@
         public static readonly IReadOnlyDictionary<string, GameDecal> genericDecals = new Dictionary<string, GameDecal>
         {
             { "heart", new GameDecal { spriteId = "heart", width = 28, height = 28 } },
+        };
+
+        public static readonly IReadOnlyDictionary<string, GameDecal> breakerDecals = new Dictionary<string, GameDecal>
+        {
+            { "crack", new GameDecal { spriteId = "crack", width = BlockModel.blocks.First().width, height = BlockModel.blocks.First().height } },
         };
 
         public static GameDecal getInvaderDecal(string name)

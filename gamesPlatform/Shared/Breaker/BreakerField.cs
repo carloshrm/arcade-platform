@@ -7,11 +7,11 @@
         public List<Ball> balls { get; set; }
         public (int row, int col) limits { get; set; }
 
+        private int baseScore = 40;
         public bool ballOnHold;
-        private int baseScore = 420;
-        private static int blkPerRow = 10;
-        private static int blkRows = 3;
         private int blkRowPos;
+        private static int blkRows = 3;
+        private static int blkPerRow = 10;
 
         public BreakerField((int row, int col) limits)
         {
@@ -28,13 +28,13 @@
         private void setBlocks()
         {
             int colOffset = limits.col / blkPerRow;
-            int padding = colOffset - BlockModel.block.width;
+            int padding = colOffset - BlockModel.blocks.First().width;
             for (int i = 1; i <= blkRows; i++)
             {
+                var model = BlockModel.blocks[i == 1 ? 1 : 0];
                 for (int j = 0; j < blkPerRow; j++)
                 {
-                    blocks.Add(new Block(blkRowPos + ((int)(BlockModel.block.height * 1.2) * i),
-                        (colOffset * j) + (BlockModel.block.width / 2) + (padding / 2)));
+                    blocks.Add(new Block(blkRowPos + ((int)(model.height * 1.2) * i), (colOffset * j) + (model.width / 2) + (padding / 2), model));
                 }
             }
         }
@@ -84,7 +84,7 @@
             {
                 if (b.healthPoints <= 0)
                 {
-                    totalScore += baseScore + (b.spriteSelect * baseScore);
+                    totalScore += baseScore + (b.scoreMultiplier * baseScore);
                     return true;
                 }
                 else
@@ -117,7 +117,7 @@
                         if (checkHit(ball, blk))
                         {
                             ball.bounce(-1, 1);
-                            if (!ball.breakLock) blk.hit();
+                            if (!ball.breakingTimeout) blk.hit();
                         }
                     }
                 }

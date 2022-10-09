@@ -41,7 +41,6 @@
             player.updatePosition(limits);
             updateSpecialInvader();
             shotsFired.ForEach(s => s.updatePosition(limits));
-            Console.WriteLine("invader update");
         }
 
         public void setupBarriers()

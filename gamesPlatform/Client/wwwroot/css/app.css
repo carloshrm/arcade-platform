@@ -87,7 +87,7 @@ a, .btn-link {
     --color-dark-background: #122620;
     --color-highlight-hsat: #D6AD60;
     --color-highlight-lsat: #B68D40;
-    --color-light-background-lsat: #F4EBD0;
+    --color-light-background-lsat: #f0ebd046;
 }
 
 .game-button {

@@ -89,11 +89,21 @@
             obj.model.width, obj.model.height, // asset size in png
             obj.col, obj.row, // canvas coords for rendering
             obj.model.width, obj.model.height); // size for rendering in canvas
+        if (obj.decals != null)
+        {
+            foreach (var d in obj.decals)
+            {
+                await canvasReference.DrawImageAsync(assets[d.spriteId], obj.col, obj.row);
+            }
+        }
     }
 
     public async Task drawSet(IEnumerable<GameObject> list)
     {
-        foreach (var o in list) { await drawObject(o); }
+        foreach (var o in list) 
+        { 
+            await drawObject(o); 
+        }
     }
 
     public async Task clear()
