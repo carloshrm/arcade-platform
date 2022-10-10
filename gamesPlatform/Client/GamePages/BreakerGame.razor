@@ -49,6 +49,8 @@
 
     private Timer gameControl;
     private Timer canvasRefresh;
+    private DateTime? holdStart;
+    private TimeSpan timeHeld;
 
     private bool gameOver = false;
     private bool canUpload = false;
@@ -62,6 +64,8 @@
         canvasRefresh = new Timer(1000 / 60) { AutoReset = true, Enabled = false };
         currentScore = new Score(AppID.Breaker);
         highScore = currentScore;
+        holdStart = null;
+        timeHeld = TimeSpan.Zero;
         uploadCallback = new Action<int>(refreshAfterUpload);
     }
 
@@ -164,6 +168,20 @@
     private async void runGame(Object? o, ElapsedEventArgs e)
     {
         currentScore.scoreValue += game.updateFieldState();
+        if (game.ballOnHold) 
+        {
+            if (holdStart == null)
+                holdStart = DateTime.Now;
+        } else
+        {
+            currentScore.runLength = (DateTime.Now - timeHeld) - currentScore.runStart;
+            if (holdStart != null)
+            {
+                timeHeld += (DateTime.Now - (holdStart ?? DateTime.Now));
+                holdStart = null;
+            }
+        }
+
         if (game.checkGameOver()) stopGame();
     }
 
