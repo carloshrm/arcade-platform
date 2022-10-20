@@ -27,8 +27,8 @@
 }
 
 button {
-    background-color: #BF544B50;
-    color: var(--color-dark-background);
+    background-color: var(--color-dark-background);
+    color: white;
     border: none;
     padding: 4vh;
 }

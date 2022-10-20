@@ -12,6 +12,7 @@ body {
 #main-card-container {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
 }
 
 .light-bg {

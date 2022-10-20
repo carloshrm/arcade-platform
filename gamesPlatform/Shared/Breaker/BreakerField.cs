@@ -13,6 +13,13 @@
         private static int blkRows = 3;
         private static int blkPerRow = 10;
 
+        // TODO
+        // procedurally generate a new row of blocks if game almost over and
+        // drop the current row by X
+        // add more block variety
+        // power ups - extra balls inside blocks, stronger ball, more lives, light gravity
+        // power down - heavy pad, fast ball
+
         public BreakerField((int row, int col) limits)
         {
             this.limits = limits;

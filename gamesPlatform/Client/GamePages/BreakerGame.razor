@@ -174,14 +174,13 @@
                 holdStart = DateTime.Now;
         } else
         {
-            currentScore.runLength = (DateTime.Now - timeHeld) - currentScore.runStart;
             if (holdStart != null)
             {
                 timeHeld += (DateTime.Now - (holdStart ?? DateTime.Now));
                 holdStart = null;
             }
+            currentScore.runLength = (DateTime.Now - timeHeld) - currentScore.runStart;
         }
-
         if (game.checkGameOver()) stopGame();
     }
 
