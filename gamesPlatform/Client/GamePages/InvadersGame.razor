@@ -78,7 +78,7 @@
             {
                 await gameScreen.setCanvasSize();
                 await gameScreen.canvasReference.SetFontAsync("16px \"Press Start 2P\"");
-                await gameScreen.canvasReference.SetFillStyleAsync("black");
+                await gameScreen.canvasReference.SetFillStyleAsync("white");
                 game = new Space(gameScreen.getDimensions());
             }
             highScore = await scoreService.readLocalScore(AppID.Invaders);
@@ -231,9 +231,9 @@
 
     private async void drawGame(Object? o, ElapsedEventArgs e)
     {
-        await gameScreen.clear();
         await gameScreen.canvasReference.BeginBatchAsync();
-        await gameScreen.canvasReference.DrawImageAsync(gameScreen.assets["bg"], 0, 0);
+        await gameScreen.clear();
+        await gameScreen.fillColor("black");
         await drawUI();
         await gameScreen.drawSet(game.invaders);
         await gameScreen.drawSet(game.shotsFired);

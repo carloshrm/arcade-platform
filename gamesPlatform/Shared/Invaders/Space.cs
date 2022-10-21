@@ -80,10 +80,10 @@
 
         public void setupCommonInvaders()
         {
-            int invadersPerRow = (int)Math.Ceiling(8 * difficultyRatio);
-            int tallestInvader = ShipModel.invaderShips.Values.Max(x => x.height) + 10;
-            int rowPos = limits.row / 20;
-            int colSize = (int)(limits.col * 0.8 / invadersPerRow);
+            int invadersPerRow = 10;
+            int tallestInvader = ShipModel.invaderShips.Values.Max(x => x.height) + 6;
+            int rowPos = limits.row / 22;
+            int colSize = (int)(limits.col / invadersPerRow * 0.7);
             for (int i = 0; i < 4; i++)
             {
                 var model = ShipModel.invaderShips[(i + 1).ToString()];
@@ -199,7 +199,7 @@
 
         public void hitDetection()
         {
-            bool check(GameObject g, GameObject s)
+            bool checkHit(GameObject g, GameObject s)
             {
                 return
                     s.col >= g.col &&
@@ -212,24 +212,25 @@
             {
                 if (!shot.hitSomething)
                 {
-                    foreach (var b in barriers.Where(b => b.healthPoints > 0))
+                    foreach (var barr in barriers)
                     {
-                        if (check(b, shot))
+                        if (barr.healthPoints > 0 && checkHit(barr, shot))
                         {
                             shot.hit();
-                            b.hit();
+                            barr.hit();
                         }
                     }
+
                     if (shot.fromPlayer)
                     {
-                        if (check(specialInvader, shot))
+                        if (checkHit(specialInvader, shot))
                         {
                             specialInvader.healthPoints--;
                             shot.hit();
                         }
                         foreach (var inv in invaders)
                         {
-                            if (check(inv, shot))
+                            if (checkHit(inv, shot))
                             {
                                 inv.healthPoints--;
                                 shot.hit();
@@ -238,7 +239,7 @@
                     }
                     else
                     {
-                        if (check(player, shot))
+                        if (checkHit(player, shot))
                         {
                             player.healthPoints--;
                             shot.hit();

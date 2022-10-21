@@ -14,7 +14,6 @@ namespace cmArcade.Shared
             { "laser", new GameDecal { spriteId = "laser", width = 4, height = 20 } },
             { "splash", new GameDecal { spriteId = "splash", width = 18, height = 16 } },
             { "barrier", new GameDecal { spriteId = "barrier", width = 100, height = 70 } },
-            { "bg", new GameDecal { spriteId = "bg", width = 1280, height = 960 } },
         };
 
         public static readonly IReadOnlyDictionary<string, GameDecal> genericDecals = new Dictionary<string, GameDecal>

@@ -19,8 +19,8 @@
 
 #game-container {
     margin: 1em auto;
-    background-color:;
-    box-shadow: var(--color-dark-background) 2px 2px 2px 0;
+    background-color: black;
+    box-shadow: var(--color-dark-background) 2px 2px 4px 2px;
 }
 
 #post-game-container {

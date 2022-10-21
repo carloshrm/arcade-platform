@@ -24,8 +24,6 @@
     public long windowHeight { get; set; }
     public (int r, int c) baseResolution { get; set; }
 
-
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -109,6 +107,14 @@
     public async Task clear()
     {
         await canvasReference.ClearRectAsync(0, 0, _componentReference.Width, _componentReference.Height);
+    }
+
+    public async Task fillColor(string color)
+    {
+        var previousStyle = canvasReference.FillStyle;
+        await canvasReference.SetFillStyleAsync(color);
+        await canvasReference.FillRectAsync(0, 0, _componentReference.Width, _componentReference.Height);
+        await canvasReference.SetFillStyleAsync(previousStyle);
     }
 
     public (int, int) getDimensions()

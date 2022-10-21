@@ -77,7 +77,7 @@
             {
                 await gameScreen.setCanvasSize();
                 await gameScreen.canvasReference.SetFontAsync("16px \"Press Start 2P\"");
-                await gameScreen.canvasReference.SetFillStyleAsync("black");
+                await gameScreen.canvasReference.SetFillStyleAsync("white");
                 game = new BreakerField(gameScreen.getDimensions());
             }
             highScore = await scoreService.readLocalScore(AppID.Breaker);
