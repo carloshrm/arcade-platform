@@ -186,8 +186,8 @@
 
     private async void drawGame(Object? o, ElapsedEventArgs e)
     {
-        await gameScreen.clear();
         await gameScreen.canvasReference.BeginBatchAsync();        
+        await gameScreen.fillColor("black");
         await gameScreen.canvasReference.FillTextAsync(getUIText(), 10, 20);
         if (game.ballOnHold)
         {
@@ -201,6 +201,7 @@
         await gameScreen.drawSet(game.balls);
         await gameScreen.drawSet(game.blocks);
         await gameScreen.canvasReference.EndBatchAsync();
+        
     }
 
     public void Dispose()
