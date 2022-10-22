@@ -10,8 +10,7 @@
         private int baseScore = 40;
         public bool ballOnHold;
         private int blkRowPos;
-        private static int blkRows = 3;
-        private static int blkPerRow = 10;
+        private static int blkRows = 5;
 
         // TODO
         // procedurally generate a new row of blocks if game almost over and
@@ -34,14 +33,23 @@
 
         private void setBlocks()
         {
-            int colOffset = limits.col / blkPerRow;
-            int padding = colOffset - BlockModel.blocks.First().width;
-            for (int i = 1; i <= blkRows; i++)
+            for (int i = 0; i < blkRows; i++)
             {
-                var model = BlockModel.blocks[i == 1 ? 1 : 0];
-                for (int j = 0; j < blkPerRow; j++)
+                var model = BlockModel.blocks[0];
+                int blockCount = limits.col / model.width;
+                int padding = 0;
+
+                if (blockCount != 0)
+                    padding = model.width % limits.col;
+
+                for (int j = 0; j < blockCount - 1; j++)
                 {
-                    blocks.Add(new Block(blkRowPos + ((int)(model.height * 1.2) * i), (colOffset * j) + (model.width / 2) + (padding / 2), model));
+                    blocks.Add(new Block(
+                        blkRowPos + ((int)(model.height * 1.2) * i),
+                        (model.width * j) + (model.width / 2) + (padding / 2),
+                        model,
+                        i
+                        ));
                 }
             }
         }

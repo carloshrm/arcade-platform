@@ -9,14 +9,14 @@
         public override int spriteSelect { get; set; }
         public override List<GraphicAsset>? decals { get; set; }
         public int scoreMultiplier { get; init; }
-        public Block(int row, int col, BlockModel model)
+        public Block(int row, int col, BlockModel model, int sprite)
         {
             this.model = model;
             this.row = row;
             this.col = col - (model.width / 2);
             healthPoints = model.HP;
             scoreMultiplier = model.HP / 2;
-            spriteSelect = 0;
+            spriteSelect = sprite;
             decals = new List<GraphicAsset>();
         }
 
