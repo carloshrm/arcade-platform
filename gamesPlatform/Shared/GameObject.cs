@@ -8,7 +8,10 @@
         public abstract GraphicAsset model { get; set; }
         public virtual List<GraphicAsset>? decals { get; set; }
         public abstract int spriteSelect { get; set; }
-        public abstract bool updatePosition((int row, int col) limits);
+        public virtual bool updatePosition((int row, int col) limits)
+        {
+            return false;
+        }
 
     }
 }

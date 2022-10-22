@@ -59,21 +59,21 @@
 
         public void invaderAttack()
         {
-            if (rng.Next(10) > 7 && invaderShotCount < (int)Math.Round(3 * difficultyRatio))
+            if (rng.Next(10) >= 7 && invaderShotCount < (int)Math.Round(3 * difficultyRatio))
             {
-                int i = invaders.Count - 1;
-                int currentDistance = int.MaxValue;
-                int previousDistance;
-                do
+                int j = invaders.Count - 1;
+                var selected = invaders[j / 2];
+                while (j >= 0)
                 {
-                    previousDistance = currentDistance;
-                    currentDistance = Math.Abs(player.col - invaders[i].col);
-                    i--;
+                    int fromLeft = Math.Abs(player.col - invaders[j].col);
+                    if (fromLeft <= player.model.width)
+                    {
+                        selected = invaders[j];
+                        break;
+                    }
+                    j--;
                 }
-                while (currentDistance <= previousDistance);
-
-                i += player.movingDir == Direction.left ? -1 : 2;
-                fireShot(invaders[i]);
+                fireShot(selected);
                 invaderShotCount++;
             }
         }
@@ -88,7 +88,6 @@
             {
                 var model = ShipModel.invaderShips[(i + 1).ToString()];
                 rowPos += tallestInvader;
-
                 for (int j = 1; j <= invadersPerRow; j++)
                 {
                     var colPos = (colSize * j) - (model.width / 2);

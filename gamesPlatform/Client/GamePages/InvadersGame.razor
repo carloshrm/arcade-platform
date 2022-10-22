@@ -232,7 +232,6 @@
     private async void drawGame(Object? o, ElapsedEventArgs e)
     {
         await gameScreen.canvasReference.BeginBatchAsync();
-        await gameScreen.clear();
         await gameScreen.fillColor("black");
         await drawUI();
         await gameScreen.drawSet(game.invaders);

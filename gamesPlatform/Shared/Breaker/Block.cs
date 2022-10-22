@@ -14,15 +14,10 @@
             this.model = model;
             this.row = row;
             this.col = col - (model.width / 2);
-            this.healthPoints = model.HP;
-            this.scoreMultiplier = model.HP / 2;
-            this.spriteSelect = 0;
+            healthPoints = model.HP;
+            scoreMultiplier = model.HP / 2;
+            spriteSelect = 0;
             decals = new List<GraphicAsset>();
-        }
-
-        public override bool updatePosition((int row, int col) limits)
-        {
-            return false;
         }
 
         public void hit()
