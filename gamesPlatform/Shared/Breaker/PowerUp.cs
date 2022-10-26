@@ -34,7 +34,7 @@
 
         public override bool updatePosition((int row, int col) limits)
         {
-            row += (int)(limits.row * 0.01);
+            row += 1;
             return true;
         }
 

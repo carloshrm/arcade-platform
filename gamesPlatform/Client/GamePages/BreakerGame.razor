@@ -34,7 +34,9 @@
 <img hidden src=@($"/img/breakerAssets/player.png") @ref=@(gameScreen.assets[PadModel.playerPad.spriteId]) />
 <img hidden src=@($"/img/breakerAssets/ball.png") @ref=@(gameScreen.assets[BallModel.breakerBall.spriteId]) />
 <img hidden src=@($"/img/breakerAssets/crack.png") @ref=@(gameScreen.assets["crack"]) />
-@foreach (var bm in ((IEnumerable<GraphicAsset>)BlockModel.blocks).Concat(PowerUpModel.powerUps.Values))
+@foreach (var bm in ((IEnumerable<GraphicAsset>)BlockModel.blocks)
+.Concat(PowerUpModel.powerUps.Values)
+.Concat(GameDecal.breakerDecals.Values)) 
 {
     <img hidden src=@($"/img/breakerAssets/{bm.spriteId}.png") @ref=@(gameScreen.assets[bm.spriteId]) />    
 }
@@ -199,7 +201,7 @@
         }
         await gameScreen.drawObject(game.player);
         await gameScreen.drawSet(game.balls);
-        await gameScreen.drawSet(game.blocks);
+        await gameScreen.drawSet(game.blocks);        
         await gameScreen.drawSet(game.powerups);
         await gameScreen.canvasReference.EndBatchAsync();
         

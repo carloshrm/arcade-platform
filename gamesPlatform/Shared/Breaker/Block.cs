@@ -27,13 +27,18 @@
             powerupHolder = p;
         }
 
+        public void addDecal(GameDecal d)
+        {
+            decals.Add(d);
+        }
+
         public PowerUp? hit()
         {
             healthPoints--;
 
             if (healthPoints > 0 && !((BlockModel)model).isSpecial)
             {
-                decals.Add(GameDecal.breakerDecals["crack"]);
+                addDecal(GameDecal.breakerDecals["crack"]);
                 return null;
             }
             else

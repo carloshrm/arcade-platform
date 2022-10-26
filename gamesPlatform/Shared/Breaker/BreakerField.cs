@@ -168,6 +168,7 @@
 
                             if (!ball.breakingTimeout)
                             {
+                                ball.lockBreak();
                                 var powerup = blk.hit();
                                 if (powerup != null)
                                     releasePowerup(powerup);
