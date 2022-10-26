@@ -6,6 +6,6 @@
         public override int width { get; init; }
         public override int height { get; init; }
 
-        public static readonly PadModel playerPad = new PadModel { spriteId = "pad", width = 60, height = 10 };
+        public static readonly PadModel playerPad = new PadModel { spriteId = "player", width = 60, height = 10 };
     }
 }

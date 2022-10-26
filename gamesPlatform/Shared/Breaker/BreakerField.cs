@@ -2,9 +2,11 @@
 {
     public class BreakerField
     {
+        private static Random rng = new Random();
         public PlayerPad player { get; set; }
         public List<Block> blocks { get; set; }
         public List<Ball> balls { get; set; }
+        public List<PowerUp> powerups { get; set; }
         public (int row, int col) limits { get; set; }
 
         private int baseScore = 40;
@@ -25,6 +27,7 @@
             player = new PlayerPad(limits.row - (limits.row / 14), limits.col / 2);
             balls = new List<Ball>();
             blocks = new List<Block>();
+            powerups = new List<PowerUp>();
             blkRowPos = limits.row / 8;
             ballOnHold = true;
             setBall();
@@ -35,21 +38,22 @@
         {
             for (int i = 0; i < blkRows; i++)
             {
-                var model = BlockModel.blocks[0];
-                int blockCount = limits.col / model.width;
+                int widestBlockSize = BlockModel.blocks.Max(x => x.width);
+                int highestBlockSize = BlockModel.blocks.Max(x => x.height);
+                int blockCount = limits.col / widestBlockSize;
                 int padding = 0;
 
                 if (blockCount != 0)
-                    padding = model.width % limits.col;
+                    padding = widestBlockSize % limits.col;
 
                 for (int j = 0; j < blockCount - 1; j++)
                 {
-                    blocks.Add(new Block(
-                        blkRowPos + ((int)(model.height * 1.2) * i),
-                        (model.width * j) + (model.width / 2) + (padding / 2),
-                        model,
-                        i
-                        ));
+                    int rowCoords = blkRowPos + ((int)(highestBlockSize * 1.2) * i);
+                    int colCoords = (widestBlockSize * j) + (widestBlockSize / 2) + (padding / 2);
+                    if (rng.Next(0, 10) >= 8)
+                        blocks.Add(BlockFactory.makeSpecialBlock(rowCoords, colCoords, PowerupType.health, 0));
+                    else
+                        blocks.Add(BlockFactory.makeRegularBlock(rowCoords, colCoords, i));
                 }
             }
         }
@@ -68,7 +72,10 @@
                 player.loseLife();
             }
             updateBallState();
-            return blockCleanup();
+            updatePowerups();
+            checkPowerupPickup();
+            var blockHitCount = blockCleanup();
+            return blockHitCount;
         }
 
         public bool checkGameOver()
@@ -76,6 +83,10 @@
             return player.healthPoints <= 0;
         }
 
+        private void updatePowerups()
+        {
+            powerups.ForEach(p => p.updatePosition(limits));
+        }
         private void updateBallState()
         {
             if (!ballOnHold)
@@ -108,6 +119,27 @@
             return totalScore;
         }
 
+        private void releasePowerup(PowerUp pu)
+        {
+            powerups.Add(pu);
+        }
+
+        private void checkPowerupPickup()
+        {
+            for (int i = powerups.Count - 1; i >= 0; i--)
+            {
+                if (checkHit(powerups[i], player))
+                {
+                    powerups[i].effect?.Invoke(powerups[i].type switch
+                    {
+                        PowerupType.health => player,
+                        _ => player,
+                    });
+                    powerups.RemoveAt(i);
+                }
+            }
+        }
+
         private void checkCollision()
         {
             foreach (var ball in balls)
@@ -131,13 +163,19 @@
                     {
                         if (checkHit(ball, blk))
                         {
-                            ball.bounce(-1, 1);
-                            if (!ball.breakingTimeout) blk.hit();
+                            if (!blk.model.spriteId.Contains("fragile"))
+                                ball.bounce(-1, 1);
+
+                            if (!ball.breakingTimeout)
+                            {
+                                var powerup = blk.hit();
+                                if (powerup != null)
+                                    releasePowerup(powerup);
+                            }
                         }
                     }
                 }
             }
-
             int calcOffsetPercentage(GameObject obj, int edgePos, int edgeWidth)
             {
                 double offset = edgePos + (edgeWidth / 2) - (obj.col + (obj.model.width / 2));

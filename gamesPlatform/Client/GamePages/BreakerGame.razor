@@ -4,7 +4,7 @@
 @implements IDisposable
 @using cmArcade.Shared.Breaker
 
-<main id="main-content">
+<main id="main-content" @onkeydown:preventDefault="true" @onkeydown:stopPropagation="true">
     <div id="game-controls">
         <button type="button" class="soft-shadow game-button @((currentScore.scoreValue > 0 && gameControl.Enabled) ? "dark-bg" : "")" @onclick=startGame>start</button>
         <button type="button" class="soft-shadow game-button" @onclick=resetGame>reset</button>
@@ -34,7 +34,7 @@
 <img hidden src=@($"/img/breakerAssets/player.png") @ref=@(gameScreen.assets[PadModel.playerPad.spriteId]) />
 <img hidden src=@($"/img/breakerAssets/ball.png") @ref=@(gameScreen.assets[BallModel.breakerBall.spriteId]) />
 <img hidden src=@($"/img/breakerAssets/crack.png") @ref=@(gameScreen.assets["crack"]) />
-@foreach (var bm in BlockModel.blocks)
+@foreach (var bm in ((IEnumerable<GraphicAsset>)BlockModel.blocks).Concat(PowerUpModel.powerUps.Values))
 {
     <img hidden src=@($"/img/breakerAssets/{bm.spriteId}.png") @ref=@(gameScreen.assets[bm.spriteId]) />    
 }
@@ -84,7 +84,7 @@
             canUpload = highScore.id == -1;
             gameControl.Elapsed += runGame;
             canvasRefresh.Elapsed += drawGame;
-            StateHasChanged();
+            StateHasChanged();            
         }
     }
 
@@ -200,6 +200,7 @@
         await gameScreen.drawObject(game.player);
         await gameScreen.drawSet(game.balls);
         await gameScreen.drawSet(game.blocks);
+        await gameScreen.drawSet(game.powerups);
         await gameScreen.canvasReference.EndBatchAsync();
         
     }
