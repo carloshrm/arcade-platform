@@ -10,7 +10,7 @@
         <button type="button" class="soft-shadow game-button" @onclick=resetGame>reset</button>
     </div>
     <div id="game-container" tabindex="0" @onkeydown=keyDownInputHandler @onkeyup=keyUpInputHandler>
-        <ResponsiveCanvas @ref=gameScreen appID=AppID.Breaker />
+        <GameCanvas @ref=gameScreen appID=AppID.Breaker />
         @if (currentScore?.turn > 0 && gameOver)
         {
             <div id="post-game-container" class="dark-bg soft-shadow">
@@ -45,7 +45,7 @@
 @code {
     private BreakerField game;
 
-    private ResponsiveCanvas? gameScreen;
+    private GameCanvas? gameScreen;
     private Score currentScore;
     private Score highScore;
 
@@ -201,8 +201,8 @@
         }
         await gameScreen.drawObject(game.player);
         await gameScreen.drawSet(game.balls);
-        await gameScreen.drawSet(game.blocks);        
         await gameScreen.drawSet(game.powerups);
+        await gameScreen.drawSet(game.blocks);        
         await gameScreen.canvasReference.EndBatchAsync();
         
     }

@@ -8,7 +8,7 @@
         public override GraphicAsset model { get; set; }
         public override int spriteSelect { get; set; }
         public override List<GraphicAsset>? decals { get; set; }
-        private PowerUp powerupHolder { get; set; }
+        private PowerUp? powerupHolder { get; set; }
         public int scoreMultiplier { get; init; }
 
         public Block(int row, int col, BlockModel model, int sprite)
@@ -20,6 +20,7 @@
             scoreMultiplier = model.isSpecial ? model.HP * 10 : model.HP;
             spriteSelect = sprite;
             decals = new List<GraphicAsset>();
+            powerupHolder = null;
         }
 
         public void setPowerup(PowerUp p)
@@ -43,8 +44,16 @@
             }
             else
             {
-                spriteSelect = spriteSelect == 0 ? 4 : spriteSelect * 2;
-                return powerupHolder;
+                if (powerupHolder != null)
+                {
+                    spriteSelect = spriteSelect == 0 ? 4 : spriteSelect * 2;
+                    decals.Remove(decals.Find(x => x.spriteId.Contains("powerup")));
+                    var p = powerupHolder;
+                    powerupHolder = null;
+                    return p;
+                }
+                else
+                    return null;
             }
         }
     }

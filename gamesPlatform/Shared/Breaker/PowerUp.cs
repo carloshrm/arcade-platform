@@ -11,10 +11,10 @@
 
         public PowerUp(int row, int col, PowerupType type, int sprite)
         {
-            this.row = row;
-            this.col = col;
             this.type = type;
             model = PowerUpModel.powerUps[type];
+            this.row = row;
+            this.col = col - (model.width / 2);
             spriteSelect = sprite;
             setEffect(type);
         }
@@ -34,7 +34,7 @@
 
         public override bool updatePosition((int row, int col) limits)
         {
-            row += 1;
+            row += 2;
             return true;
         }
 

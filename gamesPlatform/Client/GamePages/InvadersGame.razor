@@ -10,7 +10,7 @@
         <button type="button" class="soft-shadow game-button" @onclick=resetGame>reset</button>
     </div>
     <div id="game-container" tabindex="0" @onkeydown=keyDownInputHandler @onkeyup=keyUpInputHandler @onclick=clickHandler>
-        <ResponsiveCanvas @ref=gameScreen appID=AppID.Invaders />
+        <GameCanvas @ref=gameScreen appID=AppID.Invaders />
         @if (currentScore?.turn > 0 && gameOver)
         {
             <div id="post-game-container" class="dark-bg soft-shadow">
@@ -39,7 +39,7 @@
 <img hidden src=@($"/img/genericAssets/heart.png") @ref=@(gameScreen.assets["heart"]) />
 
 @code {
-    private ResponsiveCanvas? gameScreen;
+    private GameCanvas? gameScreen;
     private double scale;
     private Score currentScore;
     private Score highScore;
