@@ -11,7 +11,6 @@
 
         private int baseScore = 40;
         public bool ballOnHold;
-        private int blkRowPos;
         private static int blkRows = 5;
 
         // TODO
@@ -28,35 +27,11 @@
             balls = new List<Ball>();
             blocks = new List<Block>();
             powerups = new List<PowerUp>();
-            blkRowPos = limits.row / 8;
             ballOnHold = true;
             setBall();
-            setBlocks();
+            blocks = BlockFactory.setupBlockField(limits, blkRows);
         }
 
-        private void setBlocks()
-        {
-            for (int i = 0; i < blkRows; i++)
-            {
-                int widestBlockSize = BlockModel.blocks.Max(x => x.width);
-                int highestBlockSize = BlockModel.blocks.Max(x => x.height);
-                int blockCount = limits.col / widestBlockSize;
-                int padding = 0;
-
-                if (blockCount != 0)
-                    padding = widestBlockSize % limits.col;
-
-                for (int j = 0; j < blockCount - 1; j++)
-                {
-                    int rowCoords = blkRowPos + ((int)(highestBlockSize * 1.2) * i);
-                    int colCoords = (widestBlockSize * j) + (widestBlockSize / 2) + (padding / 2);
-                    if (rng.Next(0, 10) >= 8)
-                        blocks.Add(BlockFactory.makeSpecialBlock(rowCoords, colCoords, PowerupType.health, 0));
-                    else
-                        blocks.Add(BlockFactory.makeRegularBlock(rowCoords, colCoords, i));
-                }
-            }
-        }
 
         private void setBall()
         {
@@ -87,6 +62,7 @@
         {
             powerups.ForEach(p => p.updatePosition(limits));
         }
+
         private void updateBallState()
         {
             if (!ballOnHold)
@@ -163,15 +139,20 @@
                     {
                         if (checkHit(ball, blk))
                         {
-                            if (!blk.model.spriteId.Contains("fragile"))
-                                ball.bounce(-1, 1);
-
-                            if (!ball.breakingTimeout)
+                            if (blk.model.spriteId.Contains("fragile"))
                             {
-                                ball.lockBreak();
-                                var powerup = blk.hit();
-                                if (powerup != null)
-                                    releasePowerup(powerup);
+                                blk.hit();
+                            }
+                            else
+                            {
+                                ball.bounce(-1, 1);
+                                if (!ball.breakingTimeout)
+                                {
+                                    ball.lockBreak();
+                                    var powerup = blk.hit();
+                                    if (powerup != null)
+                                        releasePowerup(powerup);
+                                }
                             }
                         }
                     }
@@ -196,13 +177,10 @@
                 player.movingDir = Direction.left;
             if (input.Equals("d") || input.Equals("ArrowRight"))
                 player.movingDir = Direction.right;
-            if (input.Equals(" ") || input.Equals("ArrowUp"))
+            if ((input.Equals(" ") || input.Equals("ArrowUp")) && ballOnHold)
             {
-                if (ballOnHold)
-                {
-                    ballOnHold = false;
-                    balls.First().shoot();
-                }
+                ballOnHold = false;
+                balls.First().shoot();
             }
         }
 

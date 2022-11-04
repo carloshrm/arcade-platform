@@ -37,7 +37,7 @@
             if (!breakingTimeout)
             {
                 breakingTimeout = true;
-                await Task.Delay(250);
+                await Task.Delay(150);
                 breakingTimeout = false;
             }
         }
@@ -46,10 +46,10 @@
         {
             if (!bouncingTimeout)
             {
+                bouncingTimeout = true;
                 movementVector = (movementVector.row * rDir, movementVector.col * cDir);
                 if (Math.Abs(movementVector.col) >= 6)
                     movementVector.col = (int)(movementVector.col * 0.8);
-                bouncingTimeout = true;
                 await Task.Delay(100);
                 bouncingTimeout = false;
             }

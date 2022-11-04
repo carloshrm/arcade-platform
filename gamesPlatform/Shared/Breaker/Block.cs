@@ -15,7 +15,7 @@
         {
             this.model = model;
             this.row = row;
-            this.col = col - (model.width / 2);
+            this.col = col;
             healthPoints = model.HP;
             scoreMultiplier = model.isSpecial ? model.HP * 10 : model.HP;
             spriteSelect = sprite;
