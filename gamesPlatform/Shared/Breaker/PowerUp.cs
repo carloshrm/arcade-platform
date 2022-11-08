@@ -6,30 +6,17 @@
         public override int col { get; set; }
         public override GraphicAsset model { get; set; }
         public override int spriteSelect { get; set; }
-        public Action<GameObject>? effect { get; set; }
-        public PowerupType type { get; set; }
+        public PowerUpType type { get; set; }
+        public IPowerUpEffect effect { get; set; }
 
-        public PowerUp(int row, int col, PowerupType type, int sprite)
+        public PowerUp(int row, int col, PowerUpType type, int sprite)
         {
             this.type = type;
             model = PowerUpModel.powerUps[type];
             this.row = row;
             this.col = col - (model.width / 2);
             spriteSelect = sprite;
-            setEffect(type);
-        }
-
-        private void setEffect(PowerupType t)
-        {
-            switch (t)
-            {
-                case PowerupType.health:
-                    effect = new Action<GameObject>((GameObject t) => t.healthPoints++);
-                    break;
-                default:
-                    effect = null;
-                    break;
-            }
+            effect = IPowerUpEffect.getPowerUp(type);
         }
 
         public override bool updatePosition((int row, int col) limits)

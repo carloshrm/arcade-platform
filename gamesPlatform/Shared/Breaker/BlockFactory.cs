@@ -2,7 +2,7 @@
 {
     public static class BlockFactory
     {
-        public static Block makeSpecialBlock(int row, int col, PowerupType t, int sprite)
+        public static Block makeSpecialBlock(int row, int col, PowerUpType t, int sprite)
         {
             BlockModel hollowModel = BlockModel.blocks.Last();
             var newBlock = new Block(row, col, hollowModel, sprite);
@@ -41,21 +41,21 @@
             {
                 for (int j = 0; j < blockCount; j++)
                 {
-                    int rowCoords = (limits.row / 8) + ((int)(highestBlockSize * 1.4) * (i + 1));
+                    int rowCoords = (limits.row / 8) + ((int)(highestBlockSize * 1.2) * (i + 1));
                     int colCoords = j * widestBlockSize;
                     if (i == rowCount / 2)
                     {
-                        blocks.Add(makeStrongBlock(rowCoords, colCoords, rng.Next(0, 4)));
+                        blocks.Add(makeStrongBlock(rowCoords, colCoords, j % 4));
                     }
                     else
                     {
                         switch (rng.Next(0, 10))
                         {
-                            case <= 3:
-                                blocks.Add(makeFragileBlock(rowCoords, colCoords, rng.Next(0, 4)));
+                            case <= 2:
+                                blocks.Add(makeFragileBlock(rowCoords, colCoords, i % 4));
                                 break;
                             case >= 9:
-                                blocks.Add(makeSpecialBlock(rowCoords, colCoords, PowerupType.health, rng.Next(0, 4)));
+                                blocks.Add(makeSpecialBlock(rowCoords, colCoords, PowerUpType.ball, i % 4));
                                 break;
                             default:
                                 blocks.Add(makeRegularBlock(rowCoords, colCoords, i));

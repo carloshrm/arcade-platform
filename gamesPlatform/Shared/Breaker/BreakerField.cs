@@ -33,7 +33,7 @@
         }
 
 
-        private void setBall()
+        public void setBall()
         {
             balls.Add(new Ball(player.row - (limits.row / 10), player.col + (player.model.width / 2)));
         }
@@ -106,9 +106,10 @@
             {
                 if (checkHit(powerups[i], player))
                 {
-                    powerups[i].effect?.Invoke(powerups[i].type switch
+                    powerups[i].effect?.runEffect(powerups[i].type switch
                     {
-                        PowerupType.health => player,
+                        PowerUpType.health => player,
+                        PowerUpType.ball => this,
                         _ => player,
                     });
                     powerups.RemoveAt(i);
