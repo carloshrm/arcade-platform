@@ -55,7 +55,7 @@
                                 blocks.Add(makeFragileBlock(rowCoords, colCoords, i % 4));
                                 break;
                             case >= 9:
-                                blocks.Add(makeSpecialBlock(rowCoords, colCoords, PowerUpType.ball, i % 4));
+                                blocks.Add(makeSpecialBlock(rowCoords, colCoords, (PowerUpType)rng.Next(0, 2), j % 4));
                                 break;
                             default:
                                 blocks.Add(makeRegularBlock(rowCoords, colCoords, i));
