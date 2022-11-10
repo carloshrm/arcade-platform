@@ -4,8 +4,8 @@
     {
         public override int row { get; set; }
         public override int col { get; set; }
-        public override GraphicAsset model { get; set; }
         public override int spriteSelect { get; set; }
+        public override GraphicAsset model { get; set; }
         public PowerUpType type { get; set; }
         public IPowerUpEffect effect { get; set; }
 
@@ -24,6 +24,5 @@
             row += 2;
             return true;
         }
-
     }
 }

@@ -6,7 +6,7 @@
         {
             BlockModel hollowModel = BlockModel.blocks.Last();
             var newBlock = new Block(row, col, hollowModel, sprite);
-            newBlock.setPowerup(new PowerUp(row + (hollowModel.height / 2), col + (hollowModel.width / 2), t, sprite));
+            newBlock.setPowerup(new PowerUp(row + (hollowModel.height / 2), col + (hollowModel.width / 2), t, 0));
             newBlock.addDecal(GameDecal.breakerDecals["powerup"]);
             return newBlock;
         }
@@ -45,17 +45,20 @@
                     int colCoords = j * widestBlockSize;
                     if (i == rowCount / 2)
                     {
-                        blocks.Add(makeStrongBlock(rowCoords, colCoords, j % 4));
+                        blocks.Add(makeStrongBlock(rowCoords, colCoords, j));
                     }
                     else
                     {
                         switch (rng.Next(0, 10))
                         {
                             case <= 2:
-                                blocks.Add(makeFragileBlock(rowCoords, colCoords, i % 4));
+                                blocks.Add(makeFragileBlock(rowCoords, colCoords, i));
                                 break;
-                            case >= 9:
-                                blocks.Add(makeSpecialBlock(rowCoords, colCoords, (PowerUpType)rng.Next(0, 2), j % 4));
+                            case >= 8:
+                                if (i < rowCount / 2)
+                                    blocks.Add(makeSpecialBlock(rowCoords, colCoords, (PowerUpType)rng.Next(0, 2), j));
+                                else
+                                    blocks.Add(makeStrongBlock(rowCoords, colCoords, j));
                                 break;
                             default:
                                 blocks.Add(makeRegularBlock(rowCoords, colCoords, i));

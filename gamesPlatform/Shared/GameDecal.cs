@@ -24,7 +24,7 @@ namespace cmArcade.Shared
         public static readonly IReadOnlyDictionary<string, GameDecal> breakerDecals = new Dictionary<string, GameDecal>
         {
             { "crack", new GameDecal { spriteId = "crack", width = BlockModel.blocks.First().width, height = BlockModel.blocks.First().height } },
-            { "powerup", new GameDecal { spriteId = "powerup", width = 5, height = 5 } },
+            { "powerup", new GameDecal { spriteId = "powerup", width = 10, height = 10 } },
         };
 
         public static GameDecal getInvaderDecal(string name)

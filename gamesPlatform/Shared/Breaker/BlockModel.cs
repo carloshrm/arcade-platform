@@ -8,6 +8,8 @@
         public int HP { get; init; }
         public bool isSpecial { get; init; }
 
+        public const int variationCount = 5;
+
         public static readonly IReadOnlyCollection<BlockModel> blocks = new List<BlockModel>
         {
             new BlockModel {spriteId = "blocks simple", width = 80, height = 20, HP = 1, isSpecial = false },

@@ -81,21 +81,24 @@
 
     public async Task drawObject(GameObject obj)
     {
-        // "zero" for meazuring/rendering is asset top right corner
+        // renders from the top left
         await canvasReference.DrawImageAsync(
             assets[obj.model.spriteId], // asset image reference
             obj.spriteSelect * obj.model.width, obj.model.height * 0, // asset position on referenced image
             obj.model.width, obj.model.height, // asset size on image
-            obj.col, obj.row, // canvas x - y coords for rendering
+            obj.col, obj.row, // canvas x and y coords for rendering
             obj.model.width, obj.model.height); // size for rendering in canvas
 
         if (obj.decals != null)
         {
             foreach (var d in obj.decals)
             {
-                int widthPadding = d.width < obj.model.width ? (d.width / 2 * -1) + ((obj.model.width - d.width) / 2) : 0;
-                int heightPadding = d.height < obj.model.height ? (d.height / 2 * -1) + ((obj.model.height - d.height) / 2) : 0;
-                await canvasReference.DrawImageAsync(assets[d.spriteId], obj.col + widthPadding, obj.row + heightPadding);
+                int widthPadding = d.width < obj.model.width ? (d.width / -2) + ((obj.model.width) / 2) : 0;
+                int heightPadding = d.height < obj.model.height ? (d.height / -2) + ((obj.model.height) / 2) : 0;
+                await canvasReference.DrawImageAsync(
+                    assets[d.spriteId], 0, 0, d.width, d.height, 
+                    obj.col + widthPadding, obj.row + heightPadding, 
+                    d.width, d.height); 
             }
         }
     }

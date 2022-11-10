@@ -18,7 +18,7 @@
             this.col = col;
             healthPoints = model.HP;
             scoreMultiplier = model.isSpecial ? model.HP * 10 : model.HP;
-            spriteSelect = sprite;
+            spriteSelect = sprite % BlockModel.variationCount;
             decals = new List<GraphicAsset>();
             powerupHolder = null;
         }
@@ -46,7 +46,7 @@
             {
                 if (powerupHolder != null)
                 {
-                    spriteSelect = spriteSelect == 0 ? 4 : spriteSelect * 2;
+                    spriteSelect += 5;
                     decals.Remove(decals.Find(x => x.spriteId.Contains("powerup")));
                     var p = powerupHolder;
                     powerupHolder = null;

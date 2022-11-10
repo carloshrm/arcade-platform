@@ -63,7 +63,7 @@
     public BreakerGame()
     {
         gameControl = new Timer(10) { AutoReset = true, Enabled = false };
-        canvasRefresh = new Timer(1000 / 60) { AutoReset = true, Enabled = false };
+        canvasRefresh = new Timer(1000 / 30) { AutoReset = true, Enabled = false };
         currentScore = new Score(AppID.Breaker);
         highScore = currentScore;
         holdStart = null;
