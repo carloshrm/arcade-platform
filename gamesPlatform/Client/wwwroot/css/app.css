@@ -1,11 +1,20 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat&family=Press+Start+2P&display=swap');
 
+:root {
+    --color-light-background-hsat: #D9C196;
+    --color-light-background-lsat: #A69076;
+    --color-dark-background: #202026;
+    --color-highlight-hsat: #D6AD60;
+    --color-highlight-lsat: #595046;
+    --color-light: #F2F2F2;
+}
 
 body {
     font-family: 'Montserrat', sans-serif;
+    color: var(--color-light);
     height: 100vh;
-    background-color: var(--color-light-background-lsat);
+    background-color: var(--color-dark-background);
 }
 
 #main-card-container {
@@ -15,8 +24,8 @@ body {
 }
 
 .light-bg {
-    background-color: var(--color-dark-background);
-    color: white;
+    background-color: var(--color-light-background);
+    color: var(--color-light);
 }
 
 .card {
@@ -78,16 +87,8 @@ a, .btn-link {
     color: white;
 }
 
-    .blazor-error-boundary::after {
-        content: "An error has occurred."
-    }
-
-:root {
-    --color-light-background-hsat: #122620;
-    --color-dark-background: #122620;
-    --color-highlight-hsat: #D6AD60;
-    --color-highlight-lsat: #B68D40;
-    --color-light-background-lsat: #f0ebd046;
+.blazor-error-boundary::after {
+    content: "An error has occurred."
 }
 
 .game-button {
@@ -103,5 +104,46 @@ a, .btn-link {
 }
 
 .soft-shadow {
-    box-shadow: var(--color-light-background-hsat) 4px 4px;
+    box-shadow: var(--color-light-background-lsat) 2px 2px;
+}
+
+.on {
+    border: 1px solid var(--color-highlight-hsat);
+    box-shadow: none;
+}
+
+.card {
+    color: var(--color-dark-background);
+}
+
+.card:hover {
+    transform: scale(1.1);
+}
+
+.btn {
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-highlight-hsat);
+    font-weight: bold;
+}
+
+#main-content {
+    display: flex;
+    flex-direction: column;
+}
+
+#post-game-container {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 1em;
+    height: fit-content;
+    overflow-x: auto;
+    z-index: 1;
 }

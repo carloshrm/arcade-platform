@@ -15,7 +15,7 @@
 
     public GameCanvas()
     {
-        assets = new Dictionary<string, ElementReference>();
+        assets = new Dictionary<string, ElementReference>();        
     }
 
     public int componentWidth { get; set; }
@@ -28,7 +28,7 @@
     {
         if (firstRender)
         {
-            canvasReference = await _componentReference.CreateCanvas2DAsync();
+            canvasReference = await _componentReference.CreateCanvas2DAsync();            
         }
     }
 

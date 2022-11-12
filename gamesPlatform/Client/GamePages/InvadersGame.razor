@@ -6,7 +6,7 @@
 
 <main id="main-content">
     <div id="game-controls">
-        <button type="button" class="soft-shadow game-button @((currentScore.scoreValue > 0 && spaceControl.Enabled) ? "dark-bg" : "")" @onclick=startGame>start</button>
+        <button type="button" class="soft-shadow game-button @((currentScore.scoreValue > 0 && spaceControl.Enabled) ? "dark-bg on" : "")" @onclick=startGame>start</button>
         <button type="button" class="soft-shadow game-button" @onclick=resetGame>reset</button>
     </div>
     <div id="game-container" tabindex="0" @onkeydown=keyDownInputHandler @onkeyup=keyUpInputHandler @onclick=clickHandler>

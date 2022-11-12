@@ -1,0 +1,13 @@
+﻿#post-game-container {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 1em;
+    height: fit-content;
+    overflow-x: auto;
+    z-index: 1;
+}

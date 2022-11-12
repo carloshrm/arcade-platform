@@ -12,7 +12,7 @@
             <span> Time:@currentScore?.runLength.ToString("mm\\:ss") </span>
         </div>
         <div>
-            <button type="button" class="soft-shadow game-button @((turnCount > 0 && turnManager.Enabled) ? "dark-bg" : "")" @onclick=startGame>start</button>
+            <button type="button" class="soft-shadow game-button @((turnCount > 0 && turnManager.Enabled) ? "dark-bg on" : "")" @onclick=startGame>start</button>
             <button type="button" class="soft-shadow game-button" @onclick=setupNewGame>reset</button>
         </div>
     </div>
@@ -27,7 +27,9 @@
                 <button type="button" class="soft-shadow game-button" @onclick=@(() => { if (canUpload) showScoreUpload = true; })>Upload!</button>
                 <LeaderboardView appID=AppID.Snake @ref=leaderboard />
             </div>
-            @if (showScoreUpload && canUpload) { <ScoreUpload info=@highScore callback=@uploadCallback/> }
+            @if (showScoreUpload && canUpload) { 
+                <ScoreUpload info=@highScore callback=@uploadCallback/> 
+            }
         }
     </div>
     @if (isMobile) { <TouchDPad inputCallback=playerInputHandler /> }
