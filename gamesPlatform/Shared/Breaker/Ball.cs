@@ -37,7 +37,7 @@
             if (!breakingTimeout)
             {
                 breakingTimeout = true;
-                await Task.Delay(150);
+                await Task.Delay(200);
                 breakingTimeout = false;
             }
         }

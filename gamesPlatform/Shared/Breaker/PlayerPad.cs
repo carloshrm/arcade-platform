@@ -19,7 +19,7 @@
             movingDir = Direction.none;
             healthPoints = 3;
             accel = 0;
-            weight = 0.5;
+            weight = 0.8;
             spriteSelect = 0;
         }
 
@@ -34,7 +34,6 @@
         public bool loseLife()
         {
             healthPoints--;
-            //cracked sprite
             return healthPoints <= 0;
         }
 

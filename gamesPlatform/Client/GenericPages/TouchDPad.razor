@@ -1,25 +1,40 @@
 ﻿@inject IJSRuntime jsRuntime
 
 <div id="pad_container">
-    <button id="pad_bt_down" class="oi oi-chevron-bottom" @onclick=@((e) => clickHandler("s"))>
+    <button id="pad_bt_down" class="oi oi-chevron-bottom" @ontouchstart=@((e) => clickHandler("s")) @ontouchend=@((e) => releaseHandler("s"))>
     </button>
-    <button id="pad_bt_right" class="oi oi-chevron-right" @onclick=@((e) => clickHandler("d"))>
+    <button id="pad_bt_right" class="oi oi-chevron-right" @ontouchstart=@((e) => clickHandler("d")) @ontouchend=@((e) => releaseHandler("d"))>
     </button>
-    <button id="pad_bt_left" class="oi oi-chevron-left" @onclick=@((e) => clickHandler("a"))>
+    <button id="pad_bt_left" class="oi oi-chevron-left" @ontouchstart=@((e) => clickHandler("a")) @ontouchend=@((e) => releaseHandler("a"))>
     </button>
-    <button id="pad_bt_up" class="oi oi-chevron-top" @onclick=@((e) => clickHandler("w"))>
+    <button id="pad_bt_up" class="oi oi-chevron-top" @ontouchstart=@((e) => clickHandler("w")) @ontouchend=@((e) => releaseHandler("w"))>
     </button>
 </div>
 
 @code {
-    public delegate void externalHandler(string d);
+    public delegate void externalClickHandler(string d);
+    public delegate void externalReleaseHandler(string d);
 
     [Parameter]
-    public externalHandler inputCallback { get; set; }
+    public externalClickHandler clickCallback { get; set; }
+    [Parameter]
+    public externalReleaseHandler releaseCallback { get; set; }
 
     private void clickHandler(string direction)
     {
-        inputCallback(direction);
+        Console.WriteLine("down");
+        clickCallback(direction);
         jsRuntime.InvokeVoidAsync("vibrateFeedback");
+    }
+
+    private void releaseHandler(string direction)
+    {
+        Console.WriteLine("up");
+        if (releaseCallback != null)
+        {
+            releaseCallback(direction);
+        }
+        else
+            return;
     }
 }

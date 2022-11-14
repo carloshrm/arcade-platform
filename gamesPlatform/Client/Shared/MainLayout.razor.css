@@ -20,3 +20,22 @@ ul {
 #main-header {
     border-bottom: 1px solid var(--color-highlight-hsat);
 }
+
+@media only screen and (max-width: 400px) {
+    #main-header {
+        padding: 0;
+        margin: 0;
+    }
+}
+
+@media (orientation: landscape) {
+    #game-container {
+        margin: 0;
+        transform: scale(0.6);
+    }
+
+    #game-controls {
+        margin: 0;
+        padding: 0;
+    }
+}

@@ -1,40 +1,40 @@
 ﻿@inject IScoreService scoreService
-
-<table id="leaderboard-container" 
-    class="table table-striped">
-    <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Name:</th>
-            <th scope="col">Score:</th>
-            <th scope="col">Date Set:</th>
-            <th scope="col">Run Time:</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (localLeaderboard.Count == 0)
-        {
+<div id="leaderboard-container" class="table-responsive">
+    <table class="table">
+        <thead>
             <tr>
-                <td colspan="5">@statusMessage</td>
+                <th scope="col">#</th>
+                <th scope="col">Name:</th>
+                <th scope="col">Score:</th>
+                <th scope="col">Date Set:</th>
+                <th scope="col">Run Time:</th>
             </tr>
-        }
-        else
-        {
-            @for (var i = 0; i < localLeaderboard.Count; i++)
+        </thead>
+        <tbody>
+            @if (localLeaderboard.Count == 0)
             {
-                Score sr = localLeaderboard[i];
-                <tr scope="row">
-                    <td>@(i + 1)</td>
-                    <td>@sr.nickname</td>
-                    <td>@sr.scoreValue</td>
-                    <td>@sr.runStart.ToShortDateString()</td>
-                    <td>@(sr.runLength.Minutes)m:@(sr.runLength.Seconds)s</td>
+                <tr>
+                    <td colspan="5">@statusMessage</td>
                 </tr>
-                if (i == 5) break;
             }
-        }
-    </tbody>
-</table>
+            else
+            {
+                @for (var i = 0; i < localLeaderboard.Count; i++)
+                {
+                    Score sr = localLeaderboard[i];
+                    <tr scope="row">
+                        <td>@(i + 1)</td>
+                        <td>@sr.nickname</td>
+                        <td>@sr.scoreValue</td>
+                        <td>@sr.runStart.ToShortDateString()</td>
+                        <td>@(sr.runLength.Minutes)m:@(sr.runLength.Seconds)s</td>
+                    </tr>
+                    if (i == 5) break;
+                }
+            }
+        </tbody>
+    </table>
+</div>
 
 @code {
     private List<Score> localLeaderboard { get; set; } = new List<Score>();

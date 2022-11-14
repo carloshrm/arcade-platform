@@ -4,13 +4,6 @@
     outline: none;
 }
 
-@media only screen and (max-width: 400px)
-{
-    * {
-        font-size: 12px;
-    }
-}
-
 #main-content {
     z-index: 1;
 }

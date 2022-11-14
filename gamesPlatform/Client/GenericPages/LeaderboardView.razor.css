@@ -1,5 +1,6 @@
 ﻿#leaderboard-container {
-    margin: 1rem auto;
+    width: 98%;
+    margin: 1em auto;
     padding: 0.2rem;
 }
 
@@ -8,3 +9,8 @@ table {
     border: solid 2px black;
 }
 
+@media only screen and (max-width: 500px) {
+    #leaderboard-container {
+        margin: 0 auto;
+    }
+}

@@ -2,36 +2,28 @@
 {
     public class BreakerField
     {
-        private static Random rng = new Random();
         public PlayerPad player { get; set; }
-        public List<Block> blocks { get; set; }
+        public List<List<Block>> blocks { get; set; }
         public List<Ball> balls { get; set; }
         public List<PowerUp> powerups { get; set; }
         public (int row, int col) limits { get; set; }
+        private int blocksPerRow { get; init; }
 
-        private int baseScore = 40;
-        public bool ballOnHold;
-        private static int blkRows = 5;
-
-        // TODO
-        // procedurally generate a new row of blocks if game almost over and
-        // drop the current row by X
-        // add more block variety
-        // power ups - extra balls inside blocks, stronger ball, more lives, light gravity
-        // power down - heavy pad, fast ball
+        private static int baseScore = 40;
+        private static int rowCount = 5;
+        public bool ballOnHold = true;
 
         public BreakerField((int row, int col) limits)
         {
             this.limits = limits;
             player = new PlayerPad(limits.row - (limits.row / 14), limits.col / 2);
             balls = new List<Ball>();
-            blocks = new List<Block>();
             powerups = new List<PowerUp>();
-            ballOnHold = true;
+            blocks = BlockFactory.setupBlockField(limits, rowCount);
+            Console.WriteLine(blocks.Count);
+            blocksPerRow = blocks.First().Count;
             setBall();
-            blocks = BlockFactory.setupBlockField(limits, blkRows);
         }
-
 
         public void setBall()
         {
@@ -41,16 +33,12 @@
         public int updateFieldState()
         {
             player.updatePosition(limits);
-            checkCollision();
-            if (balls.RemoveAll(b => !b.updatePosition(limits)) > 0)
-            {
-                player.loseLife();
-            }
+            checkCollisions();
+            if (balls.RemoveAll(b => !b.updatePosition(limits)) > 0) player.loseLife();
             updateBallState();
             updatePowerups();
             checkPowerupPickup();
-            var blockHitCount = blockCleanup();
-            return blockHitCount;
+            return blockCleanup();
         }
 
         public bool checkGameOver()
@@ -82,22 +70,41 @@
         private int blockCleanup()
         {
             int totalScore = 0;
-            blocks.RemoveAll(b =>
+            if (blocks.RemoveAll(row =>
             {
-                if (b.healthPoints <= 0)
-                {
-                    totalScore += baseScore + (b.scoreMultiplier * baseScore);
-                    return true;
-                }
-                else
-                    return false;
-            });
+                row.RemoveAll(block =>
+                    {
+                        if (block.healthPoints <= 0)
+                        {
+                            totalScore += baseScore + (block.scoreMultiplier * baseScore);
+                            return true;
+                        }
+                        else
+                            return false;
+                    });
+                return row.Count == 0;
+            }) > 0)
+            {
+                dropBlockRow();
+                blocks.Add(BlockFactory.makeRandomizedRow(limits, 0));
+            }
             return totalScore;
+        }
+
+        private void dropBlockRow()
+        {
+            for (int i = 0; i < blocks.Count; i++)
+            {
+                for (int j = 0; j < blocks[i].Count; j++)
+                {
+                    blocks[i][j].row += BlockModel.highestBlockSize;
+                }
+            }
         }
 
         private void releasePowerup(PowerUp pu)
         {
-            powerups.Add(pu);
+            if (pu != null) powerups.Add(pu);
         }
 
         private void checkPowerupPickup()
@@ -117,7 +124,7 @@
             }
         }
 
-        private void checkCollision()
+        private void checkCollisions()
         {
             foreach (var ball in balls)
             {
@@ -136,29 +143,26 @@
                 }
                 else
                 {
-                    foreach (var blk in blocks)
+                    foreach (var row in blocks.Where(r => r.First().row <= ball.row + ball.model.height))
                     {
-                        if (checkHit(ball, blk))
+                        foreach (var block in row.Where(b => checkHit(b, ball)))
                         {
-                            if (blk.model.spriteId.Contains("fragile"))
-                            {
-                                blk.hit();
-                            }
+                            if (block.model.spriteId.Contains("fragile"))
+                                block.hit();
                             else
                             {
                                 ball.bounce(-1, 1);
                                 if (!ball.breakingTimeout)
                                 {
                                     ball.lockBreak();
-                                    var powerup = blk.hit();
-                                    if (powerup != null)
-                                        releasePowerup(powerup);
+                                    releasePowerup(block.hit());
                                 }
                             }
                         }
                     }
                 }
             }
+
             int calcOffsetPercentage(GameObject obj, int edgePos, int edgeWidth)
             {
                 double offset = edgePos + (edgeWidth / 2) - (obj.col + (obj.model.width / 2));
@@ -178,17 +182,15 @@
                 player.movingDir = Direction.left;
             if (input.Equals("d") || input.Equals("ArrowRight"))
                 player.movingDir = Direction.right;
-            if ((input.Equals(" ") || input.Equals("ArrowUp")) && ballOnHold)
+            if (input.Equals(" ") || input.Equals("ArrowUp") || (input.Equals("w") && ballOnHold))
             {
                 ballOnHold = false;
                 balls.First().shoot();
             }
         }
-
         public void parseKeyUp(string input)
         {
             player.movingDir = Direction.none;
         }
-
     }
 }

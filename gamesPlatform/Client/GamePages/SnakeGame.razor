@@ -32,7 +32,10 @@
             }
         }
     </div>
-    @if (isMobile) { <TouchDPad inputCallback=playerInputHandler /> }
+    @if (isMobile)
+    {
+        <TouchDPad clickCallback=playerInputHandler />
+    }
 </main>
 
 @code {
