@@ -11,6 +11,7 @@
 
         private static int baseScore = 40;
         private static int rowCount = 5;
+        private int breakCount = 0;
         public bool ballOnHold = true;
 
         public BreakerField((int row, int col) limits)
@@ -43,6 +44,11 @@
 
         public bool checkGameOver()
         {
+            foreach (var bk in blocks[0])
+            {
+                if (bk.row + bk.model.height >= player.row + player.model.height)
+                    return true;
+            }
             return player.healthPoints <= 0;
         }
 
@@ -83,23 +89,13 @@
                             return false;
                     });
                 return row.Count == 0;
-            }) > 0)
+            }) > 0 || breakCount >= 14)
             {
-                dropBlockRow();
-                blocks.Add(BlockFactory.makeRandomizedRow(limits, 0));
+                blocks.ForEach(r => r.ForEach(bk => bk.dropRow()));
+                blocks.Add(BlockFactory.makeRandomizedRow(limits, 0, -1));
+                breakCount = 0;
             }
             return totalScore;
-        }
-
-        private void dropBlockRow()
-        {
-            for (int i = 0; i < blocks.Count; i++)
-            {
-                for (int j = 0; j < blocks[i].Count; j++)
-                {
-                    blocks[i][j].row += BlockModel.highestBlockSize;
-                }
-            }
         }
 
         private void releasePowerup(PowerUp pu)
@@ -143,22 +139,20 @@
                 }
                 else
                 {
-                    foreach (var row in blocks.Where(r => r.First().row <= ball.row + ball.model.height))
+                    foreach (var block in blocks.SelectMany(row => row.Where(b => checkHit(b, ball))))
                     {
-                        foreach (var block in row.Where(b => checkHit(b, ball)))
+                        if (block.model.spriteId.Contains("fragile"))
+                            block.hit();
+                        else
                         {
-                            if (block.model.spriteId.Contains("fragile"))
-                                block.hit();
-                            else
+                            ball.bounce(-1, 1);
+                            if (!ball.breakingTimeout)
                             {
-                                ball.bounce(-1, 1);
-                                if (!ball.breakingTimeout)
-                                {
-                                    ball.lockBreak();
-                                    releasePowerup(block.hit());
-                                }
+                                ball.lockBreak();
+                                releasePowerup(block.hit());
                             }
                         }
+                        breakCount++;
                     }
                 }
             }

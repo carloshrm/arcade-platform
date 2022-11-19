@@ -33,6 +33,13 @@
             decals.Add(d);
         }
 
+        public void dropRow()
+        {
+            row += BlockModel.highestBlockSize;
+            if (powerupHolder != null)
+                powerupHolder.row += BlockModel.highestBlockSize;
+        }
+
         public PowerUp? hit()
         {
             healthPoints--;
