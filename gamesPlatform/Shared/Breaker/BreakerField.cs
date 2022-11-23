@@ -11,6 +11,7 @@
 
         private static int baseScore = 40;
         private static int rowCount = 5;
+        public static int fieldScoreMultiplier = 1;
         private int breakCount = 0;
         public bool ballOnHold = true;
 
@@ -82,7 +83,7 @@
                     {
                         if (block.healthPoints <= 0)
                         {
-                            totalScore += baseScore + (block.scoreMultiplier * baseScore);
+                            totalScore += block.scoreMultiplier * baseScore * fieldScoreMultiplier;
                             return true;
                         }
                         else
@@ -130,13 +131,9 @@
                     ball.offsetVector(calcOffsetPercentage(ball, player.col, player.model.width));
                 }
                 else if ((ball.col <= 0) || (ball.col + ball.model.width >= limits.col))
-                {
                     ball.bounce(1, -1);
-                }
                 else if (ball.row <= 0)
-                {
                     ball.bounce(-1, 1);
-                }
                 else
                 {
                     foreach (var block in blocks.SelectMany(row => row.Where(b => checkHit(b, ball))))
@@ -160,6 +157,7 @@
             int calcOffsetPercentage(GameObject obj, int edgePos, int edgeWidth)
             {
                 double offset = edgePos + (edgeWidth / 2) - (obj.col + (obj.model.width / 2));
+                if (offset == 0) offset = (new Random().Next(3) - 1) * 6;
                 return (int)(offset * 100 / edgeWidth);
             }
         }
