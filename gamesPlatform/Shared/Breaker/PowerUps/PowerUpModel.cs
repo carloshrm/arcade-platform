@@ -7,10 +7,10 @@ namespace cmArcade.Shared.Breaker
         public override int width { get; init; }
         public override int height { get; init; }
 
-        public static readonly IReadOnlyDictionary<PowerUpType, PowerUpModel> powerUps = new Dictionary<PowerUpType, PowerUpModel>
+        public static readonly IReadOnlyDictionary<BreakerPowerUpType, PowerUpModel> breakerPowerUps = new Dictionary<BreakerPowerUpType, PowerUpModel>
         {
-            { PowerUpType.health, new PowerUpModel { spriteId = "powerup", width = 10, height = 10 } },
-            { PowerUpType.ball, new PowerUpModel { spriteId = "powerup", width = 10, height = 10 } },
+            { BreakerPowerUpType.health, new PowerUpModel { spriteId = "powerup", width = 10, height = 10 } },
+            { BreakerPowerUpType.ball, new PowerUpModel { spriteId = "powerup", width = 10, height = 10 } },
         };
     }
 }

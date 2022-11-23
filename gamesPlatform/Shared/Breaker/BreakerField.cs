@@ -1,17 +1,16 @@
 ﻿namespace cmArcade.Shared.Breaker
 {
-    public class BreakerField
+    public class BreakerField : IGameField
     {
         public PlayerPad player { get; set; }
         public List<List<Block>> blocks { get; set; }
         public List<Ball> balls { get; set; }
         public List<PowerUp> powerups { get; set; }
         public (int row, int col) limits { get; set; }
-        private int blocksPerRow { get; init; }
+        private int fieldScoreMultiplier { get; set; }
 
         private static int baseScore = 40;
         private static int rowCount = 5;
-        public static int fieldScoreMultiplier = 1;
         private int breakCount = 0;
         public bool ballOnHold = true;
 
@@ -22,8 +21,7 @@
             balls = new List<Ball>();
             powerups = new List<PowerUp>();
             blocks = BlockFactory.setupBlockField(limits, rowCount);
-            Console.WriteLine(blocks.Count);
-            blocksPerRow = blocks.First().Count;
+            fieldScoreMultiplier = 1;
             setBall();
         }
 
@@ -110,12 +108,7 @@
             {
                 if (checkHit(powerups[i], player))
                 {
-                    powerups[i].effect?.runEffect(powerups[i].type switch
-                    {
-                        PowerUpType.health => player,
-                        PowerUpType.ball => this,
-                        _ => player,
-                    });
+                    powerups[i].effect?.runEffect(this);
                     powerups.RemoveAt(i);
                 }
             }
@@ -183,6 +176,16 @@
         public void parseKeyUp(string input)
         {
             player.movingDir = Direction.none;
+        }
+
+        public GameObject getPlayer()
+        {
+            return player;
+        }
+
+        public void setScoreMultiplier(int val)
+        {
+            fieldScoreMultiplier = val;
         }
     }
 }

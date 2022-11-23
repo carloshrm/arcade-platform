@@ -2,9 +2,9 @@
 {
     public class HealthPowerUp : IPowerUpEffect
     {
-        public void runEffect(object t)
+        public void runEffect(IGameField fieldReference)
         {
-            ((PlayerPad)t).healthPoints++;
+            fieldReference.getPlayer().healthPoints++;
         }
     }
 }

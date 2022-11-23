@@ -2,7 +2,8 @@
 {
     public class BallPowerUp : IPowerUpEffect
     {
-        public void runEffect(object t)
+
+        public void runEffect(IGameField t)
         {
             var field = (BreakerField)t;
             field.setBall();

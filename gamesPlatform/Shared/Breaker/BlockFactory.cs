@@ -4,7 +4,7 @@
     {
         private static Random rng = new Random();
 
-        internal static Block makeSpecialBlock(int row, int col, PowerUpType t, int sprite)
+        internal static Block makeSpecialBlock(int row, int col, BreakerPowerUpType t, int sprite)
         {
             BlockModel hollowModel = BlockModel.blocks.Last();
             var newBlock = new Block(row, col, hollowModel, sprite);
@@ -48,7 +48,7 @@
                     else
                         return makeStrongBlock(row, col, spriteSelect);
                 case > 8:
-                    return makeSpecialBlock(row, col, (PowerUpType)rng.Next(0, 2), spriteSelect);
+                    return makeSpecialBlock(row, col, (BreakerPowerUpType)rng.Next(0, 2), spriteSelect);
                 default:
                     return makeRegularBlock(row, col, spriteSelect);
             }

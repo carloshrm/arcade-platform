@@ -39,7 +39,7 @@
 <img hidden src=@($"/img/breakerAssets/ball.png") @ref=@(gameScreen.assets[BallModel.breakerBall.spriteId]) />
 <img hidden src=@($"/img/breakerAssets/crack.png") @ref=@(gameScreen.assets["crack"]) />
 @foreach (var bm in ((IEnumerable<GraphicAsset>)BlockModel.blocks)
-.Concat(PowerUpModel.powerUps.Values)
+.Concat(PowerUpModel.breakerPowerUps.Values)
 .Concat(GameDecal.breakerDecals.Values)) 
 {
     <img hidden src=@($"/img/breakerAssets/{bm.spriteId}.png") @ref=@(gameScreen.assets[bm.spriteId]) />    

@@ -2,15 +2,17 @@
 {
     public interface IPowerUpEffect
     {
-        public void runEffect(object t);
-        public static IPowerUpEffect getPowerUp(PowerUpType t)
+        public void runEffect(IGameField fieldReference);
+        public static IPowerUpEffect getBreakerPowerUp(BreakerPowerUpType t)
         {
             switch (t)
             {
-                case PowerUpType.health:
+                case BreakerPowerUpType.health:
                     return new HealthPowerUp();
-                case PowerUpType.ball:
+                case BreakerPowerUpType.ball:
                     return new BallPowerUp();
+                case BreakerPowerUpType.score:
+                    return new ScorePowerUp();
                 default:
                     return null;
             }
