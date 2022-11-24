@@ -171,7 +171,7 @@
     private string getUIText()
     {
         var text = new StringBuilder();
-        text.Append($"Score:{currentScore.scoreValue}\t ");
+        text.Append($"Score:{currentScore.scoreValue}x{game.fieldScoreMultiplier}\t ");
         if (highScore.scoreValue > 0) text.Append($"Best:{highScore.scoreValue}\t ");
         text.Append($"Time:{currentScore.runLength.ToString("mm\\:ss")} ");
         text.Append($"Level:{currentScore.turn}");

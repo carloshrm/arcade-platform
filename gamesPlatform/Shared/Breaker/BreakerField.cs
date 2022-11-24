@@ -7,7 +7,7 @@
         public List<Ball> balls { get; set; }
         public List<PowerUp> powerups { get; set; }
         public (int row, int col) limits { get; set; }
-        private int fieldScoreMultiplier { get; set; }
+        public int fieldScoreMultiplier { get; set; }
 
         private static int baseScore = 40;
         private static int rowCount = 5;
@@ -146,13 +146,12 @@
                     }
                 }
             }
-
-            int calcOffsetPercentage(GameObject obj, int edgePos, int edgeWidth)
-            {
-                double offset = edgePos + (edgeWidth / 2) - (obj.col + (obj.model.width / 2));
-                if (offset == 0) offset = (new Random().Next(3) - 1) * 6;
-                return (int)(offset * 100 / edgeWidth);
-            }
+        }
+        private static int calcOffsetPercentage(GameObject obj, int edgePos, int edgeWidth)
+        {
+            double offset = edgePos + (edgeWidth / 2) - (obj.col + (obj.model.width / 2));
+            if (offset == 0) offset = (new Random().Next(3) - 1) * 6;
+            return (int)(offset * 100 / edgeWidth);
         }
 
         private bool checkHit(GameObject obj, GameObject target)

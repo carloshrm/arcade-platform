@@ -11,6 +11,7 @@ namespace cmArcade.Shared.Breaker
         {
             { BreakerPowerUpType.health, new PowerUpModel { spriteId = "powerup", width = 10, height = 10 } },
             { BreakerPowerUpType.ball, new PowerUpModel { spriteId = "powerup", width = 10, height = 10 } },
+            { BreakerPowerUpType.score, new PowerUpModel { spriteId = "powerup", width = 10, height = 10 } },
         };
     }
 }

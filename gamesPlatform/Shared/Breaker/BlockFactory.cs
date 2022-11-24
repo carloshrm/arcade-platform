@@ -48,7 +48,7 @@
                     else
                         return makeStrongBlock(row, col, spriteSelect);
                 case > 8:
-                    return makeSpecialBlock(row, col, (BreakerPowerUpType)rng.Next(0, 2), spriteSelect);
+                    return makeSpecialBlock(row, col, (BreakerPowerUpType)rng.Next(0, Enum.GetNames(typeof(BreakerPowerUpType)).Length), spriteSelect);
                 default:
                     return makeRegularBlock(row, col, spriteSelect);
             }
