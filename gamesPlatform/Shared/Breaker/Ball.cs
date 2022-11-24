@@ -29,7 +29,7 @@
 
         public void shoot()
         {
-            movementVector = (4, 0);
+            movementVector = (-4, 0);
         }
 
         public async void lockBreak()
@@ -50,7 +50,7 @@
                 movementVector = (movementVector.row * rDir, movementVector.col * cDir);
                 if (Math.Abs(movementVector.col) >= 6)
                     movementVector.col = (int)(movementVector.col * 0.8);
-                await Task.Delay(10);
+                await Task.Delay(50);
                 bouncingTimeout = false;
             }
         }

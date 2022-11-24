@@ -28,11 +28,11 @@
     {
         if (firstRender)
         {
-            canvasReference = await _componentReference.CreateCanvas2DAsync();            
+            canvasReference = await _componentReference.CreateCanvas2DAsync();
         }
     }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         readConfigValues();
     }
@@ -88,7 +88,6 @@
             obj.model.width, obj.model.height, // asset size on image
             obj.col, obj.row, // canvas x and y coords for rendering
             obj.model.width, obj.model.height); // size for rendering in canvas
-
         if (obj.decals != null)
         {
             foreach (var d in obj.decals)
@@ -100,7 +99,7 @@
                     obj.col + widthPadding, obj.row + heightPadding, 
                     d.width, d.height); 
             }
-        }
+        }        
     }
 
     public async Task drawSet(IEnumerable<GameObject> list)
