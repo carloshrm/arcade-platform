@@ -27,7 +27,7 @@
 
         public void setBall()
         {
-            balls.Add(new Ball(player.row - (limits.row / 10), player.col + (player.model.width / 2)));
+            balls.Add(new Ball(player.row - (int)(BallModel.breakerBall.height * 1.2), player.col + (player.model.width / 2)));
         }
 
         public int updateFieldState()
