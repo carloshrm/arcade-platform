@@ -85,7 +85,7 @@
             }) > 0 || breakCount >= 14)
             {
                 blocks.ForEach(r => r.ForEach(bk => bk.dropRow()));
-                blocks.Add(BlockFactory.makeRandomizedRow(limits, 0, -1));
+                blocks.Add(BlockFactory.makeRandomizedRow(limits, 0));
                 breakCount = 0;
             }
             return totalScore;

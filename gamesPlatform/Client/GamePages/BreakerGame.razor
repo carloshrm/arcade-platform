@@ -74,8 +74,8 @@
     private bool mobileMoveToggle = false;
     public BreakerGame()
     {
-        gameControl = new Timer(10) { AutoReset = true, Enabled = false };
-        canvasRefresh = new Timer(1000 / 30) { AutoReset = true, Enabled = false };
+        gameControl = new Timer(1) { AutoReset = true, Enabled = false };
+        canvasRefresh = new Timer(1000 / 120) { AutoReset = true, Enabled = false };
         currentScore = new Score(AppID.Breaker);
         highScore = currentScore;
         holdStart = null;

@@ -19,7 +19,7 @@
             movingDir = Direction.none;
             healthPoints = 3;
             accel = 0;
-            weight = 0.8;
+            weight = 0.4;
             spriteSelect = 0;
         }
 
@@ -48,14 +48,16 @@
 
             if (movingDir == Direction.right)
             {
-                accel = accel >= 6 ? 6 : accel + weight;
+                accel = 6;
             }
             else if (movingDir == Direction.left)
             {
-                accel = accel <= -6 ? -6 : accel - weight;
+                accel = -6;
             }
             else
-                accel = accel > 0 ? (accel - weight) : (accel + weight);
+            {
+                accel = accel > 0 ? accel - weight : accel + weight;
+            }
 
             return true;
         }

@@ -1,8 +1,12 @@
-﻿using cmArcade.Shared;
+﻿using System.Data;
+
+using cmArcade.Shared;
+
 using Dapper;
+
 using Microsoft.AspNetCore.Mvc;
+
 using Npgsql;
-using System.Data;
 
 namespace cmArcade.Server.Controllers
 {
@@ -11,13 +15,23 @@ namespace cmArcade.Server.Controllers
     public class ScoreController : ControllerBase, IScoreController
     {
         private NpgsqlConnection connection { get; }
-        //private NpgsqlConnectionStringBuilder connectionString { get; }
 
         public ScoreController(IConfiguration config)
         {
             var envString = config.GetValue<string>("external_db");
+            envString = "User Id=postgres;Password=qPaTZKbK8RWyAxWv;Server=db.stddcxbiiqmcnqzpouoi.supabase.co;Port=5432;Database=postgres";
             if (envString?.Equals(string.Empty) == false)
-                connection = new NpgsqlConnection(envString);
+            {
+                try
+                {
+                    connection = new NpgsqlConnection(envString);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    throw e;
+                }
+            }
             else
                 throw new ArgumentException("invalid db string");
         }
