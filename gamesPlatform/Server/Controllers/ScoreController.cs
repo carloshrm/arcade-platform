@@ -19,7 +19,6 @@ namespace cmArcade.Server.Controllers
         public ScoreController(IConfiguration config)
         {
             var envString = config.GetValue<string>("external_db");
-            envString = "User Id=postgres;Password=qPaTZKbK8RWyAxWv;Server=db.stddcxbiiqmcnqzpouoi.supabase.co;Port=5432;Database=postgres";
             if (envString?.Equals(string.Empty) == false)
             {
                 try
