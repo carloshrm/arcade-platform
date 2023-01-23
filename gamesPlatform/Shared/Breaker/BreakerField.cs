@@ -25,10 +25,7 @@
             setBall();
         }
 
-        public void setBall()
-        {
-            balls.Add(new Ball(player.row - (int)(BallModel.breakerBall.height * 1.2), player.col + (player.model.width / 2)));
-        }
+        public void setBall() => balls.Add(new Ball(player.row - (int)(BallModel.breakerBall.height * 1.2), player.col + (player.model.width / 2)));
 
         public int updateFieldState()
         {
@@ -51,10 +48,7 @@
             return player.healthPoints <= 0;
         }
 
-        private void updatePowerups()
-        {
-            powerups.ForEach(p => p.updatePosition(limits));
-        }
+        private void updatePowerups() => powerups.ForEach(p => p.updatePosition(limits));
 
         private void updateBallState()
         {
@@ -166,25 +160,16 @@
                 player.movingDir = Direction.left;
             if (input.Equals("d") || input.Equals("ArrowRight"))
                 player.movingDir = Direction.right;
-            if (input.Equals(" ") || input.Equals("ArrowUp") || (input.Equals("w") && ballOnHold))
+            if ((input.Equals(" ") || input.Equals("ArrowUp") || input.Equals("w")) && ballOnHold)
             {
                 ballOnHold = false;
                 balls.First().shoot();
             }
         }
-        public void parseKeyUp(string input)
-        {
-            player.movingDir = Direction.none;
-        }
+        public void parseKeyUp(string input) => player.movingDir = Direction.none;
 
-        public GameObject getPlayer()
-        {
-            return player;
-        }
+        public GameObject getPlayer() => player;
 
-        public void setScoreMultiplier(int val)
-        {
-            fieldScoreMultiplier = val;
-        }
+        public void setScoreMultiplier(int val) => fieldScoreMultiplier = val;
     }
 }
