@@ -19,7 +19,11 @@
                 <h4>Best: @highScore?.scoreValue</h4>
                 @if (canUpload)
                 {
-                    <button type="button" @onclick=@(() => showScoreUpload = true )>Upload!</button>
+                    <button type="button" @onclick=@(() => showScoreUpload = true)>Upload!</button>
+                }
+                else
+                {
+                    <p>Set a new best to upload again</p>
                 }
                 <LeaderboardView appID=AppID.Invaders @ref=leaderboard />
             </div>

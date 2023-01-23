@@ -24,7 +24,14 @@
                 <h2>Game Over...</h2>
                 <h4>Score: @currentScore?.scoreValue</h4>
                 <h4>Best: @highScore?.scoreValue</h4>
-                <button type="button" class="soft-shadow game-button" @onclick=@(() => { if (canUpload) showScoreUpload = true; })>Upload!</button>
+                @if (canUpload)
+                {
+                    <button type="button" class="soft-shadow game-button" @onclick=@(() => showScoreUpload = true)>Upload!</button>                    
+                }
+                else
+                {
+                    <p>Set a new best to upload again</p>
+                }
                 <LeaderboardView appID=AppID.Snake @ref=leaderboard />
             </div>
             @if (showScoreUpload && canUpload) { 
