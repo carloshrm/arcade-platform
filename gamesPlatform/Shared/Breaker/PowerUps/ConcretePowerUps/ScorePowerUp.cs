@@ -5,6 +5,7 @@
         public void runEffect(IGameField t)
         {
             t.setScoreMultiplier(2);
+            t.setMessage("+1x Score Multiplier");
         }
     }
 }

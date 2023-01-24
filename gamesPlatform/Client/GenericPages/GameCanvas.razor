@@ -123,9 +123,9 @@
         await canvasReference.SetFillStyleAsync(previousStyle);
     }
 
-    public (int, int) getDimensions()
+    public (int y, int x) getDimensions()
     {
-        return (componentHeight, componentWidth);
+        return (y: componentHeight, x: componentWidth);
     }
 
     public (int, int) getScreenSize()

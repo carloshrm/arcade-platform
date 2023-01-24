@@ -1,4 +1,6 @@
-﻿namespace cmArcade.Shared.Breaker
+﻿using System.Text;
+
+namespace cmArcade.Shared.Breaker
 {
     public class BreakerField : IGameField
     {
@@ -8,6 +10,7 @@
         public List<PowerUp> powerups { get; set; }
         public (int row, int col) limits { get; set; }
         public int fieldScoreMultiplier { get; set; }
+        private IList<string> fieldMessages { get; set; }
 
         private static int baseScore = 40;
         private static int rowCount = 5;
@@ -17,6 +20,7 @@
         public BreakerField((int row, int col) limits)
         {
             this.limits = limits;
+            fieldMessages = new List<string>();
             player = new PlayerPad(limits.row - (limits.row / 14), limits.col / 2);
             balls = new List<Ball>();
             powerups = new List<PowerUp>();
@@ -24,6 +28,8 @@
             fieldScoreMultiplier = 1;
             setBall();
         }
+
+
 
         public void setBall() => balls.Add(new Ball(player.row - (int)(BallModel.breakerBall.height * 1.2), player.col + (player.model.width / 2)));
 
@@ -171,5 +177,22 @@
         public GameObject getPlayer() => player;
 
         public void setScoreMultiplier(int val) => fieldScoreMultiplier = val;
+
+        public void setMessage(string msg)
+        {
+            fieldMessages.Add(msg);
+            Task.Delay(TimeSpan.FromSeconds(3)).ContinueWith((task) => fieldMessages.Remove(msg));
+        }
+
+        public string getMessages()
+        {
+            var sb = new StringBuilder();
+            foreach (var msg in fieldMessages)
+            {
+                sb.Append("\n" + msg);
+            }
+            return sb.ToString();
+        }
+
     }
 }

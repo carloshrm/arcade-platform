@@ -209,6 +209,7 @@
         await gameScreen.canvasReference.BeginBatchAsync();
         await gameScreen.fillColor("black");
         await gameScreen.canvasReference.FillTextAsync(getUIText(), 10, 20);
+        await gameScreen.canvasReference.FillTextAsync(game.getMessages(), 10, (gameScreen.getDimensions().y / 2));
 
         if (game.ballOnHold)
             await gameScreen.canvasReference.FillTextAsync("hit spacebar or up to release the ball", gameScreen.componentWidth / 4, gameScreen.componentWidth / 2);

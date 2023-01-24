@@ -19,7 +19,7 @@
             movingDir = Direction.none;
             healthPoints = 3;
             accel = 0;
-            weight = 0.4;
+            weight = 0.6;
             spriteSelect = 0;
         }
 
