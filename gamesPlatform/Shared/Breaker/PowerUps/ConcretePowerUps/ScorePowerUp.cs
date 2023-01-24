@@ -2,10 +2,11 @@
 {
     public class ScorePowerUp : IPowerUpEffect
     {
-        public void runEffect(IGameField t)
+        public void runEffect(IGameField fieldReference)
         {
-            t.setScoreMultiplier(2);
-            t.setMessage("+1x Score Multiplier");
+            fieldReference.setScoreMultiplier(1);
+            fieldReference.setMessage("+1x Score Multiplier");
+            Task.Delay(TimeSpan.FromSeconds(30)).ContinueWith(t => fieldReference.setScoreMultiplier(-1));
         }
     }
 }

@@ -123,6 +123,22 @@
         await canvasReference.SetFillStyleAsync(previousStyle);
     }
 
+    public async Task fillTextStyleOverride(string text, double x, double y, string font, string style = "")
+    {
+        if (canvasReference == null) return;
+
+        var previousStyle = canvasReference.FillStyle;
+        var previousFont = canvasReference.Font;
+
+        await canvasReference.SetFontAsync(font);
+        await canvasReference.SetFillStyleAsync(style == "" ? previousStyle : style);
+
+        await canvasReference.FillTextAsync(text, x, y);
+        
+        await canvasReference.SetFillStyleAsync(previousStyle);
+        await canvasReference.SetFontAsync(previousFont);
+    }
+
     public (int y, int x) getDimensions()
     {
         return (y: componentHeight, x: componentWidth);

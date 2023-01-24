@@ -48,16 +48,20 @@
 
             if (movingDir == Direction.right)
             {
-                accel = 6;
+                if (accel < 3)
+                    accel = 3;
+                else
+                    accel = accel < 6 ? accel + weight : 6;
             }
             else if (movingDir == Direction.left)
             {
-                accel = -6;
+                if (accel > -3)
+                    accel = -3;
+                else
+                    accel = accel > -6 ? accel - weight : -6;
             }
             else
-            {
                 accel = accel > 0 ? accel - weight : accel + weight;
-            }
 
             return true;
         }

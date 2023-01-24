@@ -4,7 +4,7 @@
 @implements IDisposable
 @using cmArcade.Shared.Breaker
 
-<main id="main-content" @onkeydown:preventDefault="true" @onkeydown:stopPropagation="true">
+<main id="main-content" @onkeydown:preventDefault="true">
     <div id="game-controls">
         <button type="button" class="soft-shadow game-button @((currentScore.scoreValue > 0 && gameControl.Enabled) ? "dark-bg ok" : "")" @onclick=startGame>start</button>
         <button type="button" class="soft-shadow game-button" @onclick=resetGame>reset</button>
@@ -75,7 +75,7 @@
     public BreakerGame()
     {
         gameControl = new Timer(1) { AutoReset = true, Enabled = false };
-        canvasRefresh = new Timer(1000 / 120) { AutoReset = true, Enabled = false };
+        canvasRefresh = new Timer(1000 / 60) { AutoReset = true, Enabled = false };
         currentScore = new Score(AppID.Breaker);
         highScore = currentScore;
         holdStart = null;
@@ -180,13 +180,13 @@
         text.Append($"Score:{currentScore.scoreValue}x{game.fieldScoreMultiplier}\t ");
         if (highScore.scoreValue > 0) text.Append($"Best:{highScore.scoreValue}\t ");
         text.Append($"Time:{currentScore.runLength.ToString("mm\\:ss")} ");
-        text.Append($"Level:{currentScore.turn}");
+        text.Append($"Depth:{currentScore.turn}");
         return text.ToString();
     }
 
     private async void runGame(Object? o, ElapsedEventArgs e)
     {
-        currentScore.scoreValue += game.updateFieldState();
+        game.updateFieldState(currentScore);
         if (game.ballOnHold)
         {
             if (holdStart == null)
@@ -209,7 +209,9 @@
         await gameScreen.canvasReference.BeginBatchAsync();
         await gameScreen.fillColor("black");
         await gameScreen.canvasReference.FillTextAsync(getUIText(), 10, 20);
-        await gameScreen.canvasReference.FillTextAsync(game.getMessages(), 10, (gameScreen.getDimensions().y / 2));
+
+        for (int i = 0; i < game.fieldMessages.Count; i++)
+            await gameScreen.fillTextStyleOverride(game.fieldMessages[i], 0, (gameScreen.getDimensions().y / 2) + (i * 20), "10px \"Press Start 2P\"", "yellow");
 
         if (game.ballOnHold)
             await gameScreen.canvasReference.FillTextAsync("hit spacebar or up to release the ball", gameScreen.componentWidth / 4, gameScreen.componentWidth / 2);

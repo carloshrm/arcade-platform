@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace cmArcade.Shared.Breaker
+﻿namespace cmArcade.Shared.Breaker
 {
     public class BreakerField : IGameField
     {
@@ -8,9 +6,9 @@ namespace cmArcade.Shared.Breaker
         public List<List<Block>> blocks { get; set; }
         public List<Ball> balls { get; set; }
         public List<PowerUp> powerups { get; set; }
-        public (int row, int col) limits { get; set; }
+        public (int row, int col) limits { get; }
         public int fieldScoreMultiplier { get; set; }
-        private IList<string> fieldMessages { get; set; }
+        public IList<string> fieldMessages { get; }
 
         private static int baseScore = 40;
         private static int rowCount = 5;
@@ -29,11 +27,9 @@ namespace cmArcade.Shared.Breaker
             setBall();
         }
 
-
-
         public void setBall() => balls.Add(new Ball(player.row - (int)(BallModel.breakerBall.height * 1.2), player.col + (player.model.width / 2)));
 
-        public int updateFieldState()
+        public void updateFieldState(Score s)
         {
             player.updatePosition(limits);
             checkCollisions();
@@ -41,7 +37,7 @@ namespace cmArcade.Shared.Breaker
             updateBallState();
             updatePowerups();
             checkPowerupPickup();
-            return blockCleanup();
+            blockCleanup(s);
         }
 
         public bool checkGameOver()
@@ -72,29 +68,31 @@ namespace cmArcade.Shared.Breaker
             }
         }
 
-        private int blockCleanup()
+        private void blockCleanup(Score s)
         {
             int totalScore = 0;
-            if (blocks.RemoveAll(row =>
+            blocks.RemoveAll(row =>
             {
                 row.RemoveAll(block =>
                     {
                         if (block.healthPoints <= 0)
                         {
-                            totalScore += block.scoreMultiplier * baseScore * fieldScoreMultiplier;
+                            totalScore += block.scoreMultiplier * (baseScore + s.turn) * fieldScoreMultiplier;
                             return true;
                         }
                         else
                             return false;
                     });
                 return row.Count == 0;
-            }) > 0 || breakCount >= 14)
+            });
+            if (breakCount >= 20)
             {
                 blocks.ForEach(r => r.ForEach(bk => bk.dropRow()));
                 blocks.Add(BlockFactory.makeRandomizedRow(limits, 0));
                 breakCount = 0;
+                s.turn++;
             }
-            return totalScore;
+            s.scoreValue += totalScore;
         }
 
         private void releasePowerup(PowerUp pu)
@@ -147,6 +145,7 @@ namespace cmArcade.Shared.Breaker
                 }
             }
         }
+
         private static int calcOffsetPercentage(GameObject obj, int edgePos, int edgeWidth)
         {
             double offset = edgePos + (edgeWidth / 2) - (obj.col + (obj.model.width / 2));
@@ -172,27 +171,22 @@ namespace cmArcade.Shared.Breaker
                 balls.First().shoot();
             }
         }
-        public void parseKeyUp(string input) => player.movingDir = Direction.none;
+        public void parseKeyUp(string input)
+        {
+            if (player.movingDir == Direction.left && (input.Equals("a") || input.Equals("ArrowLeft")))
+                player.movingDir = Direction.none;
+            if (player.movingDir == Direction.right && (input.Equals("d") || input.Equals("ArrowRight")))
+                player.movingDir = Direction.none;
+        }
 
         public GameObject getPlayer() => player;
 
-        public void setScoreMultiplier(int val) => fieldScoreMultiplier = val;
+        public void setScoreMultiplier(int val) => fieldScoreMultiplier += val;
 
         public void setMessage(string msg)
         {
             fieldMessages.Add(msg);
-            Task.Delay(TimeSpan.FromSeconds(3)).ContinueWith((task) => fieldMessages.Remove(msg));
+            Task.Delay(TimeSpan.FromSeconds(5)).ContinueWith((task) => fieldMessages.Remove(msg));
         }
-
-        public string getMessages()
-        {
-            var sb = new StringBuilder();
-            foreach (var msg in fieldMessages)
-            {
-                sb.Append("\n" + msg);
-            }
-            return sb.ToString();
-        }
-
     }
 }
