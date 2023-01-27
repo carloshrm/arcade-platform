@@ -7,8 +7,8 @@
         public override int healthPoints { get; set; }
         public override GraphicAsset model { get; set; }
         public override int spriteSelect { get; set; }
-        private (int row, int col) movementVector;
 
+        private (int row, int col) movementVector;
         public bool breakingTimeout = false;
         private bool bouncingTimeout = false;
 
@@ -22,23 +22,16 @@
             movementVector = (0, 0);
         }
 
-        public void follow(int c)
-        {
-            this.col = c - (model.width / 2);
-        }
+        public void follow(int c) => this.col = c - (model.width / 2);
 
-        public void shoot()
-        {
-            movementVector = (-4, 0);
-        }
+        public void shoot() => movementVector = (-4, 0);
 
         public async void lockBreak()
         {
             if (!breakingTimeout)
             {
                 breakingTimeout = true;
-                await Task.Delay(10);
-                breakingTimeout = false;
+                Task.Delay(TimeSpan.FromMilliseconds(50)).ContinueWith((t) => breakingTimeout = false);
             }
         }
 
@@ -55,10 +48,7 @@
             }
         }
 
-        public void offsetVector(int accel)
-        {
-            movementVector.col = accel / -10;
-        }
+        public void offsetVector(int accel) => movementVector.col = accel / -10;
 
         public override bool updatePosition((int row, int col) limits)
         {

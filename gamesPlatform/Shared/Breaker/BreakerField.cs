@@ -71,8 +71,9 @@
         private void blockCleanup(Score s)
         {
             int totalScore = 0;
-            blocks.RemoveAll(row =>
+            int nRowsCleared = blocks.RemoveAll(row =>
             {
+                int countBefore = row.Count;
                 row.RemoveAll(block =>
                     {
                         if (block.healthPoints <= 0)
@@ -83,9 +84,10 @@
                         else
                             return false;
                     });
+                breakCount += (countBefore - row.Count);
                 return row.Count == 0;
             });
-            if (breakCount >= 20)
+            if (nRowsCleared > 0 || breakCount >= 14)
             {
                 blocks.ForEach(r => r.ForEach(bk => bk.dropRow()));
                 blocks.Add(BlockFactory.makeRandomizedRow(limits, 0));
@@ -140,7 +142,6 @@
                                 releasePowerup(block.hit());
                             }
                         }
-                        breakCount++;
                     }
                 }
             }
