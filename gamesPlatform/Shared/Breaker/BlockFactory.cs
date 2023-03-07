@@ -13,20 +13,11 @@
             return newBlock;
         }
 
-        internal static Block makeRegularBlock(int row, int col, int sprite)
-        {
-            return new Block(row, col, BlockModel.blocks.First(), sprite);
-        }
+        internal static Block makeRegularBlock(int row, int col, int sprite) => new Block(row, col, BlockModel.blocks.First(), sprite);
 
-        internal static Block makeFragileBlock(int row, int col, int sprite)
-        {
-            return new Block(row, col, BlockModel.blocks.First(el => el.spriteId.Contains("fragile")), sprite);
-        }
+        internal static Block makeFragileBlock(int row, int col, int sprite) => new Block(row, col, BlockModel.blocks.First(el => el.spriteId.Contains("fragile")), sprite);
 
-        internal static Block makeStrongBlock(int row, int col, int sprite)
-        {
-            return new Block(row, col, BlockModel.blocks.First(el => el.spriteId.Contains("strong")), sprite);
-        }
+        internal static Block makeStrongBlock(int row, int col, int sprite) => new Block(row, col, BlockModel.blocks.First(el => el.spriteId.Contains("strong")), sprite);
 
         internal static List<List<Block>> setupBlockField((int row, int col) limits, int rowCount)
         {
@@ -54,12 +45,11 @@
             }
         }
 
-        internal static List<Block> makeRandomizedRow((int row, int col) limits, int rowNumber, int spriteSelect)
+        internal static List<Block> makeRandomizedRow((int row, int col) limits, int rowNumber, int spriteSelect = -1)
         {
             spriteSelect = spriteSelect == -1 ? rng.Next(BlockModel.variationCount + 1) : spriteSelect;
             int blockCount = limits.col / BlockModel.widestBlockSize;
             int padding = limits.col % BlockModel.widestBlockSize / 2;
-
             var blockRow = new List<Block>();
             for (int j = 0; j < blockCount; j++)
             {

@@ -24,7 +24,27 @@
         <GameCanvas @ref=gameScreen appID=_myID />
         @if (turnCount > 0 && !turnManager.Enabled)
         {
+<<<<<<< HEAD
             <PostGameView currentScore=currentScore highScore=highScore app=_myID />
+=======
+            <div id="post-game-container" class="dark-bg soft-shadow">
+                <h2>Game Over...</h2>
+                <h4>Score: @currentScore?.scoreValue</h4>
+                <h4>Best: @highScore?.scoreValue</h4>
+                @if (canUpload)
+                {
+                    <button type="button" class="soft-shadow game-button" @onclick=@(() => showScoreUpload = true)>Upload!</button>                    
+                }
+                else
+                {
+                    <p>Set a new best to upload again</p>
+                }
+                <LeaderboardView appID=AppID.Snake @ref=leaderboard />
+            </div>
+            @if (showScoreUpload && canUpload) { 
+                <ScoreUpload info=@highScore callback=@uploadCallback/> 
+            }
+>>>>>>> 34005934272f04b0b65bb1a7d4d6d030a28f3337
         }
     </div>
     @if (isMobile)

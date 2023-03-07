@@ -6,8 +6,9 @@
         public List<List<Block>> blocks { get; set; }
         public List<Ball> balls { get; set; }
         public List<PowerUp> powerups { get; set; }
-        public (int row, int col) limits { get; set; }
+        public (int row, int col) limits { get; }
         public int fieldScoreMultiplier { get; set; }
+        public IList<string> fieldMessages { get; }
 
         private static int baseScore = 40;
         private static int rowCount = 5;
@@ -17,6 +18,7 @@
         public BreakerField((int row, int col) limits)
         {
             this.limits = limits;
+            fieldMessages = new List<string>();
             player = new PlayerPad(limits.row - (limits.row / 14), limits.col / 2);
             balls = new List<Ball>();
             powerups = new List<PowerUp>();
@@ -25,12 +27,9 @@
             setBall();
         }
 
-        public void setBall()
-        {
-            balls.Add(new Ball(player.row - (int)(BallModel.breakerBall.height * 1.2), player.col + (player.model.width / 2)));
-        }
+        public void setBall() => balls.Add(new Ball(player.row - (int)(BallModel.breakerBall.height * 1.2), player.col + (player.model.width / 2)));
 
-        public int updateFieldState()
+        public void updateFieldState(Score s)
         {
             player.updatePosition(limits);
             checkCollisions();
@@ -38,7 +37,7 @@
             updateBallState();
             updatePowerups();
             checkPowerupPickup();
-            return blockCleanup();
+            blockCleanup(s);
         }
 
         public bool checkGameOver()
@@ -51,10 +50,7 @@
             return player.healthPoints <= 0;
         }
 
-        private void updatePowerups()
-        {
-            powerups.ForEach(p => p.updatePosition(limits));
-        }
+        private void updatePowerups() => powerups.ForEach(p => p.updatePosition(limits));
 
         private void updateBallState()
         {
@@ -72,29 +68,33 @@
             }
         }
 
-        private int blockCleanup()
+        private void blockCleanup(Score s)
         {
             int totalScore = 0;
-            if (blocks.RemoveAll(row =>
+            int nRowsCleared = blocks.RemoveAll(row =>
             {
+                int countBefore = row.Count;
                 row.RemoveAll(block =>
                     {
                         if (block.healthPoints <= 0)
                         {
-                            totalScore += block.scoreMultiplier * baseScore * fieldScoreMultiplier;
+                            totalScore += block.scoreMultiplier * (baseScore + s.turn) * fieldScoreMultiplier;
                             return true;
                         }
                         else
                             return false;
                     });
+                breakCount += (countBefore - row.Count);
                 return row.Count == 0;
-            }) > 0 || breakCount >= 14)
+            });
+            if (nRowsCleared > 0 || breakCount >= 14)
             {
                 blocks.ForEach(r => r.ForEach(bk => bk.dropRow()));
-                blocks.Add(BlockFactory.makeRandomizedRow(limits, 0, -1));
+                blocks.Add(BlockFactory.makeRandomizedRow(limits, 0));
                 breakCount = 0;
+                s.turn++;
             }
-            return totalScore;
+            s.scoreValue += totalScore;
         }
 
         private void releasePowerup(PowerUp pu)
@@ -142,11 +142,11 @@
                                 releasePowerup(block.hit());
                             }
                         }
-                        breakCount++;
                     }
                 }
             }
         }
+
         private static int calcOffsetPercentage(GameObject obj, int edgePos, int edgeWidth)
         {
             double offset = edgePos + (edgeWidth / 2) - (obj.col + (obj.model.width / 2));
@@ -166,7 +166,7 @@
                 player.movingDir = Direction.left;
             if (input.Equals("d") || input.Equals("ArrowRight"))
                 player.movingDir = Direction.right;
-            if (input.Equals(" ") || input.Equals("ArrowUp") || (input.Equals("w") && ballOnHold))
+            if ((input.Equals(" ") || input.Equals("ArrowUp") || input.Equals("w")) && ballOnHold)
             {
                 ballOnHold = false;
                 balls.First().shoot();
@@ -174,17 +174,20 @@
         }
         public void parseKeyUp(string input)
         {
-            player.movingDir = Direction.none;
+            if (player.movingDir == Direction.left && (input.Equals("a") || input.Equals("ArrowLeft")))
+                player.movingDir = Direction.none;
+            if (player.movingDir == Direction.right && (input.Equals("d") || input.Equals("ArrowRight")))
+                player.movingDir = Direction.none;
         }
 
-        public GameObject getPlayer()
-        {
-            return player;
-        }
+        public GameObject getPlayer() => player;
 
-        public void setScoreMultiplier(int val)
+        public void setScoreMultiplier(int val) => fieldScoreMultiplier += val;
+
+        public void setMessage(string msg)
         {
-            fieldScoreMultiplier = val;
+            fieldMessages.Add(msg);
+            Task.Delay(TimeSpan.FromSeconds(5)).ContinueWith((task) => fieldMessages.Remove(msg));
         }
     }
 }

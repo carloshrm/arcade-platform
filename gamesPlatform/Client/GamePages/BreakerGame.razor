@@ -4,7 +4,7 @@
 @implements IDisposable
 @using cmArcade.Shared.Breaker
 
-<main id="main-content" @onkeydown:preventDefault="true" @onkeydown:stopPropagation="true">
+<main id="main-content" @onkeydown:preventDefault="true">
     <div id="game-controls">
         <button type="button" class="soft-shadow game-button @((currentScore.scoreValue > 0 && gameControl.Enabled) ? "dark-bg ok" : "")" @onclick=startGame>start</button>
         <button type="button" class="soft-shadow game-button" @onclick=resetGame>reset</button>
@@ -13,7 +13,30 @@
         <GameCanvas @ref=gameScreen appID=_myID />
         @if (currentScore?.turn > 0 && gameOver)
         {
+<<<<<<< HEAD
             <PostGameView currentScore=currentScore highScore=highScore app=_myID/>
+=======
+            <div id="post-game-container" class="dark-bg soft-shadow">
+                <h2>Game Over...</h2>
+                <h4>Score: @currentScore?.scoreValue</h4>
+                <h4>Best: @highScore?.scoreValue</h4>
+                @if (canUpload)
+                {
+                    <button type="button" class="soft-shadow game-button" @onclick=@(() => showScoreUpload = true)>
+                        Upload!
+                    </button>
+                }
+                else
+                {
+                    <p>Set a new best to upload again</p>
+                }
+                <LeaderboardView appID=AppID.Breaker @ref=leaderboard />
+            </div>
+            @if (showScoreUpload && canUpload)
+            {
+                <ScoreUpload info=@highScore callback=@uploadCallback />
+            }
+>>>>>>> 34005934272f04b0b65bb1a7d4d6d030a28f3337
         }
     </div>
     @if (isMobile)
@@ -26,8 +49,13 @@
 <img hidden src=@($"/img/breakerAssets/ball.png") @ref=@(gameScreen.assets[BallModel.breakerBall.spriteId]) />
 <img hidden src=@($"/img/breakerAssets/crack.png") @ref=@(gameScreen.assets["crack"]) />
 @foreach (var bm in ((IEnumerable<GraphicAsset>)BlockModel.blocks)
+<<<<<<< HEAD
                  .Concat(PowerUpModel.breakerPowerUps.Values)
                  .Concat(GameDecal.breakerDecals.Values))
+=======
+.Concat(PowerUpModel.breakerPowerUps.Values)
+.Concat(GameDecal.breakerDecals.Values))
+>>>>>>> 34005934272f04b0b65bb1a7d4d6d030a28f3337
 {
     <img hidden src=@($"/img/breakerAssets/{bm.spriteId}.png") @ref=@(gameScreen.assets[bm.spriteId]) />
 }
@@ -52,8 +80,8 @@
     private bool mobileMoveToggle = false;
     public BreakerGame()
     {
-        gameControl = new Timer(10) { AutoReset = true, Enabled = false };
-        canvasRefresh = new Timer(1000 / 30) { AutoReset = true, Enabled = false };
+        gameControl = new Timer(1) { AutoReset = true, Enabled = false };
+        canvasRefresh = new Timer(1000 / 60) { AutoReset = true, Enabled = false };
         currentScore = new Score(AppID.Breaker);
         highScore = currentScore;
         holdStart = null;
@@ -143,13 +171,17 @@
         text.Append($"Score:{currentScore.scoreValue}x{game.fieldScoreMultiplier}\t ");
         if (highScore.scoreValue > 0) text.Append($"Best:{highScore.scoreValue}\t ");
         text.Append($"Time:{currentScore.runLength.ToString("mm\\:ss")} ");
-        text.Append($"Level:{currentScore.turn}");
+        text.Append($"Depth:{currentScore.turn}");
         return text.ToString();
     }
 
     private async void runGame(Object? o, ElapsedEventArgs e)
     {
+<<<<<<< HEAD
         currentScore.scoreValue += game.updateFieldState();
+=======
+        game.updateFieldState(currentScore);
+>>>>>>> 34005934272f04b0b65bb1a7d4d6d030a28f3337
         if (game.ballOnHold)
         {
             if (holdStart == null)
@@ -173,8 +205,11 @@
         await gameScreen.fillColor("black");
         await gameScreen.canvasReference.FillTextAsync(getUIText(), 10, 20);
 
+        for (int i = 0; i < game.fieldMessages.Count; i++)
+            await gameScreen.fillTextStyleOverride(game.fieldMessages[i], 0, (gameScreen.getDimensions().y / 2) + (i * 20), "10px \"Press Start 2P\"", "yellow");
+
         if (game.ballOnHold)
-            await gameScreen.canvasReference.FillTextAsync("hit spacebar or up to release the ball", gameScreen.componentWidth / 4, gameScreen.componentWidth / 2);
+            await gameScreen.canvasReference.FillTextAsync("hit spacebar or up to release the ball", (gameScreen.getDimensions().x / 5.5), (gameScreen.getDimensions().y * 0.8));
 
         for (int i = 1; i <= game.player.healthPoints; i++)
             await gameScreen.canvasReference.DrawImageAsync(gameScreen.assets["heart"], gameScreen.componentWidth - (40 * i), 10);

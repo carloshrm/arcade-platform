@@ -8,7 +8,6 @@
         public double difficultyRatio = 1;
         public bool isNextRound = false;
 
-
         public (int row, int col) limits { get; set; }
         public PlayerShip player { get; set; }
         public List<InvaderShip> invaders { get; set; }
@@ -16,7 +15,6 @@
         public bool specialIsActive { get; set; }
         public List<FieldBarrier> barriers { get; set; }
         public List<LaserShot> shotsFired { get; set; }
-
 
         public Space((int row, int col) limits)
         {
@@ -30,10 +28,7 @@
             setupBarriers();
         }
 
-        public void nextRound(int diffUp)
-        {
-            difficultyRatio += diffUp / 10.0;
-        }
+        public void nextRound(int diffUp) => difficultyRatio += diffUp / 10.0;
 
         public async void updateGameState()
         {
@@ -52,10 +47,7 @@
             barriers.Add(new FieldBarrier(row, col * 3));
         }
 
-        public void fireShot(GameObject whoFired)
-        {
-            shotsFired.Add(new LaserShot(whoFired));
-        }
+        public void fireShot(GameObject whoFired) => shotsFired.Add(new LaserShot(whoFired));
 
         public void invaderAttack()
         {
