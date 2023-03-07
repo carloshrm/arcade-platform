@@ -3,6 +3,7 @@
 @inject IScoreService scoreService
 @implements IDisposable
 @layout MainLayout
+@using cmArcade.Client.GenericPages
 
 <main id="main-content">
     <div id="game-controls">
@@ -33,6 +34,8 @@
 </main>
 
 @code {
+    private const AppID _myID = AppID.Snake;
+
     private GameCanvas? gameScreen;
     private LeaderboardView? leaderboard;
     private Action<int> uploadCallback;
@@ -53,14 +56,14 @@
         turnManager = new Timer(400) { AutoReset = true, Enabled = false };
         turnManager.Elapsed += runTurn;
         uploadCallback = new Action<int>(refreshAfterUpload);
-        currentScore = new Score(AppID.Snake);
+        currentScore = new Score(_myID);
         highScore = currentScore;
     }
 
     protected override async Task OnInitializedAsync()
     {
         isMobile = await jsRuntime.InvokeAsync<bool>("isMobile");
-        highScore = await scoreService.readLocalScore(AppID.Snake);
+        highScore = await scoreService.readLocalScore(_myID);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -108,7 +111,7 @@
         {
             if (currentScore.scoreValue > 0)
             {
-                currentScore = new Score(AppID.Snake);
+                currentScore = new Score(_myID);
                 await setupNewGame();
             }
             turnManager.Enabled = true;

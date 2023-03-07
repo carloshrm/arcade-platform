@@ -13,6 +13,7 @@ namespace cmArcade
             builder.Services.AddRazorPages();
 
             builder.Services.AddSingleton<IScoreController, ScoreController>();
+            builder.Services.AddSingleton<IQueryHelper, QueryHelper>();
 
             var app = builder.Build();
             // Configure the HTTP request pipeline.
