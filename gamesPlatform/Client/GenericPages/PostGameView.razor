@@ -1,5 +1,45 @@
-﻿<h3>PostGameView</h3>
+﻿@inject IScoreService scoreService
+
+<div>
+    <div id="post-game-container" class="dark-bg soft-shadow">
+        <h2>Game Over...</h2>
+        <h4>Score: @currentScore?.scoreValue</h4>
+        <h4>Best: @highScore?.scoreValue</h4>
+        <button type="button" class="soft-shadow game-button" @onclick=@(() => { if (allowUpload) showScoreUpload = true; })>Upload!</button>
+        <LeaderboardView appID=app @ref=leaderboard />
+    </div>
+    @if (showScoreUpload && allowUpload)
+    {
+        <ScoreUpload info=@highScore callback=@uploadCallback />
+    }
+</div>
 
 @code {
+    [Parameter] public Score currentScore { get; set; }
+    [Parameter] public Score highScore { get; set; }
+    [Parameter] public AppID app { get; set; }
+
+    private bool allowUpload = false;
+    private bool showScoreUpload = false;
+    private LeaderboardView? leaderboard;
+    private Action<int> uploadCallback;
+
+    protected override async Task OnInitializedAsync()
+    {
+        uploadCallback = new Action<int>(refreshAfterUpload);
+        allowUpload = highScore.id == -1 || highScore == currentScore;
+    }
+
+    private void refreshAfterUpload(int newID)
+    {
+        showScoreUpload = false;
+        allowUpload = false;
+        if (newID != -1)
+        {
+            highScore.id = newID;
+            leaderboard.refresh();
+        }
+        StateHasChanged();
+    }
 
 }

@@ -10,9 +10,12 @@
         <button type="button" class="soft-shadow game-button" @onclick=resetGame>reset</button>
     </div>
     <div id="game-container" tabindex="0" @onkeydown=@((e) => keyDownInputHandler(e.Key)) @onkeyup=@((e) => keyUpInputHandler(e.Key))>
-        <GameCanvas @ref=gameScreen appID=AppID.Breaker />
+        <GameCanvas @ref=gameScreen appID=_myID />
         @if (currentScore?.turn > 0 && gameOver)
         {
+<<<<<<< HEAD
+            <PostGameView currentScore=currentScore highScore=highScore app=_myID/>
+=======
             <div id="post-game-container" class="dark-bg soft-shadow">
                 <h2>Game Over...</h2>
                 <h4>Score: @currentScore?.scoreValue</h4>
@@ -33,6 +36,7 @@
             {
                 <ScoreUpload info=@highScore callback=@uploadCallback />
             }
+>>>>>>> 34005934272f04b0b65bb1a7d4d6d030a28f3337
         }
     </div>
     @if (isMobile)
@@ -45,14 +49,20 @@
 <img hidden src=@($"/img/breakerAssets/ball.png") @ref=@(gameScreen.assets[BallModel.breakerBall.spriteId]) />
 <img hidden src=@($"/img/breakerAssets/crack.png") @ref=@(gameScreen.assets["crack"]) />
 @foreach (var bm in ((IEnumerable<GraphicAsset>)BlockModel.blocks)
+<<<<<<< HEAD
+                 .Concat(PowerUpModel.breakerPowerUps.Values)
+                 .Concat(GameDecal.breakerDecals.Values))
+=======
 .Concat(PowerUpModel.breakerPowerUps.Values)
 .Concat(GameDecal.breakerDecals.Values))
+>>>>>>> 34005934272f04b0b65bb1a7d4d6d030a28f3337
 {
     <img hidden src=@($"/img/breakerAssets/{bm.spriteId}.png") @ref=@(gameScreen.assets[bm.spriteId]) />
 }
 <img hidden src=@($"/img/genericAssets/heart.png") @ref=@(gameScreen.assets["heart"]) />
 
 @code {
+    private const AppID _myID = AppID.Breaker;
     private BreakerField game;
 
     private GameCanvas? gameScreen;
@@ -65,10 +75,6 @@
     private TimeSpan timeHeld;
 
     private bool gameOver = false;
-    private bool canUpload = false;
-    private bool showScoreUpload = false;
-    private LeaderboardView? leaderboard;
-    private Action<int> uploadCallback;
 
     private bool isMobile = false;
     private bool mobileMoveToggle = false;
@@ -80,7 +86,6 @@
         highScore = currentScore;
         holdStart = null;
         timeHeld = TimeSpan.Zero;
-        uploadCallback = new Action<int>(refreshAfterUpload);
     }
 
     protected override async Task OnInitializedAsync()
@@ -100,23 +105,10 @@
                 game = new BreakerField(gameScreen.getDimensions());
             }
             highScore = await scoreService.readLocalScore(AppID.Breaker);
-            canUpload = highScore.id == -1;
             gameControl.Elapsed += runGame;
             canvasRefresh.Elapsed += drawGame;
             StateHasChanged();
         }
-    }
-
-    private void refreshAfterUpload(int newID)
-    {
-        showScoreUpload = false;
-        if (newID != -1)
-        {
-            canUpload = false;
-            highScore.id = newID;
-            leaderboard.refresh();
-        }
-        StateHasChanged();
     }
 
     private void toggleControlObjects()
@@ -159,7 +151,6 @@
         {
             highScore = currentScore;
             scoreService.setLocalScore(highScore);
-            canUpload = true;
         }
         StateHasChanged();
     }
@@ -186,7 +177,11 @@
 
     private async void runGame(Object? o, ElapsedEventArgs e)
     {
+<<<<<<< HEAD
+        currentScore.scoreValue += game.updateFieldState();
+=======
         game.updateFieldState(currentScore);
+>>>>>>> 34005934272f04b0b65bb1a7d4d6d030a28f3337
         if (game.ballOnHold)
         {
             if (holdStart == null)
