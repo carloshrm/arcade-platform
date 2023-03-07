@@ -13,26 +13,7 @@
         <GameCanvas @ref=gameScreen appID=_myID />
         @if (currentScore?.turn > 0 && gameOver)
         {
-            <div id="post-game-container" class="dark-bg soft-shadow">
-                <h2>Game Over...</h2>
-                <h4>Score: @currentScore?.scoreValue</h4>
-                <h4>Best: @highScore?.scoreValue</h4>
-                @if (canUpload)
-                {
-                    <button type="button" class="soft-shadow game-button" @onclick=@(() => showScoreUpload = true)>
-                        Upload!
-                    </button>
-                }
-                else
-                {
-                    <p>Set a new best to upload again</p>
-                }
-                <LeaderboardView appID=AppID.Breaker @ref=leaderboard />
-            </div>
-            @if (showScoreUpload && canUpload)
-            {
-                <ScoreUpload info=@highScore callback=@uploadCallback />
-            }
+            <PostGameView currentScore=currentScore highScore=highScore app=AppID.Breaker />
         }
     </div>
     @if (isMobile)
@@ -45,13 +26,8 @@
 <img hidden src=@($"/img/breakerAssets/ball.png") @ref=@(gameScreen.assets[BallModel.breakerBall.spriteId]) />
 <img hidden src=@($"/img/breakerAssets/crack.png") @ref=@(gameScreen.assets["crack"]) />
 @foreach (var bm in ((IEnumerable<GraphicAsset>)BlockModel.blocks)
-<<<<<<< HEAD
                  .Concat(PowerUpModel.breakerPowerUps.Values)
                  .Concat(GameDecal.breakerDecals.Values))
-=======
-.Concat(PowerUpModel.breakerPowerUps.Values)
-.Concat(GameDecal.breakerDecals.Values))
->>>>>>> 34005934272f04b0b65bb1a7d4d6d030a28f3337
 {
     <img hidden src=@($"/img/breakerAssets/{bm.spriteId}.png") @ref=@(gameScreen.assets[bm.spriteId]) />
 }
@@ -173,11 +149,7 @@
 
     private async void runGame(Object? o, ElapsedEventArgs e)
     {
-<<<<<<< HEAD
-        currentScore.scoreValue += game.updateFieldState();
-=======
         game.updateFieldState(currentScore);
->>>>>>> 34005934272f04b0b65bb1a7d4d6d030a28f3337
         if (game.ballOnHold)
         {
             if (holdStart == null)
