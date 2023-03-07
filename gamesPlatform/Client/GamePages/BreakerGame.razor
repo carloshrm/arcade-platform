@@ -13,26 +13,7 @@
         <GameCanvas @ref=gameScreen appID=AppID.Breaker />
         @if (currentScore?.turn > 0 && gameOver)
         {
-            <div id="post-game-container" class="dark-bg soft-shadow">
-                <h2>Game Over...</h2>
-                <h4>Score: @currentScore?.scoreValue</h4>
-                <h4>Best: @highScore?.scoreValue</h4>
-                @if (canUpload)
-                {
-                    <button type="button" class="soft-shadow game-button" @onclick=@(() => showScoreUpload = true)>
-                        Upload!
-                    </button>
-                }
-                else
-                {
-                    <p>Set a new best to upload again</p>
-                }
-                <LeaderboardView appID=AppID.Breaker @ref=leaderboard />
-            </div>
-            @if (showScoreUpload && canUpload)
-            {
-                <ScoreUpload info=@highScore callback=@uploadCallback />
-            }
+            <PostGameView currentScore=currentScore highScore=highScore app=AppID.Breaker />
         }
     </div>
     @if (isMobile)

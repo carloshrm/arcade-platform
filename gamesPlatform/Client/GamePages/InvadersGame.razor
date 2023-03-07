@@ -13,31 +13,14 @@
         <GameCanvas @ref=gameScreen appID=AppID.Invaders />
         @if (currentScore?.turn > 0 && gameOver)
         {
-            <div id="post-game-container" class="dark-bg soft-shadow">
-                <h2>Game Over...</h2>
-                <h4>Score: @currentScore?.scoreValue</h4>
-                <h4>Best: @highScore?.scoreValue</h4>
-                @if (canUpload)
-                {
-                    <button type="button" @onclick=@(() => showScoreUpload = true)>Upload!</button>
-                }
-                else
-                {
-                    <p>Set a new best to upload again</p>
-                }
-                <LeaderboardView appID=AppID.Invaders @ref=leaderboard />
-            </div>
-            @if (showScoreUpload && canUpload)
-            {
-                <ScoreUpload info=@highScore callback=@uploadCallback />
-            }
+            <PostGameView currentScore=currentScore highScore=highScore app=AppID.Invaders />
         }
     </div>
 </main>
 
 @foreach (var id in new List<string>().Concat(ShipModel.invaderShips.Keys).Concat(GameDecal.invaderDecals.Keys))
 {
-    <img hidden src =@($"/img/invaderAssets/{id}.png") @ref=gameScreen.assets[id] />
+    <img hidden src=@($"/img/invaderAssets/{id}.png") @ref=gameScreen.assets[id] />
 }
 <img hidden src=@($"/img/invaderAssets/{ShipModel.playerShip.spriteId}.png") @ref=@(gameScreen.assets[ShipModel.playerShip.spriteId]) />
 <img hidden src=@($"/img/genericAssets/heart.png") @ref=@(gameScreen.assets["heart"]) />
@@ -55,8 +38,6 @@
 
     private Space game;
 
-    // TODO - refactor into post game component
-    // TODO - refactor score into service
     private bool gameOver = false;
     private bool canUpload = false;
     private bool showScoreUpload = false;
@@ -67,7 +48,7 @@
     {
         invaderControl = new Timer(800) { AutoReset = true, Enabled = false };
         spaceControl = new Timer(15) { AutoReset = true, Enabled = false };
-        canvasRefresh = new Timer(1000/60) { AutoReset = true, Enabled = false };
+        canvasRefresh = new Timer(1000 / 60) { AutoReset = true, Enabled = false };
         currentScore = new Score(AppID.Invaders);
         highScore = currentScore;
         scale = 1;
@@ -172,7 +153,7 @@
     {
         if (e.Button == 0 && !gameOver)
         {
-            if (spaceControl.Enabled) 
+            if (spaceControl.Enabled)
             {
                 game.parseKeyDown(" ");
                 return;
