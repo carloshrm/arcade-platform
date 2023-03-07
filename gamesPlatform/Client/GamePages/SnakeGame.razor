@@ -3,12 +3,16 @@
 @inject IScoreService scoreService
 @implements IDisposable
 @layout MainLayout
+@using cmArcade.Client.GenericPages
 
 <main id="main-content">
     <div id="game-controls">
         <div id="score-display">
             <span> Score:@currentScore?.scoreValue </span>
-                @if (highScore?.scoreValue > 0) { <span> Best: @highScore?.scoreValue  </span> }
+            @if (highScore?.scoreValue > 0)
+            {
+                <span> Best: @highScore?.scoreValue  </span>
+            }
             <span> Time:@currentScore?.runLength.ToString("mm\\:ss") </span>
         </div>
         <div>
@@ -17,19 +21,10 @@
         </div>
     </div>
     <div id="game-container" class="soft-shadow" tabindex="0" @onkeydown=@((e) => playerInputHandler(e.Key))>
-        <GameCanvas @ref=gameScreen appID=AppID.Snake/>
+        <GameCanvas @ref=gameScreen appID=_myID />
         @if (turnCount > 0 && !turnManager.Enabled)
         {
-            <div id="post-game-container" class="dark-bg soft-shadow">
-                <h2>Game Over...</h2>
-                <h4>Score: @currentScore?.scoreValue</h4>
-                <h4>Best: @highScore?.scoreValue</h4>
-                <button type="button" class="soft-shadow game-button" @onclick=@(() => { if (canUpload) showScoreUpload = true; })>Upload!</button>
-                <LeaderboardView appID=AppID.Snake @ref=leaderboard />
-            </div>
-            @if (showScoreUpload && canUpload) { 
-                <ScoreUpload info=@highScore callback=@uploadCallback/> 
-            }
+            <PostGameView currentScore=currentScore highScore=highScore app=_myID />
         }
     </div>
     @if (isMobile)
@@ -39,6 +34,8 @@
 </main>
 
 @code {
+    private const AppID _myID = AppID.Snake;
+
     private GameCanvas? gameScreen;
     private LeaderboardView? leaderboard;
     private Action<int> uploadCallback;
@@ -59,14 +56,14 @@
         turnManager = new Timer(400) { AutoReset = true, Enabled = false };
         turnManager.Elapsed += runTurn;
         uploadCallback = new Action<int>(refreshAfterUpload);
-        currentScore = new Score(AppID.Snake);
+        currentScore = new Score(_myID);
         highScore = currentScore;
     }
 
     protected override async Task OnInitializedAsync()
     {
         isMobile = await jsRuntime.InvokeAsync<bool>("isMobile");
-        highScore = await scoreService.readLocalScore(AppID.Snake);
+        highScore = await scoreService.readLocalScore(_myID);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -114,7 +111,7 @@
         {
             if (currentScore.scoreValue > 0)
             {
-                currentScore = new Score(AppID.Snake);
+                currentScore = new Score(_myID);
                 await setupNewGame();
             }
             turnManager.Enabled = true;
@@ -140,7 +137,7 @@
     {
         turnCount++;
         currentScore.runLength = e.SignalTime - currentScore.runStart;
-        currentScore.scoreValue += (long) Math.Ceiling(turnCount / 10.0) * gameBoard.snake.size;
+        currentScore.scoreValue += (long)Math.Ceiling(turnCount / 10.0) * gameBoard.snake.size;
         gameBoard.snake.setNextSnakePosition();
         await gameBoard.drawGameState();
         var collided = gameBoard.checkCurrentSpotContents();
