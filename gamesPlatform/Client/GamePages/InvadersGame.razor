@@ -13,7 +13,7 @@
         <GameCanvas @ref=gameScreen appID=_myID />
         @if (currentScore?.turn > 0 && gameOver)
         {
-            <PostGameView currentScore=currentScore highScore=highScore app=AppID.Invaders />
+            <PostGameView currentScore=currentScore highScore=highScore app=_myID />
         }
     </div>
 </main>
@@ -51,7 +51,7 @@
         invaderControl = new Timer(800) { AutoReset = true, Enabled = false };
         spaceControl = new Timer(15) { AutoReset = true, Enabled = false };
         canvasRefresh = new Timer(1000 / 60) { AutoReset = true, Enabled = false };
-        currentScore = new Score(AppID.Invaders);
+        currentScore = new Score(_myID);
         highScore = currentScore;
         scale = 1;
         uploadCallback = new Action<int>(refreshAfterUpload);
@@ -131,7 +131,7 @@
         toggleControlObjects();
         for (int i = 3; i != 0; i--)
         {
-            await gameScreen.canvasReference.DrawImageAsync(gameScreen.assets["bg"], 0, 0);
+            await gameScreen.fillColor("black");
             await gameScreen.canvasReference.FillTextAsync($"Next round in {i}...", 50, 50);
             await Task.Delay(1000);
         }

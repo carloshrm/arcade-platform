@@ -13,7 +13,7 @@
         <GameCanvas @ref=gameScreen appID=_myID />
         @if (currentScore?.turn > 0 && gameOver)
         {
-            <PostGameView currentScore=currentScore highScore=highScore app=AppID.Breaker />
+            <PostGameView currentScore=currentScore highScore=highScore app=_myID />
         }
     </div>
     @if (isMobile)
@@ -76,7 +76,7 @@
                 await gameScreen.canvasReference.SetFillStyleAsync("white");
                 game = new BreakerField(gameScreen.getDimensions());
             }
-            highScore = await scoreService.readLocalScore(AppID.Breaker);
+            highScore = await scoreService.readLocalScore(_myID);
             gameControl.Elapsed += runGame;
             canvasRefresh.Elapsed += drawGame;
             StateHasChanged();
@@ -108,7 +108,7 @@
     {
         jsRuntime.InvokeVoidAsync("setFocus");
         if (gameControl.Enabled) toggleControlObjects();
-        currentScore = new Score(AppID.Breaker);
+        currentScore = new Score(_myID);
         game = new BreakerField(gameScreen!.getDimensions());
         gameOver = false;
         gameScreen.clear();
