@@ -5,5 +5,6 @@
         Snake = 1,
         Invaders = 2,
         Breaker = 3,
+        Tetris = 4,
     }
 }

@@ -24,13 +24,16 @@
             barriers = new List<FieldBarrier>();
             this.limits = limits;
             setupCommonInvaders();
-            setupSpecialInvader();
+            specialInvader = setupSpecialInvader();
             setupBarriers();
         }
 
-        public void nextRound(int diffUp) => difficultyRatio += diffUp / 10.0;
+        public void nextRound(int diffUp)
+        {
+            difficultyRatio += diffUp / 10.0;
+        }
 
-        public async void updateGameState()
+        public void updateGameState()
         {
             hitDetection();
             player.updatePosition(limits);
@@ -47,7 +50,10 @@
             barriers.Add(new FieldBarrier(row, col * 3));
         }
 
-        public void fireShot(GameObject whoFired) => shotsFired.Add(new LaserShot(whoFired));
+        public void fireShot(GameObject whoFired)
+        {
+            shotsFired.Add(new LaserShot(whoFired));
+        }
 
         public void invaderAttack()
         {
@@ -88,11 +94,11 @@
             }
         }
 
-        private void setupSpecialInvader()
+        private InvaderShip setupSpecialInvader()
         {
             specialIsActive = false;
             var model = ShipModel.invaderShips.Last().Value;
-            specialInvader = new InvaderShip(model.height, limits.col + model.width + 10, model);
+            return new InvaderShip(model.height, limits.col + model.width + 10, model);
         }
 
         private void updateSpecialInvader()
@@ -105,7 +111,7 @@
         {
             if (invaders.Count % 9 == 0) specialIsActive = true;
             if (specialInvader.col <= 0 - specialInvader.model.width || specialInvader.healthPoints <= 0)
-                setupSpecialInvader();
+                specialInvader = setupSpecialInvader();
         }
 
         public void parseKeyDown(string input)
@@ -115,7 +121,7 @@
                 if (player.canShoot)
                 {
                     fireShot(player);
-                    player.shotTimeout();
+                    _ = player.shotTimeout();
                 }
             }
             else
