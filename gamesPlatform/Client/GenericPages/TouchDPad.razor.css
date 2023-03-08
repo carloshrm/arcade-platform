@@ -1,14 +1,23 @@
 ﻿#pad_container {
-    opacity: 0.5;
-    margin: 0 auto;
+    opacity: 0.8;
     width: fit-content;
     display: grid;
-    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-areas: 
+    grid-template-areas:
         '. u .'
         'l m r'
         '. d .';
+}
+
+#mobile_pad {
+    position: absolute;
+    bottom: 0;
+    width: 80vw;
+    transform: translateX(10%);
+    display: flex;    
+    justify-content: space-between;
+    align-items: center;
 }
 
 #pad_bt_up {
@@ -27,15 +36,14 @@
     grid-area: r;
 }
 
+#pad_bt_ok {
+    padding: 2em;
+    background-color: black;
+}
+
 button {
-    background-color: var(--color-dark-background);
+    background-color: black;
     color: white;
     border: none;
     padding: 4vh;
-}
-@media (orientation: landscape) {
-    #pad_container {
-        position: absolute;
-        bottom: 0;
-    }
 }
