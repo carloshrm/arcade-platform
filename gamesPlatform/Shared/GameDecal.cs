@@ -12,7 +12,6 @@ namespace cmArcade.Shared
         {
             { "hit", new GameDecal { spriteId = "hit", width = 24, height = 22 } },
             { "laser", new GameDecal { spriteId = "laser", width = 4, height = 20 } },
-            { "splash", new GameDecal { spriteId = "splash", width = 18, height = 16 } },
             { "barrier", new GameDecal { spriteId = "barrier", width = 100, height = 70 } },
         };
 
