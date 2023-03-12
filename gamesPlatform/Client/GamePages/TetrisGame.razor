@@ -39,8 +39,7 @@
 
     public TetrisGame() : base(AppID.Tetris)
     {
-        holdStart = null;
-        timeHeld = TimeSpan.Zero;
+        ///
     }
 
     protected override async Task OnInitializedAsync()
@@ -57,7 +56,7 @@
                 await gameScreen.setCanvasSize();
                 await gameScreen.canvasReference.SetFontAsync("16px \"Press Start 2P\"");
                 await gameScreen.canvasReference.SetFillStyleAsync("white");
-                game = new BreakerField(gameScreen.getDimensions());
+                game = new TetrisField(gameScreen.getDimensions());
             }
             highScore = await scoreService.readLocalScore(_myID);
             gameControl.Elapsed += runGame;
@@ -66,13 +65,7 @@
         }
     }
 
-    private void toggleControlObjects()
-    {
-        gameControl.Enabled = !gameControl.Enabled;
-        canvasRefresh.Enabled = !canvasRefresh.Enabled;
-    }
-
-    private void startGame()
+    protected override void startGame()
     {
         jsRuntime.InvokeVoidAsync("setFocus");
         if (gameControl.Enabled)
@@ -87,17 +80,17 @@
         }
     }
 
-    private void resetGame()
+    protected override void resetGame()
     {
         jsRuntime.InvokeVoidAsync("setFocus");
         if (gameControl.Enabled) toggleControlObjects();
         currentScore = new Score(_myID);
-        game = new BreakerField(gameScreen!.getDimensions());
+        game = new TetrisField(gameScreen!.getDimensions());
         gameOver = false;
-        gameScreen.clear();
+        gameScreen?.clear();
     }
 
-    private void stopGame()
+    protected override void stopGame()
     {
         gameOver = true;
         toggleControlObjects();
@@ -122,31 +115,14 @@
 
     private string getUIText()
     {
-        var text = new StringBuilder();
-        text.Append($"Score:{currentScore.scoreValue}x{game.fieldScoreMultiplier}\t ");
-        if (highScore.scoreValue > 0) text.Append($"Best:{highScore.scoreValue}\t ");
-        text.Append($"Time:{currentScore.runLength.ToString("mm\\:ss")} ");
-        text.Append($"Depth:{currentScore.turn}");
-        return text.ToString();
+        // TODO - make up
+        return string.Empty;
     }
 
     private async void runGame(Object? o, ElapsedEventArgs e)
     {
-        game.updateFieldState(currentScore);
-        if (game.ballOnHold)
-        {
-            if (holdStart == null)
-                holdStart = DateTime.Now;
-        }
-        else
-        {
-            if (holdStart != null)
-            {
-                timeHeld += (DateTime.Now - (holdStart ?? DateTime.Now));
-                holdStart = null;
-            }
-            currentScore.runLength = (DateTime.Now - timeHeld) - currentScore.runStart;
-        }
+        game.updateGameState(currentScore);
+        // TODO - implement run logic
         if (game.checkGameOver()) stopGame();
     }
 

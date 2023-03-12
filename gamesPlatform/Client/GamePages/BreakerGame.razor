@@ -149,7 +149,7 @@
 
     private async void runGame(Object? o, ElapsedEventArgs e)
     {
-        game.updateFieldState(currentScore);
+        game.updateGameState(currentScore);
         if (game.ballOnHold)
         {
             if (holdStart == null)

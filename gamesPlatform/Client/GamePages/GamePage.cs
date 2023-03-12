@@ -9,7 +9,8 @@ using Timer = System.Timers.Timer;
 
 namespace cmArcade.Client.GamePages
 {
-    public abstract class GamePage<T> : ComponentBase where T : IGameField
+    public abstract class GamePage<T> : ComponentBase
+        where T : IGameField
     {
         protected readonly AppID _myID;
         protected T? game { get; set; }
@@ -26,7 +27,7 @@ namespace cmArcade.Client.GamePages
             gameControl = new Timer(50) { AutoReset = true, Enabled = false };
             currentScore = new Score(_myID);
             highScore = currentScore;
-            game = null;
+            game = default;
         }
 
         protected void toggleControlObjects()
@@ -43,6 +44,5 @@ namespace cmArcade.Client.GamePages
             game.updateGameState();
         }
         protected abstract Task drawGame(Object? o, ElapsedEventArgs e);
-        protected abstract void Dispose();
     }
 }

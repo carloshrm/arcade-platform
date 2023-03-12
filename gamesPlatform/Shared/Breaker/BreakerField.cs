@@ -27,9 +27,12 @@
             setBall();
         }
 
-        public void setBall() => balls.Add(new Ball(player.row - (int)(BallModel.breakerBall.height * 1.2), player.col + (player.model.width / 2)));
+        public void setBall()
+        {
+            balls.Add(new Ball(player.row - (int)(BallModel.breakerBall.height * 1.2), player.col + (player.model.width / 2)));
+        }
 
-        public void updateFieldState(Score s)
+        public void updateGameState(Score s)
         {
             player.updatePosition(limits);
             checkCollisions();
@@ -50,7 +53,10 @@
             return player.healthPoints <= 0;
         }
 
-        private void updatePowerups() => powerups.ForEach(p => p.updatePosition(limits));
+        private void updatePowerups()
+        {
+            powerups.ForEach(p => p.updatePosition(limits));
+        }
 
         private void updateBallState()
         {
@@ -84,7 +90,7 @@
                         else
                             return false;
                     });
-                breakCount += (countBefore - row.Count);
+                breakCount += countBefore - row.Count;
                 return row.Count == 0;
             });
             if (nRowsCleared > 0 || breakCount >= 14)
@@ -180,9 +186,15 @@
                 player.movingDir = Direction.none;
         }
 
-        public GameObject getPlayer() => player;
+        public GameObject getPlayer()
+        {
+            return player;
+        }
 
-        public void setScoreMultiplier(int val) => fieldScoreMultiplier += val;
+        public void setScoreMultiplier(int val)
+        {
+            fieldScoreMultiplier += val;
+        }
 
         public void setMessage(string msg)
         {
