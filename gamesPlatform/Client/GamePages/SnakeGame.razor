@@ -2,6 +2,7 @@
 @inject IJSRuntime jsRuntime
 @inject IScoreService scoreService
 @implements IDisposable
+@inherits GamePage<SnakeBoard>
 @layout MainLayout
 @using cmArcade.Client.GenericPages
 
@@ -37,27 +38,14 @@
     private const AppID _myID = AppID.Snake;
 
     private GameCanvas? gameScreen;
-    private LeaderboardView? leaderboard;
-    private Action<int> uploadCallback;
-    private bool showScoreUpload { get; set; }
     private bool isMobile = false;
-    private bool canUpload = true;
 
-    private SnakeBoard? gameBoard;
-    private Score currentScore;
-    private Score highScore;
-
-    private Timer turnManager;
     private int turnCount { get; set; }
     private bool canMove { get; set; }
 
-    public SnakeGame()
+    public SnakeGame() : base(AppID.Snake)
     {
-        turnManager = new Timer(400) { AutoReset = true, Enabled = false };
-        turnManager.Elapsed += runTurn;
-        uploadCallback = new Action<int>(refreshAfterUpload);
-        currentScore = new Score(_myID);
-        highScore = currentScore;
+        gameControl.Interval = 400 ;
     }
 
     protected override async Task OnInitializedAsync()
@@ -68,36 +56,26 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender) await setupNewGame();
+        if (firstRender) 
+            await setupNewGame();
+        canvasRefresh.Elapsed += game.drawGame;
+        gameControl.Elapsed += runTurn;
     }
 
     private void increaseSpeed(Object? sender, EventArgs e)
     {
-        if (turnManager.Enabled)
+        if (gameControl.Enabled)
         {
-            turnManager.Interval = 1300 / gameBoard.snake.size;
+            gameControl.Interval = 1300 / game.snake.size;
             if (isMobile) jsRuntime.InvokeVoidAsync("vibrateFeedback");
         }
     }
 
-    private void refreshAfterUpload(int newID)
-    {
-        showScoreUpload = false;
-        canUpload = false;
-        if (newID != -1)
-        {
-            highScore.id = newID;
-            leaderboard.refresh();
-        }
-        StateHasChanged();
-    }
-
-
     private void playerInputHandler(string direction)
     {
-        if (turnManager.Enabled && canMove)
+        if (gameControl.Enabled && canMove)
         {
-            gameBoard.snake.parseMoveCommand(direction);
+            game.snake.parseMoveCommand(direction);
         }
         canMove = false;
     }
@@ -105,7 +83,7 @@
     private async Task startGame()
     {
         await jsRuntime.InvokeVoidAsync("setFocus");
-        if (turnManager.Enabled)
+        if (gameControl.Enabled)
             return;
         else
         {
@@ -114,7 +92,7 @@
                 currentScore = new Score(_myID);
                 await setupNewGame();
             }
-            turnManager.Enabled = true;
+            gameControl.Enabled = true;
             currentScore.runStart = DateTime.Now;
         }
     }
@@ -122,33 +100,30 @@
     private async Task setupNewGame()
     {
         turnCount = 0;
-        turnManager.Enabled = false;
-        turnManager.Interval = 400;
+        gameControl.Enabled = false;
+        gameControl.Interval = 400;
         await gameScreen.setCanvasSize();
         await gameScreen.clear();
-        gameBoard = new SnakeBoard(
+        game = new SnakeBoard(
             gameScreen.getDimensions(),
-            gameScreen.baseResolution,
+            gameScreen.baseResolution, 
             gameScreen.canvasReference);
-        gameBoard.ateFood += increaseSpeed;
+        game.ateFood += increaseSpeed;
     }
 
     private async void runTurn(Object? src, ElapsedEventArgs e)
     {
         turnCount++;
         currentScore.runLength = e.SignalTime - currentScore.runStart;
-        currentScore.scoreValue += (long)Math.Ceiling(turnCount / 10.0) * gameBoard.snake.size;
-        gameBoard.snake.setNextSnakePosition();
-        await gameBoard.drawGameState();
-        var collided = gameBoard.checkCurrentSpotContents();
-        if (collided is false)
+        currentScore.scoreValue += (long)Math.Ceiling(turnCount / 10.0) * game.snake.size;
+        game.snake.setNextSnakePosition();
+        if (game.updateGameState() is false)
         {
-            turnManager.Enabled = false;
+            gameControl.Enabled = false;
             if (currentScore.scoreValue > highScore.scoreValue)
             {
                 highScore = currentScore;
                 scoreService.setLocalScore(highScore);
-                canUpload = true;
             }
         }
         canMove = true;
@@ -158,6 +133,7 @@
     public void Dispose()
     {
         gameScreen?.Dispose();
-        turnManager.Dispose();
+        gameControl?.Dispose();
+        canvasRefresh.Dispose();
     }
 }
