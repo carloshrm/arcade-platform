@@ -3,7 +3,7 @@
     public interface IPowerUpEffect
     {
         public void runEffect(IGameField fieldReference);
-        public static IPowerUpEffect getBreakerPowerUp(BreakerPowerUpType t)
+        public static IPowerUpEffect? getBreakerPowerUp(BreakerPowerUpType t)
         {
             switch (t)
             {
@@ -14,7 +14,7 @@
                 case BreakerPowerUpType.score:
                     return new ScorePowerUp();
                 default:
-                    return null;
+                    throw new KeyNotFoundException("Power-up key not found");
             }
         }
     }

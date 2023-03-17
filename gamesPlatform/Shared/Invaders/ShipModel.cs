@@ -2,7 +2,7 @@
 {
     public class ShipModel : GraphicAsset
     {
-        public override string spriteId { get; set; }
+        public override string spriteId { get; set; } = string.Empty;
         public override int width { get; init; }
         public override int height { get; init; }
 

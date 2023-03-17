@@ -1,20 +1,21 @@
-﻿namespace cmArcade.Shared.Invaders
+﻿using System.Numerics;
+
+namespace cmArcade.Shared.Invaders
 {
-    public partial class LaserShot : GameObject
+    public partial class LaserShot : IGameObject
     {
-        public override int row { get; set; }
-        public override int col { get; set; }
-        public override int healthPoints { get; set; } = 0;
-        public override GraphicAsset model { get; set; }
-        public override int spriteSelect { get; set; }
+        public Vector2 pos { get; set; }
+        public int healthPoints { get; set; } = 0;
+        public GraphicAsset model { get; set; }
+        public int spriteSelect { get; set; }
         public bool hitSomething { get; set; }
         public bool fromPlayer { get; set; }
+        public List<GraphicAsset>? decals { get; set; } = null;
 
-        public LaserShot(GameObject actor)
+        public LaserShot(IGameObject actor)
         {
             fromPlayer = actor is PlayerShip;
-            row = actor.row;
-            col = actor.col + (actor.model.width / 2) - 2;
+            pos = new Vector2(actor.pos.X + (actor.model.width / 2) - 2, actor.pos.Y);
             model = GameDecal.getInvaderDecal("laser");
             spriteSelect = fromPlayer ? 0 : 1;
         }
@@ -26,10 +27,10 @@
             hitSomething = true;
         }
 
-        public override bool updatePosition((int row, int col) limits)
+        public bool updatePosition((int row, int col) limits)
         {
             if (!hitSomething)
-                row += fromPlayer ? -10 : 6;
+                pos += fromPlayer ? (VecDirection.Up * 10) : (VecDirection.Down * 6);
             return true;
         }
     }

@@ -2,7 +2,7 @@
 {
     public class BlockModel : GraphicAsset
     {
-        public override string spriteId { get; set; }
+        public override string spriteId { get; set; } = string.Empty;
         public override int width { get; init; }
         public override int height { get; init; }
         public int HP { get; init; }
@@ -17,7 +17,7 @@
         };
 
         public const int variationCount = 5;
-        public static int widestBlockSize = blocks.Max(x => x.width);
-        public static int highestBlockSize = blocks.Max(x => x.height);
+        public static readonly int widestBlockSize = blocks.Max(x => x.width);
+        public static readonly int highestBlockSize = blocks.Max(x => x.height);
     }
 }
