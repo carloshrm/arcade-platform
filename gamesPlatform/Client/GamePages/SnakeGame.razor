@@ -43,8 +43,8 @@
 
     public SnakeGame() : base(AppID.Snake)
     {
-        gameControl.Interval = 1300;
-    }
+        gameControl.Interval = 400;
+    }    
 
     protected override async Task OnInitializedAsync()
     {
@@ -55,16 +55,18 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
+        {
             await resetGame();
-        canvasRefresh.Elapsed += drawGame;
-        gameControl.Elapsed += runGame;
+            canvasRefresh.Elapsed += drawGame;
+            gameControl.Elapsed += runGame;
+        }
     }
 
     private void increaseSpeed(Object? sender, EventArgs e)
     {
         if (gameControl.Enabled)
         {
-            gameControl.Interval = 1300 / game.player.healthPoints;
+            gameControl.Interval = 1300 / game!.player.healthPoints;
             if (isMobile) jsRuntime.InvokeVoidAsync("vibrateFeedback");
         }
     }
@@ -103,8 +105,9 @@
     protected async override Task resetGame()
     {
         turnCount = 0;
-        gameControl.Enabled = false;
-        gameControl.Interval = 4000;
+        gameControl.Interval = 400;
+        if (gameControl.Enabled)
+            toggleControlObjects();
         await gameScreen.setCanvasSize();
         await gameScreen.clear();
         game = new SnakeBoard(
@@ -114,12 +117,11 @@
         game.ateFood += increaseSpeed;
     }
 
-    protected async override void runGame(Object? src, ElapsedEventArgs e)
+    protected override void runGame(Object? src, ElapsedEventArgs e)
     {
         turnCount++;
-        Console.WriteLine(gameControl.Interval);
         currentScore.runLength = e.SignalTime - currentScore.runStart;
-        currentScore.scoreValue += (long)Math.Ceiling(turnCount / 10.0) * game.player.healthPoints;
+        currentScore.scoreValue += (long)Math.Ceiling(turnCount / 10.0) * game!.player.healthPoints;
         if (game.checkSnakeParts() is false)
         {
             toggleControlObjects();
@@ -141,16 +143,14 @@
         await gameScreen.canvasReference.BeginBatchAsync();
 
         await gameScreen.fillColor("white");
-        await game.renderGameState();
-
+        await game!.renderGameState();
+        // TODO - Figure out how to scale fixed assets and refactor
         await gameScreen.canvasReference.EndBatchAsync();
     }
 
 
-    public void Dispose()
+    public override void DisposeHarder()
     {
         gameScreen.Dispose();
-        gameControl.Dispose();
-        canvasRefresh.Dispose();
     }
 }

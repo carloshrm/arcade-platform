@@ -9,7 +9,7 @@ using Timer = System.Timers.Timer;
 
 namespace cmArcade.Client.GamePages
 {
-    public abstract class GamePage<T> : ComponentBase
+    public abstract class GamePage<T> : ComponentBase, IDisposable
         where T : IGameField
     {
         protected readonly AppID _myID;
@@ -23,7 +23,7 @@ namespace cmArcade.Client.GamePages
         public GamePage(AppID app)
         {
             _myID = app;
-            canvasRefresh = new Timer(1000 / 60) { AutoReset = true, Enabled = false };
+            canvasRefresh = new Timer(1000 / 30) { AutoReset = true, Enabled = false };
             gameControl = new Timer(50) { AutoReset = true, Enabled = false };
             currentScore = new Score(_myID);
             highScore = currentScore;
@@ -36,13 +36,17 @@ namespace cmArcade.Client.GamePages
             canvasRefresh.Enabled = !canvasRefresh.Enabled;
         }
 
-        protected abstract void startGame();
-        protected abstract void stopGame();
-        protected abstract void resetGame();
-        protected virtual void runGame(Object? o, ElapsedEventArgs e)
+        protected abstract Task startGame();
+        protected abstract Task stopGame();
+        protected abstract Task resetGame();
+        protected abstract void runGame(Object? o, ElapsedEventArgs e);
+        protected abstract void drawGame(Object? o, ElapsedEventArgs e);
+        public void Dispose()
         {
-            game.updateGameState();
+            gameControl.Dispose();
+            canvasRefresh.Dispose();
+            DisposeHarder();
         }
-        protected abstract Task drawGame(Object? o, ElapsedEventArgs e);
+        public abstract void DisposeHarder();
     }
 }
