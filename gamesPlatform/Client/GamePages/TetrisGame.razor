@@ -13,7 +13,7 @@
     </div>
     <div id="game-container" tabindex="0" @onkeydown=@((e) => keyDownInputHandler(e.Key)) @onkeyup=@((e) => keyUpInputHandler(e.Key))>
         <GameCanvas @ref=gameScreen appID=_myID />
-        @if (currentScore?.turn > 0 && gameOver)
+        @if (currentScore?.turn > 0 && !gameControl.Enabled)
         {
             <PostGameView currentScore=currentScore highScore=highScore app=_myID />
         }
@@ -24,7 +24,8 @@
     }
 </main>
 
-<img hidden src=@($"/img/tetrisAssets/blocks.png") @ref=@(gameScreen.assets[/* write asset id here */]) />
+<img hidden src=@($"/img/tetrisAssets/tetrisField.png") @ref=@(gameScreen.assets[TetrisPlayerModel.player.spriteId]) />
+@*<img hidden src=@($"/img/tetrisAssets/blocks.png") @ref=@(gameScreen.assets[TetrisPlayerModel.player.spriteId]) />*@
 
 @code {
     private DateTime? holdStart;
@@ -45,6 +46,8 @@
     protected override async Task OnInitializedAsync()
     {
         isMobile = await jsRuntime.InvokeAsync<bool>("isMobile");
+        highScore = await scoreService.readLocalScore(_myID);
+
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -58,31 +61,30 @@
                 await gameScreen.canvasReference.SetFillStyleAsync("white");
                 game = new TetrisField(gameScreen.getDimensions());
             }
-            highScore = await scoreService.readLocalScore(_myID);
             gameControl.Elapsed += runGame;
             canvasRefresh.Elapsed += drawGame;
             StateHasChanged();
         }
     }
 
-    protected override void startGame()
+    protected async override Task startGame()
     {
-        jsRuntime.InvokeVoidAsync("setFocus");
+        await jsRuntime.InvokeVoidAsync("setFocus");
         if (gameControl.Enabled)
             return;
         else
         {
             if (currentScore.scoreValue > 0)
-                resetGame();
+                await resetGame();
             currentScore.turn = 1;
             currentScore.runStart = DateTime.Now;
             toggleControlObjects();
         }
     }
 
-    protected override void resetGame()
+    protected async override Task resetGame()
     {
-        jsRuntime.InvokeVoidAsync("setFocus");
+        await jsRuntime.InvokeVoidAsync("setFocus");
         if (gameControl.Enabled) toggleControlObjects();
         currentScore = new Score(_myID);
         game = new TetrisField(gameScreen!.getDimensions());
@@ -90,7 +92,7 @@
         gameScreen?.clear();
     }
 
-    protected override void stopGame()
+    protected async override Task stopGame()
     {
         gameOver = true;
         toggleControlObjects();
@@ -115,43 +117,31 @@
 
     private string getUIText()
     {
-        // TODO - make up
+        // TODO - build ui
         return string.Empty;
     }
 
-    private async void runGame(Object? o, ElapsedEventArgs e)
+    protected async override void runGame(Object? o, ElapsedEventArgs e)
     {
-        game.updateGameState(currentScore);
+        game.updateGameState();
         // TODO - implement run logic
-        if (game.checkGameOver()) stopGame();
+        if (game.checkGameOver())
+            await stopGame();
     }
 
-    private async void drawGame(Object? o, ElapsedEventArgs e)
+    protected async override void drawGame(Object? o, ElapsedEventArgs e)
     {
         await gameScreen.canvasReference.BeginBatchAsync();
         await gameScreen.fillColor("black");
         await gameScreen.canvasReference.FillTextAsync(getUIText(), 10, 20);
 
-        for (int i = 0; i < game.fieldMessages.Count; i++)
-            await gameScreen.fillTextStyleOverride(game.fieldMessages[i], 0, (gameScreen.getDimensions().y / 2) + (i * 20), "10px \"Press Start 2P\"", "yellow");
+        await gameScreen.drawObject(game.getPlayer());
 
-        if (game.ballOnHold)
-            await gameScreen.canvasReference.FillTextAsync("hit spacebar or up to release the ball", (gameScreen.getDimensions().x / 5.5), (gameScreen.getDimensions().y * 0.8));
-
-        for (int i = 1; i <= game.player.healthPoints; i++)
-            await gameScreen.canvasReference.DrawImageAsync(gameScreen.assets["heart"], gameScreen.componentWidth - (40 * i), 10);
-
-        await gameScreen.drawObject(game.player);
-        await gameScreen.drawSet(game.balls);
-        await gameScreen.drawSet(game.powerups);
-        game.blocks.ForEach(async (r) => await gameScreen.drawSet(r));
         await gameScreen.canvasReference.EndBatchAsync();
     }
 
-    public void Dispose()
+    public override void DisposeHarder()
     {
         gameScreen?.Dispose();
-        gameControl.Dispose();
-        canvasRefresh.Dispose();
     }
 }
