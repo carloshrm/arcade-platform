@@ -1,116 +1,94 @@
-﻿using Blazor.Extensions.Canvas.Canvas2D;
+﻿using System.Numerics;
+
+using Blazor.Extensions.Canvas.Canvas2D;
 
 namespace cmArcade.Shared
 {
-    public class SnakeBoard
+    public class SnakeBoard : IGameField
     {
-        private Canvas2DContext canvasContext { get; set; }
-        private (int r, int c) scaleFactor { get; set; }
         private (int r, int c) limits { get; set; }
-        private (int r, int c) foodPosition { get; set; }
-        public SnakePlayer snake { get; set; }
+        public SnakePlayer player { get; private set; }
+        public SnakeFood food { get; private set; }
+
+        private string uiMessage { get; set; } = string.Empty;
+        private int scoreMultipier = 0;
 
         public event EventHandler ateFood;
+        private Canvas2DContext canvas;
 
-        public SnakeBoard((int width, int height) dimensions, (int r, int c) limits, Canvas2DContext c)
+        public SnakeBoard((int r, int c) limits, Canvas2DContext c)
         {
             this.limits = limits;
-            scaleFactor = (dimensions.height / limits.r, dimensions.width / limits.c);
-            snake = new SnakePlayer(2, limits);
-            ateFood += snake.growSnake;
+            player = new SnakePlayer(2, limits);
+            ateFood += player.growSnake;
             ateFood += makeFood;
+            canvas = c;
             makeFood(this, EventArgs.Empty);
-            canvasContext = c;
+        }
+
+        public void setScoreMultiplier(int m)
+        {
+            scoreMultipier = m;
+        }
+
+        public void setMessage(String m)
+        {
+            uiMessage = m;
         }
 
         public void makeFood(Object? sender, EventArgs e)
         {
             var rng = new Random();
-            int row, col;
+            Vector2 newPos;
             bool invalid;
 
             do
             {
-                row = rng.Next(1, limits.r - 2);
-                col = rng.Next(1, limits.c - 2);
-
-                foreach (var pc in snake.tail)
-                {
-                    invalid = pc.pos.c == col || pc.pos.r == row;
-                }
-                invalid = snake.headPosition.c == col || snake.headPosition.r == row;
+                newPos = new Vector2(rng.Next(1, limits.r - 2), rng.Next(1, limits.c - 2));
+                invalid = player.pos == newPos || player.tail.Exists(p => p.pos == newPos);
             } while (invalid);
-
-            foodPosition = (row, col);
+            food = new SnakeFood(newPos);
         }
 
-        public bool checkCurrentSpotContents()
+        public bool checkGameOver()
         {
-            if (snake.headPosition.r < 0 ||
-                snake.headPosition.c < 0 ||
-                snake.headPosition.r >= limits.r ||
-                snake.headPosition.c >= limits.c)
+            if (player.pos.Y < 0 || player.pos.X < 0 || player.pos.Y >= limits.r || player.pos.X >= limits.c)
+                return true;
+            else if (player.tail.Exists(tp => tp.pos == player.pos))
+                return true;
+
+            return false;
+        }
+
+        public void updateGameState()
+        {
+            player.tail.Add(new TailPiece(player.pos, player.healthPoints));
+            player.updatePosition(limits);
+            player.tail.RemoveAll(tp => tp.healthVal == 0);
+            for (int i = 0; i < player.tail.Count; i++)
             {
-                //Game Over - Edge
-                return false;
+                player.tail[i].healthVal--;
             }
+        }
+
+        public bool checkSnakeParts()
+        {
+            if (checkGameOver())
+                return false;
             else
             {
-                foreach (var tp in snake.tail)
+                Console.WriteLine(player.pos + "abcd   " + food.pos);
+                if (player.pos == food.pos)
                 {
-                    if (tp.pos == snake.headPosition)
-                    {
-                        //Game Over - Tail
-                        return false;
-                    }
+                    ateFood.Invoke(this, EventArgs.Empty);
                 }
-                if (snake.headPosition == foodPosition) ateFood.Invoke(this, EventArgs.Empty);
             }
-            snake.tail.Add(new SnakePlayer.TailPiece(snake.headPosition, snake.size));
             return true;
         }
 
-        private async Task clearTail()
+        public Object getPlayer()
         {
-            foreach (var tailPiece in snake.tail)
-            {
-                if (tailPiece.val <= 0)
-                {
-                    await canvasContext.ClearRectAsync(
-                        tailPiece.pos.c * scaleFactor.c,
-                        tailPiece.pos.r * scaleFactor.r,
-                        scaleFactor.c,
-                        scaleFactor.r);
-                }
-            }
-            snake.tail.RemoveAll(tp => tp.val == 0);
+            return player;
         }
-
-        private async Task drawPiece(int c, int r)
-        {
-            await canvasContext.FillRectAsync(c * scaleFactor.c, r * scaleFactor.r, scaleFactor.c, scaleFactor.r);
-        }
-
-        public async Task drawGameState()
-        {
-            await canvasContext.BeginBatchAsync();
-
-            await canvasContext.SetFillStyleAsync("red");
-            await drawPiece(foodPosition.c, foodPosition.r);
-            await clearTail();
-
-            await canvasContext.SetFillStyleAsync("green");
-            await drawPiece(snake.headPosition.c, snake.headPosition.r);
-
-            await canvasContext.SetFillStyleAsync("darkgreen");
-            for (int i = 0; i < snake.tail.Count; i++)
-            {
-                await drawPiece(snake.tail[i].pos.c, snake.tail[i].pos.r);
-                snake.tail[i].val--;
-            }
-            await canvasContext.EndBatchAsync();
-        }
-
     }
-
 }
