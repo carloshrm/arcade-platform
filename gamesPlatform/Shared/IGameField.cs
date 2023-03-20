@@ -2,7 +2,7 @@
 {
     public interface IGameField
     {
-        public GameObject getPlayer();
+        public Object getPlayer();
         public void updateGameState();
         public bool checkGameOver();
         public void setMessage(string msg);

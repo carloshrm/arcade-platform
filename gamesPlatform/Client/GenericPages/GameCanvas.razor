@@ -23,6 +23,8 @@
     public long windowWidth { get; set; }
     public long windowHeight { get; set; }
     public (int r, int c) baseResolution { get; set; }
+    public (int r, int c) scaleFactor { get; set; } = (1, 1);
+
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -46,7 +48,7 @@
                 baseResolution = (
                     setting.GetValue<int>("size:width"),
                     setting.GetValue<int>("size:height"));
-                break;
+                return;
             }
         }        
     }
@@ -70,13 +72,32 @@
             {
                 componentWidth = width - (width % baseResolution.c);
                 componentHeight = width - (width % baseResolution.r);
-            }
+            }            
         }
         else
         {
             (componentWidth, componentHeight) = baseResolution;
+            Console.WriteLine(baseResolution);
         }
         StateHasChanged();
+        setupScaleFactor();
+    }
+
+    public async Task drawScaledColored(float c, float r, string color)
+    {
+        await canvasReference.SetFillStyleAsync(color);
+        await canvasReference.FillRectAsync(c * scaleFactor.c, r * scaleFactor.r, scaleFactor.c, scaleFactor.r);
+    }
+
+    public async Task drawScaled(float c, float r)
+    {
+        await canvasReference.FillRectAsync(c * scaleFactor.c, r * scaleFactor.r, scaleFactor.c, scaleFactor.r);
+    }
+
+    public async Task drawScaledSimpleObject(ISimpleGameObject obj)
+    {
+        await canvasReference.SetFillStyleAsync(obj.model.color);
+        await canvasReference.FillRectAsync(obj.pos.X * scaleFactor.c, obj.pos.Y * scaleFactor.r, scaleFactor.c, scaleFactor.r);
     }
 
     public async Task drawObject(IGameObject obj)
@@ -137,6 +158,12 @@
 
         await canvasReference.SetFillStyleAsync(previousStyle);
         await canvasReference.SetFontAsync(previousFont);
+    }
+
+    public void setupScaleFactor()
+    {
+        scaleFactor = (componentHeight / baseResolution.r, componentWidth / baseResolution.c);
+
     }
 
     public (int y, int x) getDimensions()

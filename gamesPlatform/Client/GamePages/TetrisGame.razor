@@ -58,9 +58,10 @@
             {
                 await gameScreen.setCanvasSize();
                 await gameScreen.canvasReference.SetFontAsync("16px \"Press Start 2P\"");
-                await gameScreen.canvasReference.SetFillStyleAsync("white");
+                await gameScreen.canvasReference.SetFillStyleAsync("black");
                 game = new TetrisField(gameScreen.getDimensions());
             }
+            gameControl.Interval = 100;
             gameControl.Elapsed += runGame;
             canvasRefresh.Elapsed += drawGame;
             StateHasChanged();
@@ -117,12 +118,12 @@
 
     private string getUIText()
     {
-        // TODO - build ui
-        return string.Empty;
+        return game.uiMessage + currentScore.turn;
     }
 
     protected async override void runGame(Object? o, ElapsedEventArgs e)
     {
+        currentScore.turn += 1;
         game.updateGameState();
         // TODO - implement run logic
         if (game.checkGameOver())
@@ -135,7 +136,11 @@
         await gameScreen.fillColor("black");
         await gameScreen.canvasReference.FillTextAsync(getUIText(), 10, 20);
 
-        await gameScreen.drawObject(game.getPlayer());
+        game.active.parts.ForEach(async p =>
+        {
+            await gameScreen.canvasReference.SetFillStyleAsync(game.active.color);
+            await gameScreen.drawScaled(p.X, p.Y);
+        });
 
         await gameScreen.canvasReference.EndBatchAsync();
     }

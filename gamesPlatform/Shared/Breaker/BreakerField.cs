@@ -189,7 +189,7 @@
                 player.movingDir = Direction.Zero;
         }
 
-        public IGameObject getPlayer()
+        public Object getPlayer()
         {
             return player;
         }
@@ -209,5 +209,6 @@
         {
             throw new NotImplementedException();
         }
+
     }
 }

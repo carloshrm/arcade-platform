@@ -4,7 +4,7 @@ namespace cmArcade.Shared
 {
     public class GameDecal : GraphicAsset
     {
-        public override string spriteId { get; set; }
+        public override string spriteId { get; set; } = string.Empty;
         public override int width { get; init; }
         public override int height { get; init; }
 

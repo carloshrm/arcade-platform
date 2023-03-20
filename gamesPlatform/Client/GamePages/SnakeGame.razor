@@ -111,7 +111,6 @@
         await gameScreen.setCanvasSize();
         await gameScreen.clear();
         game = new SnakeBoard(
-            gameScreen.getDimensions(),
             gameScreen.baseResolution,
             gameScreen.canvasReference);
         game.ateFood += increaseSpeed;
@@ -141,13 +140,15 @@
     protected async override void drawGame(Object? o, ElapsedEventArgs e)
     {
         await gameScreen.canvasReference.BeginBatchAsync();
-
         await gameScreen.fillColor("white");
-        await game!.renderGameState();
-        // TODO - Figure out how to scale fixed assets and refactor
+        await gameScreen.drawScaledSimpleObject(game.food);        
+        await gameScreen.drawScaledSimpleObject(game.player);        
+        foreach (var tailPiece in game.player.tail)
+        {
+            await gameScreen.drawScaledSimpleObject(tailPiece);
+        }        
         await gameScreen.canvasReference.EndBatchAsync();
     }
-
 
     public override void DisposeHarder()
     {

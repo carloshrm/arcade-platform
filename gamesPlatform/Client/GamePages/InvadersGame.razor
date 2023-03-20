@@ -47,7 +47,7 @@
     {
         invaderControl = new Timer(800) { AutoReset = true, Enabled = false };
         spaceControl = new Timer(15) { AutoReset = true, Enabled = false };
-        canvasRefresh = new Timer(1000 / 60) { AutoReset = true, Enabled = false };
+        canvasRefresh = new Timer(1000 / 30) { AutoReset = true, Enabled = false };
         currentScore = new Score(_myID);
         highScore = currentScore;
         scale = 1;
