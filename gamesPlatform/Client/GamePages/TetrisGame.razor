@@ -47,7 +47,6 @@
     {
         isMobile = await jsRuntime.InvokeAsync<bool>("isMobile");
         highScore = await scoreService.readLocalScore(_myID);
-
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -61,7 +60,7 @@
                 await gameScreen.canvasReference.SetFillStyleAsync("black");
                 game = new TetrisField(gameScreen.getDimensions());
             }
-            gameControl.Interval = 100;
+            gameControl.Interval = 1000;
             gameControl.Elapsed += runGame;
             canvasRefresh.Elapsed += drawGame;
             StateHasChanged();
@@ -138,8 +137,7 @@
 
         game.active.parts.ForEach(async p =>
         {
-            await gameScreen.canvasReference.SetFillStyleAsync(game.active.color);
-            await gameScreen.drawScaled(p.X, p.Y);
+            await gameScreen.drawScaledSimpleObject(p);
         });
 
         await gameScreen.canvasReference.EndBatchAsync();
