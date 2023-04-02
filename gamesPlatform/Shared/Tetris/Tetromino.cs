@@ -48,14 +48,9 @@ namespace cmArcade.Shared.Tetris
             {
                 for (int i = 0; i < parts.Count; i++)
                 {
-                    Console.WriteLine("orig " + parts[i].pos);
-                    if (!parts[i].isPivot)
-                    {
-                        double newX = pvt.X - (parts[i].pos.Y - pvt.Y);
-                        double newY = pvt.Y + (parts[i].pos.X - pvt.X);
-                        parts[i].pos = new Vector2((float)newX, (float)newY);
-                    }
-                    Console.WriteLine("n " + parts[i].pos);
+                    double newX = pvt.X - (parts[i].pos.Y - pvt.Y);
+                    double newY = pvt.Y + (parts[i].pos.X - pvt.X);
+                    parts[i].pos = new Vector2((float)newX, (float)newY);
                 }
             }
         }
