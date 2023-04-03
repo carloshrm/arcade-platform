@@ -58,27 +58,17 @@
         windowWidth = await jsRuntime.InvokeAsync<long>("getWindowWidth");
         windowHeight = await jsRuntime.InvokeAsync<long>("getWindowHeight");
 
-        if (appID == AppID.Snake)
-        {
-            int width = (int)(windowWidth * 0.080) * 10;
-            int height = (int)(windowHeight * 0.080) * 10;
+        int screenLimit = Math.Min((int)(windowWidth * 0.08) * 10, (int)(windowHeight * 0.08) * 10);
 
-            if (height <= width)
-            {
-                componentWidth = height - (height % baseResolution.c);
-                componentHeight = height - (height % baseResolution.r);
-            }
-            else
-            {
-                componentWidth = width - (width % baseResolution.c);
-                componentHeight = width - (width % baseResolution.r);
-            }            
-        }
-        else
+        (componentWidth, componentHeight) = appID switch
         {
-            (componentWidth, componentHeight) = baseResolution;
-            Console.WriteLine(baseResolution);
-        }
+            AppID.Snake => 
+                (screenLimit - (screenLimit % baseResolution.c), screenLimit - (screenLimit % baseResolution.r)),
+            AppID.Tetris => 
+                (screenLimit - (screenLimit % baseResolution.c), screenLimit - (screenLimit % baseResolution.r)),
+            _ => baseResolution            
+        };
+
         StateHasChanged();
         setupScaleFactor();
     }
@@ -163,7 +153,8 @@
     public void setupScaleFactor()
     {
         scaleFactor = (componentHeight / baseResolution.r, componentWidth / baseResolution.c);
-
+        if (scaleFactor.c == 0 || scaleFactor.r == 0)
+            scaleFactor = (1, 1);
     }
 
     public (int y, int x) getDimensions()
