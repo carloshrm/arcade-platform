@@ -22,7 +22,7 @@ namespace cmArcade.Shared.Tetris
 
         private Tetromino getRandomTetromino()
         {
-            return new Tetromino(limits.col / 2, TetrominoModel.shapeList.ElementAt(new Random().Next(0, TetrominoModel.shapeList.Count + 1)));
+            return new Tetromino(limits.col / 2, TetrominoModel.shapeList.ElementAt(new Random().Next(0, TetrominoModel.shapeList.Count)));
         }
 
         public Object getPlayer()
@@ -60,18 +60,24 @@ namespace cmArcade.Shared.Tetris
             // y' = b + (x - a)
 
             var pvt = active.parts.Find(part => part.isPivot).pos;
-            lock (active)
+
+            var prevState = new Vector2[active.parts.Count];
+            for (int i = 0; i < active.parts.Count; i++)
             {
-                // TODO - check active getting pulled down by timer mid-spin??
-                var previousState = active;
-                for (int i = 0; i < active.parts.Count; i++)
+                double newX = pvt.X - (active.parts[i].pos.Y - pvt.Y);
+                double newY = pvt.Y + (active.parts[i].pos.X - pvt.X);
+                var newPos = new Vector2((float)newX, (float)newY);
+
+                if (newPos.X >= limits.col || newPos.Y + 1 >= limits.row || newPos.X < 0)
                 {
-                    double newX = pvt.X - (active.parts[i].pos.Y - pvt.Y);
-                    double newY = pvt.Y + (active.parts[i].pos.X - pvt.X);
-                    active.parts[i].pos = new Vector2((float)newX, (float)newY);
+                    Console.WriteLine("!! >> collided");
+                    while (i-- > 0)
+                        active.parts[i].pos = prevState[i];
+                    return;
                 }
-                if (!checkBottomCollision(active) && !checkLeftCollision(active) && !checkRightCollision(active))
-                    active = previousState;
+
+                prevState[i] = active.parts[i].pos;
+                active.parts[i].pos = new Vector2((float)newX, (float)newY);
             }
         }
 
@@ -120,6 +126,7 @@ namespace cmArcade.Shared.Tetris
         public void parseKeyUp(string input)
         {
             Console.WriteLine(input);
+
         }
 
         public void updateGameState()
@@ -127,8 +134,7 @@ namespace cmArcade.Shared.Tetris
             // TODO  - build UI, constraint playing field to 80%
             // TODO show score string, show next blocks
             Console.WriteLine("update state");
-            active.parts.ForEach(Console.WriteLine);
-
+            active.parts.ForEach(p => Console.Write(" - " + p.pos));
             if (checkBottomCollision(active) is false)
                 active.step(VecDirection.Down);
             else
