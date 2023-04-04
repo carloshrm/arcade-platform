@@ -6,18 +6,30 @@ namespace cmArcade.Shared.Tetris
     {
         private readonly (int row, int col) limits;
         private TetrisPlayer player { get; set; }
-        public TetrominoPart[][] field { get; private set; }
+        public ITetrisElement[][] field { get; private set; }
         public Tetromino active { get; set; }
         public Queue<Tetromino> next { get; private set; }
-        public string uiMessage { get; set; } = "TODO";
+
+        public string uiMessage { get; set; } = "TODO \n test";
 
         public TetrisField((int row, int col) limits)
         {
             this.limits = limits;
             player = new TetrisPlayer();
-            field = new TetrominoPart[limits.row][].Select(_ => new TetrominoPart[limits.col]).ToArray();
+            field = new ITetrisElement[limits.row][].Select(_ => new ITetrisElement[limits.col]).ToArray();
             active = getRandomTetromino();
             next = new Queue<Tetromino>(new[] { getRandomTetromino(), getRandomTetromino() });
+            setupEdges();
+        }
+
+        private void setupEdges()
+        {
+            int halfField = limits.row / 2 / 2;
+            for (int i = 0; i < limits.col; i++)
+            {
+                field[i][halfField] = new TetrisFieldEdge(new Vector2(halfField, i));
+                field[i][limits.col - halfField] = new TetrisFieldEdge(new Vector2(limits.col - halfField, i));
+            }
         }
 
         private Tetromino getRandomTetromino()
@@ -44,6 +56,7 @@ namespace cmArcade.Shared.Tetris
         {
             return false;
         }
+
         public void spin()
         {
             // Using an R2 rotation matrix, but with the origin on the -1 block from the model shape array
@@ -64,20 +77,19 @@ namespace cmArcade.Shared.Tetris
             var prevState = new Vector2[active.parts.Count];
             for (int i = 0; i < active.parts.Count; i++)
             {
-                double newX = pvt.X - (active.parts[i].pos.Y - pvt.Y);
-                double newY = pvt.Y + (active.parts[i].pos.X - pvt.X);
-                var newPos = new Vector2((float)newX, (float)newY);
+                float newX = pvt.X - (active.parts[i].pos.Y - pvt.Y);
+                float newY = pvt.Y + (active.parts[i].pos.X - pvt.X);
+                Vector2 newPos = new Vector2(newX, newY);
 
-                if (newPos.X >= limits.col || newPos.Y + 1 >= limits.row || newPos.X < 0)
+                if (field[(int)newPos.Y][(int)newPos.X] != null || newPos.X < 0)
                 {
-                    Console.WriteLine("!! >> collided");
                     while (i-- > 0)
                         active.parts[i].pos = prevState[i];
                     return;
                 }
 
                 prevState[i] = active.parts[i].pos;
-                active.parts[i].pos = new Vector2((float)newX, (float)newY);
+                active.parts[i].pos = newPos;
             }
         }
 
@@ -126,7 +138,6 @@ namespace cmArcade.Shared.Tetris
         public void parseKeyUp(string input)
         {
             Console.WriteLine(input);
-
         }
 
         public void updateGameState()
@@ -135,6 +146,7 @@ namespace cmArcade.Shared.Tetris
             // TODO show score string, show next blocks
             Console.WriteLine("update state");
             active.parts.ForEach(p => Console.Write(" - " + p.pos));
+
             if (checkBottomCollision(active) is false)
                 active.step(VecDirection.Down);
             else
@@ -157,22 +169,23 @@ namespace cmArcade.Shared.Tetris
 
         private void searchLines()
         {
-            for (int i = 0; i < field.Length; i++)
+            for (int i = field.Length - 1; i >= 0; i--)
             {
-                bool isFilled = true;
-                for (int j = 0; j < field[i].Length; j++)
+                bool lineFormed = true;
+                for (int j = limits.col / 2 / 2; j < (limits.col / 2); j++)
                 {
                     if (field[i][j] == null)
                     {
-                        isFilled = false;
+                        lineFormed = false;
                         break;
                     }
                 }
 
-                if (isFilled)
+                if (lineFormed)
                 {
                     // break row
                     // add score
+                    Console.WriteLine("line !!");
                 }
             }
         }
