@@ -25,7 +25,6 @@
 </main>
 
 <img hidden src=@($"/img/tetrisAssets/tetrisField.png") @ref=@(gameScreen.assets[TetrisPlayerModel.player.spriteId]) />
-@*<img hidden src=@($"/img/tetrisAssets/blocks.png") @ref=@(gameScreen.assets[TetrisPlayerModel.player.spriteId]) />*@
 
 @code {
     private DateTime? holdStart;
@@ -58,7 +57,7 @@
                 await gameScreen.setCanvasSize();
                 await gameScreen.canvasReference.SetFontAsync("16px \"Press Start 2P\"");
                 await gameScreen.canvasReference.SetFillStyleAsync("black");
-                game = new TetrisField(gameScreen.getDimensions());
+                game = new TetrisField(gameScreen.baseResolution);
             }
             gameControl.Interval = 1000;
             gameControl.Elapsed += runGame;
@@ -87,7 +86,7 @@
         await jsRuntime.InvokeVoidAsync("setFocus");
         if (gameControl.Enabled) toggleControlObjects();
         currentScore = new Score(_myID);
-        game = new TetrisField(gameScreen!.getDimensions());
+        game = new TetrisField(gameScreen.baseResolution);
         gameOver = false;
         gameScreen?.clear();
     }
@@ -139,6 +138,15 @@
         {
             await gameScreen.drawScaledSimpleObject(p);
         });
+
+        for (int i = 0; i < game.field.Length; i++)
+        {
+            for (int j = 0; j < game.field[i].Length; j++)
+            {
+                if (game.field[i][j] != null)
+                    await gameScreen.drawScaledSimpleObject(game.field[i][j]);
+            }
+        }
 
         await gameScreen.canvasReference.EndBatchAsync();
     }
