@@ -46,24 +46,32 @@ namespace cmArcade.Shared.Tetris
         }
         public void spin()
         {
-            var pvt = active.parts.Find(part => part.isPivot).pos;
+            // Using an R2 rotation matrix, but with the origin on the -1 block from the model shape array
 
             // cos(t)   -sin(t) | x
             // sin(t)   cos(t)  | y
 
+            // simplify with cos90deg = 0, sin90deg = 1
             // x` = x cos90 - y sin90
             // y' = x sin90 + y cos90
 
-            // origin (a, b), cos90 = 0, sin90 = 1
-
+            // origin (a, b)
             // x` = a - (y - b) 
             // y' = b + (x - a)
-            var nextPos = new Vector2[active.parts.Count];
-            for (int i = 0; i < active.parts.Count; i++)
+
+            var pvt = active.parts.Find(part => part.isPivot).pos;
+            lock (active)
             {
-                double newX = pvt.X - (active.parts[i].pos.Y - pvt.Y);
-                double newY = pvt.Y + (active.parts[i].pos.X - pvt.X);
-                active.parts[i].pos = new Vector2((float)newX, (float)newY);
+                // TODO - check active getting pulled down by timer mid-spin??
+                var previousState = active;
+                for (int i = 0; i < active.parts.Count; i++)
+                {
+                    double newX = pvt.X - (active.parts[i].pos.Y - pvt.Y);
+                    double newY = pvt.Y + (active.parts[i].pos.X - pvt.X);
+                    active.parts[i].pos = new Vector2((float)newX, (float)newY);
+                }
+                if (!checkBottomCollision(active) && !checkLeftCollision(active) && !checkRightCollision(active))
+                    active = previousState;
             }
         }
 
@@ -133,7 +141,6 @@ namespace cmArcade.Shared.Tetris
             // score
             // spawn a new block
         }
-
 
         private void settleActive()
         {
