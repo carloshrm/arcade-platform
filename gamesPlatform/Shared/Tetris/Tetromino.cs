@@ -21,7 +21,7 @@ namespace cmArcade.Shared.Tetris
                 {
                     if (shape[i][j] != 0)
                     {
-                        var newPiece = new TetrominoPart(new Vector2(j, i + centerPos));
+                        var newPiece = new TetrominoPart(new Vector2(j + (centerPos - 1), i));
                         newPiece.isPivot = shape[i][j] == -1;
                         parts.Add(newPiece);
                     }

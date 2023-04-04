@@ -2,7 +2,7 @@
 
 namespace cmArcade.Shared.Tetris
 {
-    public class TetrominoPart : ISimpleGameObject
+    public class TetrominoPart : ITetrisElement
     {
         public CanvasRenderedAsset model { get; set; }
         public Vector2 pos { get; set; }
