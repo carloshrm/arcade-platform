@@ -86,8 +86,11 @@
 
     public async Task drawScaledSimpleObject(ISimpleGameObject obj)
     {
+
+        var previousStyle = canvasReference.FillStyle;
         await canvasReference.SetFillStyleAsync(obj.model.color);
         await canvasReference.FillRectAsync(obj.pos.X * scaleFactor.c, obj.pos.Y * scaleFactor.r, scaleFactor.c, scaleFactor.r);
+        await canvasReference.SetFillStyleAsync(previousStyle);
     }
 
     public async Task drawObject(IGameObject obj)
@@ -134,17 +137,21 @@
         await canvasReference.SetFillStyleAsync(previousStyle);
     }
 
-    public async Task fillTextStyleOverride(string text, double x, double y, string font, string style = "")
+    public async Task fillTextExtended(string text, double x, double y, string font, string style = "")
     {
-        if (canvasReference == null) return;
-
         var previousStyle = canvasReference.FillStyle;
         var previousFont = canvasReference.Font;
 
         await canvasReference.SetFontAsync(font);
         await canvasReference.SetFillStyleAsync(style == "" ? previousStyle : style);
 
-        await canvasReference.FillTextAsync(text, x, y);
+        var lines = text.Split('\n');
+        int yOffset = int.Parse(font.Substring(0, font.IndexOf("px")));
+        for (int i = 0; i < lines.Length; i++)
+        {
+            await canvasReference.FillTextAsync(lines[i], x, y + (yOffset * i));
+            
+        }
 
         await canvasReference.SetFillStyleAsync(previousStyle);
         await canvasReference.SetFontAsync(previousFont);
@@ -155,6 +162,7 @@
         scaleFactor = (componentHeight / baseResolution.r, componentWidth / baseResolution.c);
         if (scaleFactor.c == 0 || scaleFactor.r == 0)
             scaleFactor = (1, 1);
+        Console.WriteLine("scale: " + scaleFactor);
     }
 
     public (int y, int x) getDimensions()
