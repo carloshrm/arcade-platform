@@ -24,8 +24,10 @@ namespace cmArcade.Shared.Tetris
 
         private void setupEdges()
         {
-            int halfField = limits.row / 2 / 2;
-            for (int i = 0; i < limits.col; i++)
+            int halfField = limits.col / 2 / 2;
+            Console.WriteLine(limits);
+            Console.WriteLine(halfField);
+            for (int i = 0; i < limits.row; i++)
             {
                 field[i][halfField] = new TetrisFieldEdge(new Vector2(halfField, i));
                 field[i][limits.col - halfField] = new TetrisFieldEdge(new Vector2(limits.col - halfField, i));
@@ -169,10 +171,11 @@ namespace cmArcade.Shared.Tetris
 
         private void searchLines()
         {
+            int activeEdges = limits.col / 2 / 2;
             for (int i = field.Length - 1; i >= 0; i--)
             {
                 bool lineFormed = true;
-                for (int j = limits.col / 2 / 2; j < (limits.col / 2); j++)
+                for (int j = activeEdges; j < limits.col - activeEdges; j++)
                 {
                     if (field[i][j] == null)
                     {
@@ -183,9 +186,18 @@ namespace cmArcade.Shared.Tetris
 
                 if (lineFormed)
                 {
-                    // break row
-                    // add score
-                    Console.WriteLine("line !!");
+                    int k = i;
+                    while (k > 0)
+                    {
+                        for (int j = activeEdges + 1; j < limits.col - activeEdges; j++)
+                        {
+                            field[k][j] = field[k - 1][j];
+                            if (field[k][j] != null)
+                                field[k][j].pos = new Vector2(j, k);
+                        }
+                        k--;
+                    }
+
                 }
             }
         }
