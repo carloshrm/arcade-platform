@@ -5,12 +5,12 @@ namespace cmArcade.Shared.Tetris
     public class Tetromino
     {
         public List<TetrominoPart> parts;
-        private bool isHorizontal { get; set; }
+        private string shapeString = string.Empty;
+
         public Tetromino(int centerPos, int[][] shape)
         {
             parts = new List<TetrominoPart>(4);
             buildShapeFromMatrix(centerPos, shape);
-            isHorizontal = true;
         }
 
         private void buildShapeFromMatrix(int centerPos, int[][] shape)
@@ -21,12 +21,17 @@ namespace cmArcade.Shared.Tetris
                 {
                     if (shape[i][j] != 0)
                     {
-                        var newPiece = new TetrominoPart(new Vector2(j + (centerPos - 1), i));
+                        shapeString += "#";
+                        var newPiece = new TetrominoPart(new Vector2(j + (centerPos - 1), i + 2));
                         newPiece.isPivot = shape[i][j] == -1;
                         parts.Add(newPiece);
                     }
+                    else
+                        shapeString += " ";
                 }
+                shapeString += "\n";
             }
+            TetrominoPart.colorControl++;
         }
 
         public void step(Vector2 dir)
@@ -35,6 +40,11 @@ namespace cmArcade.Shared.Tetris
             {
                 parts[i].pos += dir;
             }
+        }
+
+        public override string? ToString()
+        {
+            return shapeString;
         }
     }
 }

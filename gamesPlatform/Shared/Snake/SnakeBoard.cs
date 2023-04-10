@@ -60,7 +60,7 @@ namespace cmArcade.Shared
             return false;
         }
 
-        public void updateGameState()
+        public void updateGameState(Score s)
         {
             player.tail.Add(new TailPiece(player.pos, player.healthPoints));
             player.updatePosition(limits);
