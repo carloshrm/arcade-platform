@@ -5,7 +5,6 @@
         public static readonly IReadOnlyCollection<int[][]> shapeList = new List<int[][]>
             {
                 //triangle
-                // 1 ia a block, -1 is center for spin
                 new int[][] {
                         new int[] { 1, -1, 1 },
                         new int[] { 0, 1, 0 } },
