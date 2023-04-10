@@ -95,7 +95,7 @@
     {
         gameOver = true;
         toggleControlObjects();
-        currentScore.runLength = DateTime.Now - currentScore.runStart;
+
         if (currentScore.scoreValue > highScore.scoreValue)
         {
             highScore = currentScore;
@@ -116,14 +116,19 @@
 
     private string getUIText()
     {
-        return game.uiMessage + currentScore.turn;
+        var uiInfo = new StringBuilder();
+        uiInfo.AppendLine($"Time: \n  {currentScore.runLength.ToString("mm\\:ss")}");
+        uiInfo.AppendLine($"Score:\n  {currentScore.scoreValue}");
+        uiInfo.AppendLine($"Next:\n\n{game.getNextAsString()}");
+
+        return uiInfo.ToString();
     }
 
     protected async override void runGame(Object? o, ElapsedEventArgs e)
     {
         currentScore.turn += 1;
-        game.updateGameState();
-        // TODO - implement run logic
+        currentScore.runLength = DateTime.Now - currentScore.runStart;
+        game.updateGameState(currentScore);
         if (game.checkGameOver())
             await stopGame();
     }
@@ -132,7 +137,7 @@
     {
         await gameScreen.canvasReference.BeginBatchAsync();
         await gameScreen.fillColor("black");
-        await gameScreen.canvasReference.FillTextAsync(getUIText(), 10, 20);
+        await gameScreen.fillTextExtended(getUIText(), 10, 20, "16px \"Press Start 2P\"", "white", 10);
 
         game.active.parts.ForEach(async p =>
         {
