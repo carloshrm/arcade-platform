@@ -10,7 +10,12 @@ namespace cmArcade.Shared.Tetris
         public Tetromino active { get; set; }
         public Queue<Tetromino> next { get; private set; }
 
-        public string uiMessage { get; set; } = "TODO \n test";
+        private bool holdingDown = false;
+
+        public string uiMessage { get; set; } = string.Empty;
+
+        private int scoreMult = 1;
+        private int baseScore = 1;
 
         public TetrisField((int row, int col) limits)
         {
@@ -25,13 +30,16 @@ namespace cmArcade.Shared.Tetris
         private void setupEdges()
         {
             int halfField = limits.col / 2 / 2;
-            Console.WriteLine(limits);
-            Console.WriteLine(halfField);
             for (int i = 0; i < limits.row; i++)
             {
                 field[i][halfField] = new TetrisFieldEdge(new Vector2(halfField, i));
                 field[i][limits.col - halfField] = new TetrisFieldEdge(new Vector2(limits.col - halfField, i));
             }
+        }
+
+        public string getNextAsString()
+        {
+            return String.Join('\n', next.Select(ttr => ttr.ToString()));
         }
 
         private Tetromino getRandomTetromino()
@@ -51,12 +59,16 @@ namespace cmArcade.Shared.Tetris
 
         public void setScoreMultiplier(int val)
         {
-            throw new NotImplementedException();
+            scoreMult = val;
         }
 
         public bool checkGameOver()
         {
-            return false;
+            return field[0].Any(p =>
+            {
+                if (p != null && p is not TetrisFieldEdge) return p.pos.Y <= 0;
+                else return false;
+            });
         }
 
         public void spin()
@@ -106,7 +118,18 @@ namespace cmArcade.Shared.Tetris
                 case "ArrowDown":
                 case "s":
                     if (!checkBottomCollision(active))
+                    {
                         active.step(VecDirection.Down);
+                        if (!holdingDown)
+                        {
+                            holdingDown = true;
+                            Task.Delay(800).ContinueWith(_ =>
+                            {
+                                if (holdingDown)
+                                    snapActiveToBottom();
+                            });
+                        }
+                    }
                     break;
                 case "ArrowLeft":
                 case "a":
@@ -123,6 +146,22 @@ namespace cmArcade.Shared.Tetris
             }
         }
 
+        private async Task snapActiveToBottom()
+        {
+            while (!checkBottomCollision(active))
+            {
+                active.step(VecDirection.Down);
+            }
+        }
+
+        public void parseKeyUp(string input)
+        {
+            if (input.Equals("ArrowDown") || input.Equals("s"))
+            {
+                holdingDown = false;
+            }
+        }
+
         private bool checkLeftCollision(Tetromino t)
         {
             return t.parts.Any(p => p.pos.X - 1 < 0 || field[(int)p.pos.Y][(int)(p.pos.X - 1)] != null);
@@ -132,29 +171,23 @@ namespace cmArcade.Shared.Tetris
         {
             return t.parts.Any(p => p.pos.X + 1 == limits.col || field[(int)p.pos.Y][(int)(p.pos.X + 1)] != null);
         }
+
         private bool checkBottomCollision(Tetromino t)
         {
             return t.parts.Any(p => p.pos.Y + 1 >= limits.row || field[(int)p.pos.Y + 1][(int)p.pos.X] != null);
         }
 
-        public void parseKeyUp(string input)
-        {
-            Console.WriteLine(input);
-        }
-
-        public void updateGameState()
+        public void updateGameState(Score s)
         {
             // TODO  - build UI, constraint playing field to 80%
             // TODO show score string, show next blocks
-            Console.WriteLine("update state");
-            active.parts.ForEach(p => Console.Write(" - " + p.pos));
 
             if (checkBottomCollision(active) is false)
                 active.step(VecDirection.Down);
             else
                 settleActive();
 
-            searchLines();
+            s.scoreValue += searchLines();
             // move blocks down
             // settle block on bottom
             // check for lines
@@ -169,8 +202,9 @@ namespace cmArcade.Shared.Tetris
             next.Enqueue(getRandomTetromino());
         }
 
-        private void searchLines()
+        private int searchLines()
         {
+            int lineCount = 0;
             int activeEdges = limits.col / 2 / 2;
             for (int i = field.Length - 1; i >= 0; i--)
             {
@@ -186,6 +220,7 @@ namespace cmArcade.Shared.Tetris
 
                 if (lineFormed)
                 {
+                    lineCount++;
                     int k = i;
                     while (k > 0)
                     {
@@ -197,9 +232,11 @@ namespace cmArcade.Shared.Tetris
                         }
                         k--;
                     }
-
                 }
+
             }
+            baseScore += lineCount;
+            return baseScore * lineCount;
         }
     }
 }
