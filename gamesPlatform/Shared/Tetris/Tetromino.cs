@@ -5,7 +5,6 @@ namespace cmArcade.Shared.Tetris
     public class Tetromino
     {
         public List<TetrominoPart> parts;
-        private string shapeString = string.Empty;
 
         public Tetromino(int centerPos, int[][] shape)
         {
@@ -21,15 +20,11 @@ namespace cmArcade.Shared.Tetris
                 {
                     if (shape[i][j] != 0)
                     {
-                        shapeString += "#";
-                        var newPiece = new TetrominoPart(new Vector2(j + (centerPos - 1), i + 2));
+                        var newPiece = new TetrominoPart(new Vector2(j + (centerPos - 1), i + 4));
                         newPiece.isPivot = shape[i][j] == -1;
                         parts.Add(newPiece);
                     }
-                    else
-                        shapeString += " ";
                 }
-                shapeString += "\n";
             }
             TetrominoPart.colorControl++;
         }
@@ -42,9 +37,12 @@ namespace cmArcade.Shared.Tetris
             }
         }
 
-        public override string? ToString()
+        public void offsetHorzPos(int offVal)
         {
-            return shapeString;
+            for (int i = 0; i < parts.Count; i++)
+            {
+                parts[i].pos = new Vector2(parts[i].pos.X - offVal, parts[i].pos.Y);
+            }
         }
     }
 }

@@ -9,8 +9,11 @@ namespace cmArcade.Shared.Tetris
         public ITetrisElement[][] field { get; private set; }
         public Tetromino active { get; set; }
         public Queue<Tetromino> next { get; private set; }
+        public int activeEdges { get; private set; }
+
 
         private bool holdingDown = false;
+        private CancellationTokenSource snapDownToken = new CancellationTokenSource();
 
         public string uiMessage { get; set; } = string.Empty;
 
@@ -20,31 +23,27 @@ namespace cmArcade.Shared.Tetris
         public TetrisField((int row, int col) limits)
         {
             this.limits = limits;
+            activeEdges = limits.col / 2 / 2;
             player = new TetrisPlayer();
             field = new ITetrisElement[limits.row][].Select(_ => new ITetrisElement[limits.col]).ToArray();
             active = getRandomTetromino();
             next = new Queue<Tetromino>(new[] { getRandomTetromino(), getRandomTetromino() });
+            active.offsetHorzPos(activeEdges + 4);
             setupEdges();
         }
 
         private void setupEdges()
         {
-            int halfField = limits.col / 2 / 2;
             for (int i = 0; i < limits.row; i++)
             {
-                field[i][halfField] = new TetrisFieldEdge(new Vector2(halfField, i));
-                field[i][limits.col - halfField] = new TetrisFieldEdge(new Vector2(limits.col - halfField, i));
+                field[i][activeEdges] = new TetrisFieldEdge(new Vector2(activeEdges, i));
+                field[i][limits.col - activeEdges] = new TetrisFieldEdge(new Vector2(limits.col - activeEdges, i));
             }
-        }
-
-        public string getNextAsString()
-        {
-            return String.Join('\n', next.Select(ttr => ttr.ToString()));
         }
 
         private Tetromino getRandomTetromino()
         {
-            return new Tetromino(limits.col / 2, TetrominoModel.shapeList.ElementAt(new Random().Next(0, TetrominoModel.shapeList.Count)));
+            return new Tetromino(limits.col - (activeEdges / 2), TetrominoModel.shapeList.ElementAt(new Random().Next(0, TetrominoModel.shapeList.Count)));
         }
 
         public Object getPlayer()
@@ -125,9 +124,8 @@ namespace cmArcade.Shared.Tetris
                             holdingDown = true;
                             Task.Delay(800).ContinueWith(_ =>
                             {
-                                if (holdingDown)
-                                    snapActiveToBottom();
-                            });
+                                snapActiveToBottom();
+                            }, snapDownToken.Token);
                         }
                     }
                     break;
@@ -152,6 +150,7 @@ namespace cmArcade.Shared.Tetris
             {
                 active.step(VecDirection.Down);
             }
+
         }
 
         public void parseKeyUp(string input)
@@ -159,6 +158,7 @@ namespace cmArcade.Shared.Tetris
             if (input.Equals("ArrowDown") || input.Equals("s"))
             {
                 holdingDown = false;
+                snapDownToken.Cancel();
             }
         }
 
@@ -199,13 +199,14 @@ namespace cmArcade.Shared.Tetris
         {
             active.parts.ForEach(p => field[(int)p.pos.Y][(int)p.pos.X] = p);
             active = next.Dequeue();
+            active.offsetHorzPos(activeEdges + 4);
             next.Enqueue(getRandomTetromino());
+            snapDownToken = new CancellationTokenSource();
         }
 
         private int searchLines()
         {
             int lineCount = 0;
-            int activeEdges = limits.col / 2 / 2;
             for (int i = field.Length - 1; i >= 0; i--)
             {
                 bool lineFormed = true;
