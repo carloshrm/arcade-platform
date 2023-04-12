@@ -84,7 +84,9 @@
     protected async override Task resetGame()
     {
         await jsRuntime.InvokeVoidAsync("setFocus");
-        if (gameControl.Enabled) toggleControlObjects();
+        if (gameControl.Enabled) 
+            toggleControlObjects();
+        gameControl.Interval = 1000;
         currentScore = new Score(_myID);
         game = new TetrisField(gameScreen.baseResolution);
         gameOver = false;
@@ -135,6 +137,8 @@
         game.updateGameState(currentScore);
         if (game.checkGameOver())
             await stopGame();
+        gameControl.Interval = 1000 - ((game.scoreMult + 1) * 20);
+
     }
 
     protected async override void drawGame(Object? o, ElapsedEventArgs e)
@@ -155,7 +159,7 @@
             }
         }
 
-        await gameScreen.fillTextExtended("Next: ", gameScreen.componentWidth * 0.84, 20, "16px \"Press Start 2P\"", "#white", 10);
+        await gameScreen.fillTextExtended("Next: ", gameScreen.componentWidth * 0.84, 20, "16px \"Press Start 2P\"", "white", 10);
         game.next.Peek().parts.ForEach(async pt => await gameScreen.drawScaledSimpleObject(pt));
         await gameScreen.canvasReference.EndBatchAsync();
     }
