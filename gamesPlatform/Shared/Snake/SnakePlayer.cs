@@ -1,39 +1,36 @@
-﻿namespace cmArcade.Shared
+﻿using System.Numerics;
+
+namespace cmArcade.Shared
 {
-    public class SnakePlayer
+    public class SnakePlayer : ISimpleGameObject
     {
-        public class TailPiece
+        internal class SnakeModel : CanvasRenderedAsset
         {
-            public (int r, int c) pos { get; set; }
-            public int val { get; set; }
-            public TailPiece((int r, int c) pos, int val)
-            {
-                this.pos = pos;
-                this.val = val;
-            }
+            public override string color { get; init; }
+            public override float width { get; init; }
+            public override float height { get; init; }
+
+            public static readonly SnakeModel snakeModel = new SnakeModel { color = "darkgreen", width = 1, height = 1 };
         }
 
-        public int size { get; set; }
-        public (int r, int c) headPosition { get; set; }
+        public int healthPoints { get; set; }
+        public Vector2 pos { get; set; }
         public List<TailPiece> tail { get; set; }
-        public (int row, int col) movingDirection { get; set; }
+        public Vector2 movingDirection { get; set; }
+        public CanvasRenderedAsset model { get; set; } = SnakeModel.snakeModel;
+
 
         public SnakePlayer(int startingSize, (int r, int c) boardLimits)
         {
-            size = startingSize;
+            healthPoints = startingSize;
             tail = new List<TailPiece>();
-            headPosition = (boardLimits.r / 2, boardLimits.c / 2);
-            movingDirection = (0, 1);
+            pos = new Vector2(boardLimits.c / 2, boardLimits.r / 2);
+            movingDirection = VecDirection.Left;
         }
 
         public void growSnake(Object? sender, EventArgs e)
         {
-            size++;
-        }
-
-        public void setNextSnakePosition()
-        {
-            headPosition = (headPosition.r + movingDirection.row, headPosition.c + movingDirection.col);
+            healthPoints++;
         }
 
         public void parseMoveCommand(string keyValue)
@@ -42,27 +39,33 @@
             {
                 case "ArrowUp":
                 case "w":
-                    if (movingDirection != (1, 0))
-                        movingDirection = (-1, 0);
+                    if (movingDirection != VecDirection.Down)
+                        movingDirection = VecDirection.Up;
                     break;
                 case "ArrowDown":
                 case "s":
-                    if (movingDirection != (-1, 0))
-                        movingDirection = (1, 0);
+                    if (movingDirection != VecDirection.Up)
+                        movingDirection = VecDirection.Down;
                     break;
                 case "ArrowLeft":
                 case "a":
-                    if (movingDirection != (0, 1))
-                        movingDirection = (0, -1);
+                    if (movingDirection != VecDirection.Right)
+                        movingDirection = VecDirection.Left;
                     break;
                 case "ArrowRight":
                 case "d":
-                    if (movingDirection != (0, -1))
-                        movingDirection = (0, 1);
+                    if (movingDirection != VecDirection.Left)
+                        movingDirection = VecDirection.Right;
                     break;
                 default:
                     break;
             }
+        }
+
+        public bool updatePosition((int row, int col) limits)
+        {
+            pos += movingDirection;
+            return true;
         }
     }
 }

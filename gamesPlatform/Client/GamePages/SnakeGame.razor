@@ -2,6 +2,7 @@
 @inject IJSRuntime jsRuntime
 @inject IScoreService scoreService
 @implements IDisposable
+@inherits GamePage<SnakeBoard>
 @layout MainLayout
 @using cmArcade.Client.GenericPages
 
@@ -16,13 +17,13 @@
             <span> Time:@currentScore?.runLength.ToString("mm\\:ss") </span>
         </div>
         <div>
-            <button type="button" class="soft-shadow game-button @((turnCount > 0 && turnManager.Enabled) ? "dark-bg on" : "")" @onclick=startGame>start</button>
-            <button type="button" class="soft-shadow game-button" @onclick=setupNewGame>reset</button>
+            <button type="button" class="soft-shadow game-button @((turnCount > 0 && gameControl.Enabled) ? "dark-bg on" : "")" @onclick=startGame>start</button>
+            <button type="button" class="soft-shadow game-button" @onclick=resetGame>reset</button>
         </div>
     </div>
     <div id="game-container" class="soft-shadow" tabindex="0" @onkeydown=@((e) => playerInputHandler(e.Key))>
-        <GameCanvas @ref=gameScreen appID=AppID.Snake />
-        @if (turnCount > 0 && !turnManager.Enabled)
+        <GameCanvas @ref=gameScreen appID=@_myID />
+        @if (turnCount > 0 && !gameControl.Enabled)
         {
             <PostGameView currentScore=currentScore highScore=highScore app=AppID.Snake />
         }
@@ -34,31 +35,16 @@
 </main>
 
 @code {
-    private const AppID _myID = AppID.Snake;
-
     private GameCanvas? gameScreen;
-    private LeaderboardView? leaderboard;
-    private Action<int> uploadCallback;
-    private bool showScoreUpload { get; set; }
     private bool isMobile = false;
-    private bool canUpload = true;
 
-    private SnakeBoard? gameBoard;
-    private Score currentScore;
-    private Score highScore;
-
-    private Timer turnManager;
     private int turnCount { get; set; }
     private bool canMove { get; set; }
 
-    public SnakeGame()
+    public SnakeGame() : base(AppID.Snake)
     {
-        turnManager = new Timer(400) { AutoReset = true, Enabled = false };
-        turnManager.Elapsed += runTurn;
-        uploadCallback = new Action<int>(refreshAfterUpload);
-        currentScore = new Score(_myID);
-        highScore = currentScore;
-    }
+        gameControl.Interval = 400;
+    }    
 
     protected override async Task OnInitializedAsync()
     {
@@ -68,96 +54,104 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender) await setupNewGame();
+        if (firstRender)
+        {
+            await resetGame();
+            canvasRefresh.Elapsed += drawGame;
+            gameControl.Elapsed += runGame;
+        }
     }
 
     private void increaseSpeed(Object? sender, EventArgs e)
     {
-        if (turnManager.Enabled)
+        if (gameControl.Enabled)
         {
-            turnManager.Interval = 1300 / gameBoard.snake.size;
+            gameControl.Interval = 1300 / game!.player.healthPoints;
             if (isMobile) jsRuntime.InvokeVoidAsync("vibrateFeedback");
         }
     }
 
-    private void refreshAfterUpload(int newID)
-    {
-        showScoreUpload = false;
-        canUpload = false;
-        if (newID != -1)
-        {
-            highScore.id = newID;
-            leaderboard.refresh();
-        }
-        StateHasChanged();
-    }
-
-
     private void playerInputHandler(string direction)
     {
-        if (turnManager.Enabled && canMove)
+        if (gameControl.Enabled && canMove)
         {
-            gameBoard.snake.parseMoveCommand(direction);
+            game!.player.parseMoveCommand(direction);
         }
         canMove = false;
     }
 
-    private async Task startGame()
+    protected async override Task stopGame()
+    {
+        toggleControlObjects();
+    }
+
+    protected async override Task startGame()
     {
         await jsRuntime.InvokeVoidAsync("setFocus");
-        if (turnManager.Enabled)
+        if (gameControl.Enabled)
             return;
         else
         {
             if (currentScore.scoreValue > 0)
             {
                 currentScore = new Score(_myID);
-                await setupNewGame();
+                await resetGame();
             }
-            turnManager.Enabled = true;
+            toggleControlObjects();
             currentScore.runStart = DateTime.Now;
         }
     }
 
-    private async Task setupNewGame()
+    protected async override Task resetGame()
     {
         turnCount = 0;
-        turnManager.Enabled = false;
-        turnManager.Interval = 400;
+        gameControl.Interval = 400;
+        if (gameControl.Enabled)
+            toggleControlObjects();
         await gameScreen.setCanvasSize();
         await gameScreen.clear();
-        gameBoard = new SnakeBoard(
-            gameScreen.getDimensions(),
+        game = new SnakeBoard(
             gameScreen.baseResolution,
             gameScreen.canvasReference);
-        gameBoard.ateFood += increaseSpeed;
+        game.ateFood += increaseSpeed;
     }
 
-    private async void runTurn(Object? src, ElapsedEventArgs e)
+    protected override void runGame(Object? src, ElapsedEventArgs e)
     {
         turnCount++;
         currentScore.runLength = e.SignalTime - currentScore.runStart;
-        currentScore.scoreValue += (long)Math.Ceiling(turnCount / 10.0) * gameBoard.snake.size;
-        gameBoard.snake.setNextSnakePosition();
-        await gameBoard.drawGameState();
-        var collided = gameBoard.checkCurrentSpotContents();
-        if (collided is false)
+        currentScore.scoreValue += (long)Math.Ceiling(turnCount / 10.0) * game!.player.healthPoints;
+        if (game.checkSnakeParts() is false)
         {
-            turnManager.Enabled = false;
+            toggleControlObjects();
             if (currentScore.scoreValue > highScore.scoreValue)
             {
                 highScore = currentScore;
                 scoreService.setLocalScore(highScore);
-                canUpload = true;
             }
         }
+        else
+            game.updateGameState(currentScore);
+
         canMove = true;
         StateHasChanged();
     }
 
-    public void Dispose()
+    protected async override void drawGame(Object? o, ElapsedEventArgs e)
     {
-        gameScreen?.Dispose();
-        turnManager.Dispose();
+        await gameScreen.canvasReference.BeginBatchAsync();
+        await gameScreen.fillColor("white");
+        await gameScreen.drawScaledSimpleObject(game.food);        
+        await gameScreen.drawScaledSimpleObject(game.player);        
+        foreach (var tailPiece in game.player.tail)
+        {
+            await gameScreen.drawScaledSimpleObject(tailPiece);
+        }        
+        await gameScreen.canvasReference.EndBatchAsync();
+    }
+
+    public override void DisposeHarder()
+    {
+        gameScreen.Dispose();
     }
 }

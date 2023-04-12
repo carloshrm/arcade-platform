@@ -1,27 +1,29 @@
-﻿namespace cmArcade.Shared.Breaker
+﻿using System.Numerics;
+
+namespace cmArcade.Shared.Breaker
 {
-    public class PowerUp : GameObject
+    public class PowerUp : IGameObject
     {
-        public override int row { get; set; }
-        public override int col { get; set; }
-        public override int spriteSelect { get; set; }
-        public override GraphicAsset model { get; set; }
+        public Vector2 pos { get; set; }
+        public int spriteSelect { get; set; }
+        public GraphicAsset model { get; set; }
         public BreakerPowerUpType type { get; set; }
         public IPowerUpEffect effect { get; set; }
+        public List<GraphicAsset>? decals { get; set; } = null;
+        public int healthPoints { get; set; } = 0;
 
         public PowerUp(int row, int col, BreakerPowerUpType type, int sprite)
         {
             this.type = type;
             model = PowerUpModel.breakerPowerUps[type];
-            this.row = row;
-            this.col = col - (model.width / 2);
+            pos = new Vector2(col - (model.width / 2), row);
             spriteSelect = sprite;
             effect = IPowerUpEffect.getBreakerPowerUp(type);
         }
 
-        public override bool updatePosition((int row, int col) limits)
+        public bool updatePosition((int row, int col) limits)
         {
-            row += 2;
+            pos += VecDirection.Down * 2;
             return true;
         }
     }

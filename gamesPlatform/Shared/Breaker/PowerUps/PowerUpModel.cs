@@ -3,7 +3,7 @@ namespace cmArcade.Shared.Breaker
 {
     public class PowerUpModel : GraphicAsset
     {
-        public override string spriteId { get; set; }
+        public override string spriteId { get; set; } = string.Empty;
         public override int width { get; init; }
         public override int height { get; init; }
 

@@ -1,48 +1,45 @@
-﻿namespace cmArcade.Shared.Invaders
+﻿using System.Numerics;
+
+namespace cmArcade.Shared.Invaders
 {
-    public class PlayerShip : GameObject
+    public class PlayerShip : IGameObject
     {
-        public override int healthPoints { get; set; }
-        public override int row { get; set; }
-        public override int col { get; set; }
-        public override GraphicAsset model { get; set; }
-        public override int spriteSelect { get; set; }
+        public Vector2 pos { get; set; }
+        public int healthPoints { get; set; }
+        public GraphicAsset model { get; set; }
+        public int spriteSelect { get; set; }
         public Direction movingDir { get; set; }
-        public double accel { get; set; }
+        public float accel { get; set; }
 
         public bool canShoot { get; set; }
+        public List<GraphicAsset>? decals { get; set; } = null;
 
         public PlayerShip(int row, int col)
         {
-            this.row = row;
-            this.col = col;
+            pos = new Vector2(col, row);
             model = ShipModel.playerShip;
-            movingDir = Direction.none;
+            movingDir = Direction.Zero;
             canShoot = true;
             healthPoints = 3;
             accel = 0;
             spriteSelect = 0;
         }
 
-        public override bool updatePosition((int row, int col) limits)
+        public bool updatePosition((int row, int col) limits)
         {
-            if (col >= 0 && col <= limits.col - model.width - 1)
-                col += (int)accel;
-            else if (col < 0)
-                col = 1;
+            if (pos.X >= 0 && pos.X <= limits.col - model.width - 1)
+                pos += new Vector2(pos.X + accel, pos.Y);
+            else if (pos.X < 0)
+                pos = new Vector2(1, pos.Y);
             else
-                col = limits.col - model.width - 2;
+                pos = new Vector2(limits.col - model.width - 2, pos.Y);
 
-            if (movingDir == Direction.right)
-            {
+            if (movingDir == Direction.Right)
                 accel = 6;
-            }
-            else if (movingDir == Direction.left)
-            {
+            else if (movingDir == Direction.Left)
                 accel = -6;
-            }
             else
-                accel = accel > 0 ? (accel - 0.5) : (accel + 0.5);
+                accel = accel > 0 ? (accel - 0.5f) : (accel + 0.5f);
 
             return true;
         }

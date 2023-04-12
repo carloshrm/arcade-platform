@@ -1,32 +1,39 @@
-﻿namespace cmArcade.Shared.Breaker
-{
-    public class Ball : GameObject
-    {
-        public override int row { get; set; }
-        public override int col { get; set; }
-        public override int healthPoints { get; set; }
-        public override GraphicAsset model { get; set; }
-        public override int spriteSelect { get; set; }
+﻿using System.Numerics;
 
-        private (int row, int col) movementVector;
+namespace cmArcade.Shared.Breaker
+{
+    public class Ball : IGameObject
+    {
+        public Vector2 pos { get; set; }
+        public int healthPoints { get; set; }
+        public GraphicAsset model { get; set; }
+        public int spriteSelect { get; set; }
+        public List<GraphicAsset>? decals { get; set; }
+        private Vector2 movementVector { get; set; } = Vector2.Zero;
+
         public bool breakingTimeout = false;
         private bool bouncingTimeout = false;
 
-        public Ball(int row, int col)
+        public Ball(float row, float col)
         {
             model = BallModel.breakerBall;
-            this.row = row;
-            this.col = col - (model.width / 2);
+            pos = new Vector2(col - (model.width / 2), row);
             healthPoints = 0;
             spriteSelect = 0;
-            movementVector = (0, 0);
+            movementVector = new Vector2(0, 0);
         }
 
-        public void follow(int c) => this.col = c - (model.width / 2);
+        public void follow(float c)
+        {
+            movementVector = new Vector2(c - (model.width / 2), movementVector.Y);
+        }
 
-        public void shoot() => movementVector = (-4, 0);
+        public void shoot()
+        {
+            movementVector = new Vector2(-4, 0);
+        }
 
-        public async void lockBreak()
+        public void lockBreak()
         {
             if (!breakingTimeout)
             {
@@ -40,22 +47,23 @@
             if (!bouncingTimeout)
             {
                 bouncingTimeout = true;
-                movementVector = (movementVector.row * rDir, movementVector.col * cDir);
-                if (Math.Abs(movementVector.col) >= 6)
-                    movementVector.col = (int)(movementVector.col * 0.8);
+                movementVector = new Vector2(movementVector.X * cDir, movementVector.Y * rDir);
+                // TODO - slow down?
                 await Task.Delay(50);
                 bouncingTimeout = false;
             }
         }
 
-        public void offsetVector(int accel) => movementVector.col = accel / -10;
-
-        public override bool updatePosition((int row, int col) limits)
+        public void offsetVector(float accel)
         {
-            if (row <= limits.row)
+            movementVector = new Vector2(accel / -10, movementVector.Y);
+        }
+
+        public bool updatePosition((int row, int col) limits)
+        {
+            if (pos.Y <= limits.row)
             {
-                row += movementVector.row;
-                col += movementVector.col;
+                pos += movementVector;
                 return true;
             }
             else

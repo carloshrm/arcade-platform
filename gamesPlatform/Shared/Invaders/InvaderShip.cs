@@ -1,18 +1,20 @@
-﻿namespace cmArcade.Shared.Invaders
+﻿using System.Numerics;
+
+namespace cmArcade.Shared.Invaders
 {
-    public class InvaderShip : GameObject
+    public class InvaderShip : IGameObject
     {
-        public override int row { get; set; }
-        public override int col { get; set; }
-        public override int healthPoints { get; set; }
-        public override GraphicAsset model { get; set; }
-        public override int spriteSelect { get; set; }
-        private static Direction movingDirection = Direction.right;
+        public Vector2 pos { get; set; }
+        public int healthPoints { get; set; }
+        public GraphicAsset model { get; set; }
+        public int spriteSelect { get; set; }
+        public List<GraphicAsset>? decals { get; set; } = null;
+
+        private static Direction movingDirection = Direction.Right;
 
         public InvaderShip(int row, int col, ShipModel model)
         {
-            this.row = row;
-            this.col = col;
+            pos = new Vector2(col, row);
             this.model = model;
             healthPoints = 1;
             spriteSelect = 0;
@@ -20,7 +22,7 @@
 
         public static void flipDirection()
         {
-            movingDirection = movingDirection == Direction.left ? Direction.right : Direction.left;
+            movingDirection = movingDirection == Direction.Left ? Direction.Right : Direction.Left;
         }
 
         public void animate()
@@ -28,15 +30,15 @@
             spriteSelect = spriteSelect == 0 ? 1 : 0;
         }
 
-        public override bool updatePosition((int row, int col) limits)
+        public bool updatePosition((int row, int col) limits)
         {
-            col += (int)movingDirection * 18;
-            return col <= 0 + model.width || col >= limits.col - (model.width * 1.5);
+            pos += new Vector2((int)movingDirection * 18, pos.Y);
+            return pos.X <= 0 + model.width || pos.X >= limits.col - (model.width * 1.5);
         }
 
         public void dropRow(int rowEdge)
         {
-            row += rowEdge / 20;
+            pos += new Vector2(pos.X, pos.Y + (rowEdge / 20));
         }
 
     }

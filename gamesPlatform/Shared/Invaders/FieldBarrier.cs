@@ -1,18 +1,19 @@
-﻿namespace cmArcade.Shared.Invaders
+﻿using System.Numerics;
+
+namespace cmArcade.Shared.Invaders
 {
-    public class FieldBarrier : GameObject
+    public class FieldBarrier : IGameObject
     {
-        public override int row { get; set; }
-        public override int col { get; set; }
-        public override int healthPoints { get; set; }
-        public override GraphicAsset model { get; set; }
-        public override int spriteSelect { get; set; }
+        public Vector2 pos { get; set; }
+        public int healthPoints { get; set; }
+        public GraphicAsset model { get; set; }
+        public int spriteSelect { get; set; }
+        public List<GraphicAsset>? decals { get; set; } = null;
 
         public FieldBarrier(int row, int col)
         {
             model = GameDecal.getInvaderDecal("barrier");
-            this.row = row;
-            this.col = col - (model.width / 2);
+            pos = new Vector2(col, row);
             healthPoints = 6;
             spriteSelect = 0;
         }
@@ -24,7 +25,7 @@
 
         }
 
-        public override bool updatePosition((int row, int col) limits)
+        public bool updatePosition((int row, int col) limits)
         {
             return false;
         }

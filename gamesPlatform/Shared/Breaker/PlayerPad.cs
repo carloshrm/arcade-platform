@@ -1,29 +1,30 @@
-﻿namespace cmArcade.Shared.Breaker
+﻿using System.Numerics;
+
+namespace cmArcade.Shared.Breaker
 {
-    public class PlayerPad : GameObject
+    public class PlayerPad : IGameObject
     {
-        public override int row { get; set; }
-        public override int col { get; set; }
-        public override int healthPoints { get; set; }
-        public override GraphicAsset model { get; set; }
-        public override int spriteSelect { get; set; }
+        public Vector2 pos { get; set; }
+        public int healthPoints { get; set; }
+        public GraphicAsset model { get; set; }
+        public int spriteSelect { get; set; }
         public Direction movingDir { get; set; }
-        public double accel { get; set; }
-        public double weight { get; set; }
+        public float accel { get; set; }
+        public float weight { get; set; }
+        public List<GraphicAsset>? decals { get; set; } = null;
 
         public PlayerPad(int row, int col)
         {
-            this.row = row;
-            this.col = col;
+            pos = new Vector2(col, row);
             model = PadModel.playerPad;
-            movingDir = Direction.none;
+            movingDir = Direction.Zero;
             healthPoints = 3;
             accel = 0;
-            weight = 0.6;
+            weight = 0.6f;
             spriteSelect = 0;
         }
 
-        public void setWeight(double w)
+        public void setWeight(float w)
         {
             if (w > 0)
                 weight = w;
@@ -37,23 +38,23 @@
             return healthPoints <= 0;
         }
 
-        public override bool updatePosition((int row, int col) limits)
+        public bool updatePosition((int row, int col) limits)
         {
-            if (col >= 0 && col <= limits.col - model.width - 1)
-                col += (int)accel;
-            else if (col < 0)
-                col = 1;
+            if (pos.X >= 0 && pos.X <= limits.col - model.width - 1)
+                pos = new Vector2(pos.X + accel, pos.Y);
+            else if (pos.X < 0)
+                pos = new Vector2(1, pos.Y);
             else
-                col = limits.col - model.width - 2;
+                pos = new Vector2(limits.col - model.width - 2, pos.Y);
 
-            if (movingDir == Direction.right)
+            if (movingDir == Direction.Right)
             {
                 if (accel < 3)
                     accel = 3;
                 else
                     accel = accel < 6 ? accel + weight : 6;
             }
-            else if (movingDir == Direction.left)
+            else if (movingDir == Direction.Left)
             {
                 if (accel > -3)
                     accel = -3;

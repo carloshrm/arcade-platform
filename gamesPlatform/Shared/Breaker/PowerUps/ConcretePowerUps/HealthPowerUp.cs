@@ -4,7 +4,7 @@
     {
         public void runEffect(IGameField fieldReference)
         {
-            fieldReference.getPlayer().healthPoints++;
+            (fieldReference.getPlayer() as PlayerPad).healthPoints++;
             fieldReference.setMessage("+1 Life");
         }
     }

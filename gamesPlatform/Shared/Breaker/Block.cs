@@ -1,21 +1,21 @@
-﻿namespace cmArcade.Shared.Breaker
+﻿using System.Numerics;
+
+namespace cmArcade.Shared.Breaker
 {
-    public class Block : GameObject
+    public class Block : IGameObject
     {
-        public override int row { get; set; }
-        public override int col { get; set; }
-        public override int healthPoints { get; set; }
-        public override GraphicAsset model { get; set; }
-        public override int spriteSelect { get; set; }
-        public override List<GraphicAsset>? decals { get; set; }
+        public Vector2 pos { get; set; }
+        public int healthPoints { get; set; }
+        public GraphicAsset model { get; set; }
+        public int spriteSelect { get; set; }
+        public List<GraphicAsset>? decals { get; set; }
         private PowerUp? powerupHolder { get; set; }
         public int scoreMultiplier { get; init; }
 
         public Block(int row, int col, BlockModel model, int sprite)
         {
             this.model = model;
-            this.row = row;
-            this.col = col;
+            pos = new Vector2(col, row);
             healthPoints = model.HP;
             scoreMultiplier = model.isSpecial ? model.HP * 10 : model.HP;
             spriteSelect = sprite % BlockModel.variationCount;
@@ -30,14 +30,14 @@
 
         public void addDecal(GameDecal d)
         {
-            decals.Add(d);
+            decals?.Add(d);
         }
 
         public void dropRow()
         {
-            row += BlockModel.highestBlockSize;
+            pos += new Vector2(pos.X, BlockModel.highestBlockSize);
             if (powerupHolder != null)
-                powerupHolder.row += BlockModel.highestBlockSize;
+                powerupHolder.pos += new Vector2(powerupHolder.pos.X, BlockModel.highestBlockSize);
         }
 
         public PowerUp? hit()
@@ -51,10 +51,10 @@
             }
             else
             {
-                if (powerupHolder != null)
+                if (powerupHolder != null && decals != null)
                 {
                     spriteSelect += 5;
-                    decals.Remove(decals.Find(x => x.spriteId.Contains("powerup")));
+                    decals.Remove(decals.Find(x => x.spriteId.Contains("powerup"))!);
                     var p = powerupHolder;
                     powerupHolder = null;
                     return p;
@@ -62,6 +62,11 @@
                 else
                     return null;
             }
+        }
+
+        public bool updatePosition((int row, int col) limits)
+        {
+            throw new NotImplementedException();
         }
     }
 }

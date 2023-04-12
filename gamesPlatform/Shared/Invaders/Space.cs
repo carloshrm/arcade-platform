@@ -24,13 +24,16 @@
             barriers = new List<FieldBarrier>();
             this.limits = limits;
             setupCommonInvaders();
-            setupSpecialInvader();
+            specialInvader = setupSpecialInvader();
             setupBarriers();
         }
 
-        public void nextRound(int diffUp) => difficultyRatio += diffUp / 10.0;
+        public void nextRound(int diffUp)
+        {
+            difficultyRatio += diffUp / 10.0;
+        }
 
-        public async void updateGameState()
+        public void updateGameState()
         {
             hitDetection();
             player.updatePosition(limits);
@@ -47,7 +50,10 @@
             barriers.Add(new FieldBarrier(row, col * 3));
         }
 
-        public void fireShot(GameObject whoFired) => shotsFired.Add(new LaserShot(whoFired));
+        public void fireShot(IGameObject whoFired)
+        {
+            shotsFired.Add(new LaserShot(whoFired));
+        }
 
         public void invaderAttack()
         {
@@ -57,7 +63,7 @@
                 var selected = invaders[j / 2];
                 while (j >= 0)
                 {
-                    int fromLeft = Math.Abs(player.col - invaders[j].col);
+                    float fromLeft = Math.Abs(player.pos.X - invaders[j].pos.X);
                     if (fromLeft <= player.model.width)
                     {
                         selected = invaders[j];
@@ -88,24 +94,24 @@
             }
         }
 
-        private void setupSpecialInvader()
+        private InvaderShip setupSpecialInvader()
         {
             specialIsActive = false;
             var model = ShipModel.invaderShips.Last().Value;
-            specialInvader = new InvaderShip(model.height, limits.col + model.width + 10, model);
+            return new InvaderShip(model.height, limits.col + model.width + 10, model);
         }
 
         private void updateSpecialInvader()
         {
             if (specialIsActive)
-                specialInvader.col -= 3;
+                specialInvader.pos += VecDirection.Left * 3;
         }
 
         public void sendSpecial()
         {
             if (invaders.Count % 9 == 0) specialIsActive = true;
-            if (specialInvader.col <= 0 - specialInvader.model.width || specialInvader.healthPoints <= 0)
-                setupSpecialInvader();
+            if (specialInvader.pos.X <= 0 - specialInvader.model.width || specialInvader.healthPoints <= 0)
+                specialInvader = setupSpecialInvader();
         }
 
         public void parseKeyDown(string input)
@@ -115,27 +121,27 @@
                 if (player.canShoot)
                 {
                     fireShot(player);
-                    player.shotTimeout();
+                    _ = player.shotTimeout();
                 }
             }
             else
             {
                 if (input.Equals("a") || input.Equals("ArrowLeft"))
-                    player.movingDir = Direction.left;
+                    player.movingDir = Direction.Left;
                 if (input.Equals("d") || input.Equals("ArrowRight"))
-                    player.movingDir = Direction.right;
+                    player.movingDir = Direction.Right;
             }
         }
 
         public void parseKeyUp(string input)
         {
             if (!input.Equals(" "))
-                player.movingDir = Direction.none;
+                player.movingDir = Direction.Zero;
         }
 
         public void updateSpaceState()
         {
-            shotsFired.RemoveAll(s => s.row <= 0 || s.row >= limits.row || s.hitSomething);
+            shotsFired.RemoveAll(s => s.pos.Y <= 0 || s.pos.Y >= limits.row || s.hitSomething);
             invaderShotCount = shotsFired.Count(x => !x.fromPlayer);
 
             bool touchedEdge = false;
@@ -164,7 +170,7 @@
             {
                 foreach (var inv in invaders)
                 {
-                    if (inv.row >= player.row)
+                    if (inv.pos.Y >= player.pos.Y)
                         return true;
                 }
                 return false;
@@ -178,7 +184,7 @@
             {
                 if (i.healthPoints <= 0)
                 {
-                    calculatedScore += baseScore * (i.row / 10);
+                    calculatedScore += baseScore * ((int)i.pos.Y / 10);
                     return true;
                 }
                 else
@@ -190,13 +196,13 @@
 
         public void hitDetection()
         {
-            bool checkHit(GameObject g, GameObject s)
+            bool checkHit(IGameObject g, IGameObject s)
             {
                 return
-                    s.col >= g.col &&
-                    s.col <= g.col + g.model.width &&
-                    s.row <= g.row + g.model.height &&
-                    s.row > g.row;
+                    s.pos.X >= g.pos.X &&
+                    s.pos.X <= g.pos.X + g.model.width &&
+                    s.pos.Y <= g.pos.Y + g.model.height &&
+                    s.pos.Y > g.pos.Y;
             }
 
             foreach (var shot in shotsFired)

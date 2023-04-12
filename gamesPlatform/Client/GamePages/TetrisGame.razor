@@ -1,0 +1,171 @@
+﻿@page "/tetris"
+@inject IJSRuntime jsRuntime
+@inject IScoreService scoreService
+@implements IDisposable
+@inherits GamePage<TetrisField>
+@using cmArcade.Shared
+@using cmArcade.Shared.Tetris
+
+<main id="main-content" @onkeydown:preventDefault="true">
+    <div id="game-controls">
+        <button type="button" class="soft-shadow game-button @((currentScore.scoreValue > 0 && gameControl.Enabled) ? "dark-bg ok" : "")" @onclick=startGame>start</button>
+        <button type="button" class="soft-shadow game-button" @onclick=resetGame>reset</button>
+    </div>
+    <div id="game-container" tabindex="0" @onkeydown=@((e) => keyDownInputHandler(e.Key)) @onkeyup=@((e) => keyUpInputHandler(e.Key))>
+        <GameCanvas @ref=gameScreen appID=_myID />
+        @if (currentScore?.turn > 0 && !gameControl.Enabled)
+        {
+            <PostGameView currentScore=currentScore highScore=highScore app=_myID />
+        }
+    </div>
+    @if (isMobile)
+    {
+        <TouchDPad clickCallback=keyDownInputHandler releaseCallback=keyUpInputHandler />
+    }
+</main>
+
+<img hidden src=@($"/img/tetrisAssets/tetrisField.png") @ref=@(gameScreen.assets[TetrisPlayerModel.player.spriteId]) />
+
+@code {
+    private DateTime? holdStart;
+    private TimeSpan timeHeld;
+
+    private GameCanvas? gameScreen;
+
+    private bool gameOver = false;
+
+    private bool isMobile = false;
+    private bool mobileMoveToggle = false;
+
+    public TetrisGame() : base(AppID.Tetris)
+    {
+        ///
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        isMobile = await jsRuntime.InvokeAsync<bool>("isMobile");
+        highScore = await scoreService.readLocalScore(_myID);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (gameScreen != null)
+            {
+                await gameScreen.setCanvasSize();
+                await gameScreen.canvasReference.SetFontAsync("16px \"Press Start 2P\"");
+                await gameScreen.canvasReference.SetFillStyleAsync("black");
+                game = new TetrisField(gameScreen.baseResolution);
+            }
+            gameControl.Interval = 1000;
+            gameControl.Elapsed += runGame;
+            canvasRefresh.Elapsed += drawGame;
+            StateHasChanged();
+        }
+    }
+
+    protected async override Task startGame()
+    {
+        await jsRuntime.InvokeVoidAsync("setFocus");
+        if (gameControl.Enabled)
+            return;
+        else
+        {
+            if (currentScore.scoreValue > 0)
+                await resetGame();
+            currentScore.turn = 1;
+            currentScore.runStart = DateTime.Now;
+            toggleControlObjects();
+        }
+    }
+
+    protected async override Task resetGame()
+    {
+        await jsRuntime.InvokeVoidAsync("setFocus");
+        if (gameControl.Enabled) 
+            toggleControlObjects();
+        gameControl.Interval = 1000;
+        currentScore = new Score(_myID);
+        game = new TetrisField(gameScreen.baseResolution);
+        gameOver = false;
+        gameScreen?.clear();
+    }
+
+    protected async override Task stopGame()
+    {
+        gameOver = true;
+        toggleControlObjects();
+
+        if (currentScore.scoreValue > highScore.scoreValue)
+        {
+            highScore = currentScore;
+            scoreService.setLocalScore(highScore);
+        }
+        StateHasChanged();
+    }
+
+    private void keyDownInputHandler(string dir)
+    {
+        game.parseKeyDown(dir);
+    }
+
+    private void keyUpInputHandler(string dir)
+    {
+        game.parseKeyUp(dir);
+    }
+
+    private string getUIText()
+    {
+        var uiInfo = new StringBuilder();
+        uiInfo.AppendLine($"Time: \n  {currentScore.runLength.ToString("mm\\:ss")}");
+        uiInfo.AppendLine();
+
+        uiInfo.AppendLine($"Score:\n{currentScore.scoreValue}");
+        uiInfo.AppendLine($"{game.scoreMult} lines");
+        uiInfo.AppendLine();
+
+        uiInfo.AppendLine($"Best: \n  {highScore.scoreValue}");
+        return uiInfo.ToString();
+    }
+
+    protected async override void runGame(Object? o, ElapsedEventArgs e)
+    {
+        currentScore.turn += 1;
+        currentScore.runLength = DateTime.Now - currentScore.runStart;
+        game.updateGameState(currentScore);
+        if (game.checkGameOver())
+            await stopGame();
+        gameControl.Interval = 1000 - ((game.scoreMult + 1) * 20);
+
+    }
+
+    protected async override void drawGame(Object? o, ElapsedEventArgs e)
+    {
+        await gameScreen.canvasReference.BeginBatchAsync();
+        await gameScreen.fillColor("black");
+        await gameScreen.canvasReference.DrawImageAsync(gameScreen.assets[TetrisPlayerModel.player.spriteId], 0, 0, gameScreen.componentWidth, gameScreen.componentHeight);
+        await gameScreen.fillTextExtended(getUIText(), 20, 20, "16px \"Press Start 2P\"", "white", 10);
+
+        game.active.parts.ForEach(async p => await gameScreen.drawScaledSimpleObject(p));
+
+        for (int i = 0; i < game.field.Length; i++)
+        {
+            for (int j = 0; j < game.field[i].Length; j++)
+            {
+                if (game.field[i][j] != null)
+                    await gameScreen.drawScaledSimpleObject(game.field[i][j]);
+            }
+        }
+
+        await gameScreen.fillTextExtended("Next: ", gameScreen.componentWidth * 0.84, 20, "16px \"Press Start 2P\"", "white", 10);
+        game.next.Peek().parts.ForEach(async pt => await gameScreen.drawScaledSimpleObject(pt));
+        await gameScreen.canvasReference.EndBatchAsync();
+    }
+
+    public override void DisposeHarder()
+    {
+        gameScreen?.Dispose();
+    }
+}

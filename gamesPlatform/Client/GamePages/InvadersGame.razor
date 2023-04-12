@@ -28,6 +28,8 @@
 @code {
     private const AppID _myID = AppID.Invaders;
 
+    private Space game;
+
     private GameCanvas? gameScreen;
     private double scale;
     private Score currentScore;
@@ -38,23 +40,17 @@
     private Timer invaderControl;
     private Timer canvasRefresh;
 
-    private Space game;
-
     private bool gameOver = false;
-    private bool canUpload = false;
     private bool showScoreUpload = false;
-    private LeaderboardView? leaderboard;
-    private Action<int> uploadCallback;
 
     public InvadersGame()
     {
         invaderControl = new Timer(800) { AutoReset = true, Enabled = false };
         spaceControl = new Timer(15) { AutoReset = true, Enabled = false };
-        canvasRefresh = new Timer(1000 / 60) { AutoReset = true, Enabled = false };
+        canvasRefresh = new Timer(1000 / 30) { AutoReset = true, Enabled = false };
         currentScore = new Score(_myID);
         highScore = currentScore;
         scale = 1;
-        uploadCallback = new Action<int>(refreshAfterUpload);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -69,7 +65,6 @@
                 game = new Space(gameScreen.getDimensions());
             }
             highScore = await scoreService.readLocalScore(_myID);
-            canUpload = highScore.id == -1;
             invaderControl.Elapsed += invaderStep;
             spaceControl.Elapsed += runGame;
             canvasRefresh.Elapsed += drawGame;
@@ -80,18 +75,6 @@
     public async void runGame(Object? o, ElapsedEventArgs e)
     {
         game.updateGameState();
-    }
-
-    private void refreshAfterUpload(int newID)
-    {
-        showScoreUpload = false;
-        if (newID != -1)
-        {
-            canUpload = false;
-            highScore.id = newID;
-            leaderboard.refresh();
-        }
-        StateHasChanged();
     }
 
     private void startGame()
@@ -175,7 +158,6 @@
         {
             highScore = currentScore;
             scoreService.setLocalScore(highScore);
-            canUpload = true;
         }
         toggleControlObjects();
         StateHasChanged();

@@ -15,7 +15,7 @@
 
     public GameCanvas()
     {
-        assets = new Dictionary<string, ElementReference>();        
+        assets = new Dictionary<string, ElementReference>();
     }
 
     public int componentWidth { get; set; }
@@ -23,6 +23,8 @@
     public long windowWidth { get; set; }
     public long windowHeight { get; set; }
     public (int r, int c) baseResolution { get; set; }
+    public (int r, int c) scaleFactor { get; set; } = (1, 1);
+
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -34,21 +36,21 @@
 
     protected override async Task OnInitializedAsync()
     {
-        readConfigValues();
+        await readConfigValues();
     }
 
-    private void readConfigValues()
+    private async Task readConfigValues()
     {
         foreach (var setting in appConfig.GetSection("games").GetChildren())
         {
             if (setting.GetValue<AppID>("id") == appID)
             {
                 baseResolution = (
-                    setting.GetValue<int>("size:width"), 
+                    setting.GetValue<int>("size:width"),
                     setting.GetValue<int>("size:height"));
-                break;
+                return;
             }
-        }
+        }        
     }
 
     public async Task setCanvasSize()
@@ -56,37 +58,49 @@
         windowWidth = await jsRuntime.InvokeAsync<long>("getWindowWidth");
         windowHeight = await jsRuntime.InvokeAsync<long>("getWindowHeight");
 
-        if (appID == AppID.Snake)
-        {
-            int width = (int)(windowWidth * 0.080) * 10;
-            int height = (int)(windowHeight * 0.080) * 10;
+        int screenLimit = Math.Min((int)(windowWidth * 0.08) * 10, (int)(windowHeight * 0.08) * 10);
 
-            if (height <= width)
-            {
-                componentWidth = height - (height % baseResolution.c);
-                componentHeight = height - (height % baseResolution.r);
-            }
-            else
-            {
-                componentWidth = width - (width % baseResolution.c);
-                componentHeight = width - (width % baseResolution.r);
-            }
-        }
-        else
+        (componentWidth, componentHeight) = appID switch
         {
-            (componentWidth, componentHeight) = baseResolution;
-        }
+            AppID.Snake => 
+                (screenLimit - (screenLimit % baseResolution.c), screenLimit - (screenLimit % baseResolution.r)),
+            AppID.Tetris => 
+                (screenLimit - (screenLimit % baseResolution.c), screenLimit - (screenLimit % baseResolution.r)),
+            _ => baseResolution            
+        };
+
         StateHasChanged();
+        setupScaleFactor();
     }
 
-    public async Task drawObject(GameObject obj)
+    public async Task drawScaledColored(float c, float r, string color)
+    {
+        await canvasReference.SetFillStyleAsync(color);
+        await canvasReference.FillRectAsync(c * scaleFactor.c, r * scaleFactor.r, scaleFactor.c, scaleFactor.r);
+    }
+
+    public async Task drawScaled(float c, float r)
+    {
+        await canvasReference.FillRectAsync(c * scaleFactor.c, r * scaleFactor.r, scaleFactor.c, scaleFactor.r);
+    }
+
+    public async Task drawScaledSimpleObject(ISimpleGameObject obj)
+    {
+
+        var previousStyle = canvasReference.FillStyle;
+        await canvasReference.SetFillStyleAsync(obj.model.color);
+        await canvasReference.FillRectAsync(obj.pos.X * scaleFactor.c, obj.pos.Y * scaleFactor.r, scaleFactor.c, scaleFactor.r);
+        await canvasReference.SetFillStyleAsync(previousStyle);
+    }
+
+    public async Task drawObject(IGameObject obj)
     {
         // renders from the top left
         await canvasReference.DrawImageAsync(
             assets[obj.model.spriteId], // asset image reference
             obj.spriteSelect * obj.model.width, obj.model.height * 0, // asset position on referenced image
             obj.model.width, obj.model.height, // asset size on image
-            obj.col, obj.row, // canvas x and y coords for rendering
+            obj.pos.X, obj.pos.Y, // canvas x and y coords for rendering
             obj.model.width, obj.model.height); // size for rendering in canvas
         if (obj.decals != null)
         {
@@ -95,18 +109,18 @@
                 int widthPadding = d.width < obj.model.width ? (d.width / -2) + ((obj.model.width) / 2) : 0;
                 int heightPadding = d.height < obj.model.height ? (d.height / -2) + ((obj.model.height) / 2) : 0;
                 await canvasReference.DrawImageAsync(
-                    assets[d.spriteId], 0, 0, d.width, d.height, 
-                    obj.col + widthPadding, obj.row + heightPadding, 
-                    d.width, d.height); 
+                    assets[d.spriteId], 0, 0, d.width, d.height,
+                    obj.pos.X + widthPadding, obj.pos.Y + heightPadding,
+                    d.width, d.height);
             }
-        }        
+        }
     }
 
-    public async Task drawSet(IEnumerable<GameObject> list)
+    public async Task drawSet(IEnumerable<IGameObject> list)
     {
-        foreach (var o in list) 
-        { 
-            await drawObject(o); 
+        foreach (var o in list)
+        {
+            await drawObject(o);
         }
     }
 
@@ -123,20 +137,30 @@
         await canvasReference.SetFillStyleAsync(previousStyle);
     }
 
-    public async Task fillTextStyleOverride(string text, double x, double y, string font, string style = "")
+    public async Task fillTextExtended(string text, double x, double y, string font, string style = "", int linePadding = 0)
     {
-        if (canvasReference == null) return;
-
         var previousStyle = canvasReference.FillStyle;
         var previousFont = canvasReference.Font;
 
         await canvasReference.SetFontAsync(font);
         await canvasReference.SetFillStyleAsync(style == "" ? previousStyle : style);
 
-        await canvasReference.FillTextAsync(text, x, y);
-        
+        var lines = text.Split('\n');
+        int yOffset = int.Parse(font.Substring(0, font.IndexOf("px"))) + linePadding;
+        for (int i = 0; i < lines.Length; i++)
+        {
+            await canvasReference.FillTextAsync(lines[i], x, y + (yOffset * i));
+        }
+
         await canvasReference.SetFillStyleAsync(previousStyle);
         await canvasReference.SetFontAsync(previousFont);
+    }
+
+    public void setupScaleFactor()
+    {
+        scaleFactor = (componentHeight / baseResolution.r, componentWidth / baseResolution.c);
+        if (scaleFactor.c == 0 || scaleFactor.r == 0)
+            scaleFactor = (1, 1);
     }
 
     public (int y, int x) getDimensions()
