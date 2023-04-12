@@ -9,7 +9,7 @@
         public static readonly IReadOnlyCollection<TetrominoBlock> simpleColoredBlocks = new List<TetrominoBlock>() {
             new TetrominoBlock { color = "yellow", width = 1, height = 1 },
             new TetrominoBlock { color = "red", width = 1, height = 1 },
-            new TetrominoBlock { color = "green", width = 1, height = 1 },
+            new TetrominoBlock { color = "blue", width = 1, height = 1 },
             new TetrominoBlock { color = "cyan", width = 1, height = 1 },
         };
 
