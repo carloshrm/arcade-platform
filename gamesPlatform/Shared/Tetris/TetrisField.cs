@@ -88,7 +88,7 @@ namespace cmArcade.Shared.Tetris
                 float newY = pvt.Y + (active.parts[i].pos.X - pvt.X);
                 Vector2 newPos = new Vector2(newX, newY);
 
-                if (field[(int)newPos.Y][(int)newPos.X] != null || newPos.X < 0)
+                if (field[(int)newPos.Y][(int)newPos.X] != null || newPos.X < 0 || newPos.Y < 0)
                 {
                     while (i-- > 0)
                         active.parts[i].pos = prevState[i];
@@ -186,7 +186,7 @@ namespace cmArcade.Shared.Tetris
         private int searchLines()
         {
             int lineCount = 0;
-            for (int i = field.Length - 1; i >= 0; i--)
+            for (int i = 0; i < field.Length; i++)
             {
                 bool lineFormed = true;
                 for (int j = activeEdges; j < limits.col - activeEdges; j++)
