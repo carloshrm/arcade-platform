@@ -11,14 +11,10 @@ namespace cmArcade.Shared.Tetris
         public Queue<Tetromino> next { get; private set; }
         public int activeEdges { get; private set; }
 
-
-        private bool holdingDown = false;
-        private CancellationTokenSource snapDownToken = new CancellationTokenSource();
-
         public string uiMessage { get; set; } = string.Empty;
 
-        private int scoreMult = 1;
-        private int baseScore = 1;
+        public int scoreMult { get; set; } = 0;
+        private int baseScore = 3;
 
         public TetrisField((int row, int col) limits)
         {
@@ -63,17 +59,15 @@ namespace cmArcade.Shared.Tetris
 
         public bool checkGameOver()
         {
-            return field[0].Any(p =>
+            return active.parts.Any(p =>
             {
-                if (p != null && p is not TetrisFieldEdge) return p.pos.Y <= 0;
-                else return false;
+                return field[(int)p.pos.Y][(int)p.pos.X] != null;
             });
         }
 
         public void spin()
         {
             // Using an R2 rotation matrix, but with the origin on the -1 block from the model shape array
-
             // cos(t)   -sin(t) | x
             // sin(t)   cos(t)  | y
 
@@ -116,35 +110,25 @@ namespace cmArcade.Shared.Tetris
                     break;
                 case "ArrowDown":
                 case "s":
-                    if (!checkBottomCollision(active))
-                    {
-                        active.step(VecDirection.Down);
-                        if (!holdingDown)
-                        {
-                            holdingDown = true;
-                            Task.Delay(800).ContinueWith(_ =>
-                            {
-                                snapActiveToBottom();
-                            }, snapDownToken.Token);
-                        }
-                    }
+                    if (!checkBottomCollision(active)) active.step(VecDirection.Down);
                     break;
                 case "ArrowLeft":
                 case "a":
-                    if (!checkLeftCollision(active))
-                        active.step(VecDirection.Left);
+                    if (!checkLeftCollision(active)) active.step(VecDirection.Left);
                     break;
                 case "ArrowRight":
                 case "d":
-                    if (!checkRightCollision(active))
-                        active.step(VecDirection.Right);
+                    if (!checkRightCollision(active)) active.step(VecDirection.Right);
+                    break;
+                case " ":
+                    snapActiveToBottom();
                     break;
                 default:
                     break;
             }
         }
 
-        private async Task snapActiveToBottom()
+        private void snapActiveToBottom()
         {
             while (!checkBottomCollision(active))
             {
@@ -155,11 +139,7 @@ namespace cmArcade.Shared.Tetris
 
         public void parseKeyUp(string input)
         {
-            if (input.Equals("ArrowDown") || input.Equals("s"))
-            {
-                holdingDown = false;
-                snapDownToken.Cancel();
-            }
+            return;
         }
 
         private bool checkLeftCollision(Tetromino t)
@@ -201,7 +181,6 @@ namespace cmArcade.Shared.Tetris
             active = next.Dequeue();
             active.offsetHorzPos(activeEdges + 4);
             next.Enqueue(getRandomTetromino());
-            snapDownToken = new CancellationTokenSource();
         }
 
         private int searchLines()
@@ -236,8 +215,8 @@ namespace cmArcade.Shared.Tetris
                 }
 
             }
-            baseScore += lineCount;
-            return baseScore * lineCount;
+            scoreMult += lineCount;
+            return baseScore * scoreMult * lineCount;
         }
     }
 }

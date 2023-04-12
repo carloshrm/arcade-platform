@@ -118,7 +118,13 @@
     {
         var uiInfo = new StringBuilder();
         uiInfo.AppendLine($"Time: \n  {currentScore.runLength.ToString("mm\\:ss")}");
-        uiInfo.AppendLine($"Score:\n  {currentScore.scoreValue}");
+        uiInfo.AppendLine();
+
+        uiInfo.AppendLine($"Score:\n{currentScore.scoreValue}");
+        uiInfo.AppendLine($"{game.scoreMult} lines");
+        uiInfo.AppendLine();
+
+        uiInfo.AppendLine($"Best: \n  {highScore.scoreValue}");
         return uiInfo.ToString();
     }
 
@@ -135,7 +141,7 @@
     {
         await gameScreen.canvasReference.BeginBatchAsync();
         await gameScreen.fillColor("black");
-        //await gameScreen.canvasReference.DrawImageAsync(gameScreen.assets[TetrisPlayerModel.player.spriteId], 0, 0, gameScreen.componentWidth, gameScreen.componentHeight);
+        await gameScreen.canvasReference.DrawImageAsync(gameScreen.assets[TetrisPlayerModel.player.spriteId], 0, 0, gameScreen.componentWidth, gameScreen.componentHeight);
         await gameScreen.fillTextExtended(getUIText(), 20, 20, "16px \"Press Start 2P\"", "white", 10);
 
         game.active.parts.ForEach(async p => await gameScreen.drawScaledSimpleObject(p));
@@ -149,7 +155,7 @@
             }
         }
 
-        await gameScreen.fillTextExtended("Next: ", gameScreen.componentWidth * 0.84, 20, "16px \"Press Start 2P\"", "#00FFFFAA", 10);
+        await gameScreen.fillTextExtended("Next: ", gameScreen.componentWidth * 0.84, 20, "16px \"Press Start 2P\"", "#white", 10);
         game.next.Peek().parts.ForEach(async pt => await gameScreen.drawScaledSimpleObject(pt));
         await gameScreen.canvasReference.EndBatchAsync();
     }
