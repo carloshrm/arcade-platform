@@ -2,11 +2,12 @@
 @inject IJSRuntime jsRuntime
 @inject IScoreService scoreService
 @implements IDisposable
+@inherits GamePage<Space>
 @using cmArcade.Shared.Invaders
 
 <main id="main-content">
     <div id="game-controls">
-        <button type="button" class="soft-shadow game-button @((currentScore.scoreValue > 0 && spaceControl.Enabled) ? "dark-bg on" : "")" @onclick=startGame>start</button>
+        <button type="button" class="soft-shadow game-button @((currentScore.scoreValue > 0 && gameControl.Enabled && gameOver == true) ? "dark-bg on" : "")" @onclick=startGame>start</button>
         <button type="button" class="soft-shadow game-button" @onclick=resetGame>reset</button>
     </div>
     <div id="game-container" tabindex="0" @onkeydown=keyDownInputHandler @onkeyup=keyUpInputHandler @onclick=clickHandler>
@@ -26,30 +27,19 @@
 <img hidden src=@($"/img/genericAssets/heart.png") @ref=@(gameScreen.assets["heart"]) />
 
 @code {
-    private const AppID _myID = AppID.Invaders;
-
-    private Space game;
-
     private GameCanvas? gameScreen;
     private double scale;
-    private Score currentScore;
-    private Score highScore;
     private bool combo = false;
 
-    private Timer spaceControl;
     private Timer invaderControl;
-    private Timer canvasRefresh;
 
     private bool gameOver = false;
     private bool showScoreUpload = false;
 
-    public InvadersGame()
+    public InvadersGame() : base(AppID.Invaders)
     {
         invaderControl = new Timer(800) { AutoReset = true, Enabled = false };
-        spaceControl = new Timer(15) { AutoReset = true, Enabled = false };
-        canvasRefresh = new Timer(1000 / 30) { AutoReset = true, Enabled = false };
-        currentScore = new Score(_myID);
-        highScore = currentScore;
+        gameControl.Interval = 15;
         scale = 1;
     }
 
@@ -66,21 +56,21 @@
             }
             highScore = await scoreService.readLocalScore(_myID);
             invaderControl.Elapsed += invaderStep;
-            spaceControl.Elapsed += runGame;
+            gameControl.Elapsed += runGame;
             canvasRefresh.Elapsed += drawGame;
             StateHasChanged();
         }
     }
 
-    public async void runGame(Object? o, ElapsedEventArgs e)
+    protected async override void runGame(Object? o, ElapsedEventArgs e)
     {
-        game.updateGameState();
+        game.updateGameState(currentScore);
     }
 
-    private void startGame()
+    protected override async Task startGame()
     {
-        jsRuntime.InvokeVoidAsync("setFocus");
-        if (spaceControl.Enabled && !gameOver)
+        await jsRuntime.InvokeVoidAsync("setFocus");
+        if (gameControl.Enabled && gameOver == false)
             return;
         else
         {
@@ -92,19 +82,20 @@
         }
     }
 
-    private void resetGame()
+    protected override async Task resetGame()
     {
-        jsRuntime.InvokeVoidAsync("setFocus");
-        if (spaceControl.Enabled) toggleControlObjects();
+        await jsRuntime.InvokeVoidAsync("setFocus");
+        if (gameControl.Enabled) 
+            toggleControlObjects();
         currentScore = new Score(_myID);
         game = new Space(gameScreen.getDimensions());
         gameOver = false;
-        gameScreen.clear();
+        await gameScreen.clear();
     }
 
-    private void toggleControlObjects()
+    private new void toggleControlObjects()
     {
-        spaceControl.Enabled = !spaceControl.Enabled;
+        gameControl.Enabled = !gameControl.Enabled;
         invaderControl.Enabled = !invaderControl.Enabled;
         canvasRefresh.Enabled = !canvasRefresh.Enabled;
     }
@@ -119,13 +110,13 @@
             await Task.Delay(1000);
         }
         game = new Space(gameScreen.getDimensions());
-        game.nextRound(currentScore.turn);
         currentScore.turn++;
+        game.setScoreMultiplier(currentScore.turn);
         toggleControlObjects();
     }
 
     private void keyDownInputHandler(KeyboardEventArgs e)
-    {
+    {        
         game.parseKeyDown(e.Key);
     }
 
@@ -138,19 +129,15 @@
     {
         if (e.Button == 0 && !gameOver)
         {
-            if (spaceControl.Enabled)
+            if (gameControl.Enabled)
             {
                 game.parseKeyDown(" ");
                 return;
             }
-            else
-            {
-                startGame();
-            }
         }
     }
 
-    private void stopGame()
+    protected async override Task stopGame()
     {
         gameOver = true;
         currentScore.runLength = DateTime.Now - currentScore.runStart;
@@ -165,10 +152,14 @@
 
     private void invaderStep(Object? o, EventArgs e)
     {
-        if (game.invaders.Count == 0) nextRound();
-        game.updateSpaceState();
+        if (game.invaders.Count == 0) 
+            nextRound();
+
+        game.updateInvaderState();
         setScore(game.invaderCleanup());
-        if (game.checkGameOver()) stopGame();
+        if (game.checkGameOver()) 
+            stopGame();
+
         invaderControl.Interval = (game.invaders.Count / 0.05) / currentScore.turn;
         game.invaderAttack();
         game.sendSpecial();
@@ -198,7 +189,7 @@
         return text.ToString();
     }
 
-    private async void drawGame(Object? o, ElapsedEventArgs e)
+    protected async override void drawGame(Object? o, ElapsedEventArgs e)
     {
         await gameScreen.canvasReference.BeginBatchAsync();
         await gameScreen.fillColor("black");
@@ -211,11 +202,9 @@
         await gameScreen.canvasReference.EndBatchAsync();
     }
 
-    public void Dispose()
+    public override void DisposeHarder()
     {
         gameScreen?.Dispose();
         invaderControl.Dispose();
-        spaceControl.Dispose();
-        canvasRefresh.Dispose();
     }
 }
