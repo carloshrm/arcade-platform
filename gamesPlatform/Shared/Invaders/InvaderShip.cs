@@ -32,13 +32,13 @@ namespace cmArcade.Shared.Invaders
 
         public bool updatePosition((int row, int col) limits)
         {
-            pos += new Vector2((int)movingDirection * 18, pos.Y);
+            pos += new Vector2((int)movingDirection * 18, 0);
             return pos.X <= 0 + model.width || pos.X >= limits.col - (model.width * 1.5);
         }
 
         public void dropRow(int rowEdge)
         {
-            pos += new Vector2(pos.X, pos.Y + (rowEdge / 20));
+            pos += new Vector2(0, rowEdge / 20);
         }
 
     }

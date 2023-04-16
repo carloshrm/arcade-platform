@@ -28,7 +28,7 @@ namespace cmArcade.Shared.Invaders
         public bool updatePosition((int row, int col) limits)
         {
             if (pos.X >= 0 && pos.X <= limits.col - model.width - 1)
-                pos += new Vector2(pos.X + accel, pos.Y);
+                pos += new Vector2(accel, 0);
             else if (pos.X < 0)
                 pos = new Vector2(1, pos.Y);
             else
@@ -39,7 +39,11 @@ namespace cmArcade.Shared.Invaders
             else if (movingDir == Direction.Left)
                 accel = -6;
             else
-                accel = accel > 0 ? (accel - 0.5f) : (accel + 0.5f);
+            {
+                accel += accel > 0 ? -0.5f : 0.5f;
+                if (Math.Abs(accel) >= accel)
+                    accel = 0;
+            }
 
             return true;
         }
