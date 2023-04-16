@@ -35,9 +35,10 @@ namespace cmArcade.Shared.Breaker
 
         public void dropRow()
         {
-            pos += new Vector2(pos.X, BlockModel.highestBlockSize);
+            pos += new Vector2(0, BlockModel.highestBlockSize);
+            Console.WriteLine(pos);
             if (powerupHolder != null)
-                powerupHolder.pos += new Vector2(powerupHolder.pos.X, BlockModel.highestBlockSize);
+                powerupHolder.pos += new Vector2(0, BlockModel.highestBlockSize);
         }
 
         public PowerUp? hit()
