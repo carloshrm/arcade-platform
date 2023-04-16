@@ -34,36 +34,38 @@ namespace cmArcade.Shared.Breaker
 
         public bool loseLife()
         {
-            healthPoints--;
-            return healthPoints <= 0;
+            return --healthPoints <= 0;
         }
 
         public bool updatePosition((int row, int col) limits)
         {
             if (pos.X >= 0 && pos.X <= limits.col - model.width - 1)
+            {
                 pos = new Vector2(pos.X + accel, pos.Y);
+            }
             else if (pos.X < 0)
+            {
                 pos = new Vector2(1, pos.Y);
+            }
             else
+            {
                 pos = new Vector2(limits.col - model.width - 2, pos.Y);
+            }
 
             if (movingDir == Direction.Right)
             {
-                if (accel < 3)
-                    accel = 3;
-                else
-                    accel = accel < 6 ? accel + weight : 6;
+                accel = accel < 6 ? accel + weight : 6;
             }
             else if (movingDir == Direction.Left)
             {
-                if (accel > -3)
-                    accel = -3;
-                else
-                    accel = accel > -6 ? accel - weight : -6;
+                accel = accel > -6 ? accel - weight : -6;
             }
             else
-                accel = accel > 0 ? accel - weight : accel + weight;
-
+            {
+                accel += accel > 0 ? -weight : weight;
+                if (Math.Abs(accel) <= weight)
+                    accel = 0;
+            }
             return true;
         }
     }

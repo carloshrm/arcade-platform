@@ -95,14 +95,21 @@
                 breakCount += countBefore - row.Count;
                 return row.Count == 0;
             });
+
             if (nRowsCleared > 0 || breakCount >= 14)
             {
-                blocks.ForEach(r => r.ForEach(bk => bk.dropRow()));
-                blocks.Add(BlockFactory.makeRandomizedRow(limits, 0));
+                newBlockRow();
                 breakCount = 0;
                 s.turn++;
             }
+
             s.scoreValue += totalScore;
+        }
+
+        private void newBlockRow()
+        {
+            blocks.ForEach(r => r.ForEach(bk => bk.dropRow()));
+            blocks.Add(BlockFactory.makeRandomizedRow(limits, 0));
         }
 
         private void releasePowerup(PowerUp? pu)
@@ -171,6 +178,9 @@
 
         public void parseKeyDown(string input)
         {
+            if (input.Equals("z"))
+                newBlockRow();
+
             if (input.Equals("a") || input.Equals("ArrowLeft"))
                 player.movingDir = Direction.Left;
             if (input.Equals("d") || input.Equals("ArrowRight"))
@@ -203,11 +213,6 @@
         {
             fieldMessages.Add(msg);
             Task.Delay(TimeSpan.FromSeconds(5)).ContinueWith((task) => fieldMessages.Remove(msg));
-        }
-
-        public void updateGameState()
-        {
-            throw new NotImplementedException();
         }
 
     }

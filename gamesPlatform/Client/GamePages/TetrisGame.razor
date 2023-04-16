@@ -37,6 +37,8 @@
     private bool isMobile = false;
     private bool mobileMoveToggle = false;
 
+    private string textStyle = "16px \"Press Start 2P\"";
+
     public TetrisGame() : base(AppID.Tetris)
     {
         ///
@@ -45,6 +47,8 @@
     protected override async Task OnInitializedAsync()
     {
         isMobile = await jsRuntime.InvokeAsync<bool>("isMobile");
+        if (isMobile)
+            textStyle = "8px \"Press Start 2P\"";
         highScore = await scoreService.readLocalScore(_myID);
     }
 
@@ -55,8 +59,8 @@
             if (gameScreen != null)
             {
                 await gameScreen.setCanvasSize();
-                await gameScreen.canvasReference.SetFontAsync("16px \"Press Start 2P\"");
-                await gameScreen.canvasReference.SetFillStyleAsync("black");
+                await gameScreen.canvasReference.SetFontAsync(textStyle);
+                await gameScreen.canvasReference.SetFillStyleAsync("white");
                 game = new TetrisField(gameScreen.baseResolution);
             }
             gameControl.Interval = 1000;
@@ -84,7 +88,7 @@
     protected async override Task resetGame()
     {
         await jsRuntime.InvokeVoidAsync("setFocus");
-        if (gameControl.Enabled) 
+        if (gameControl.Enabled)
             toggleControlObjects();
         gameControl.Interval = 1000;
         currentScore = new Score(_myID);
@@ -119,14 +123,11 @@
     private string getUIText()
     {
         var uiInfo = new StringBuilder();
-        uiInfo.AppendLine($"Time: \n  {currentScore.runLength.ToString("mm\\:ss")}");
-        uiInfo.AppendLine();
-
+        uiInfo.AppendLine($"Time: \n  {currentScore.runLength.ToString("mm\\:ss")}\n");
         uiInfo.AppendLine($"Score:\n{currentScore.scoreValue}");
-        uiInfo.AppendLine($"{game.scoreMult} lines");
-        uiInfo.AppendLine();
-
-        uiInfo.AppendLine($"Best: \n  {highScore.scoreValue}");
+        uiInfo.AppendLine($"{game.scoreMult} lines\n");
+        uiInfo.AppendLine($"Best: \n  {highScore.scoreValue}\n");
+        uiInfo.AppendLine("Arrows\n  Move\nSpacebar\n  Drop");
         return uiInfo.ToString();
     }
 
@@ -138,15 +139,14 @@
         if (game.checkGameOver())
             await stopGame();
         gameControl.Interval = 1000 - ((game.scoreMult + 1) * 20);
-
     }
-
+     
     protected async override void drawGame(Object? o, ElapsedEventArgs e)
     {
         await gameScreen.canvasReference.BeginBatchAsync();
         await gameScreen.fillColor("black");
         await gameScreen.canvasReference.DrawImageAsync(gameScreen.assets[TetrisPlayerModel.player.spriteId], 0, 0, gameScreen.componentWidth, gameScreen.componentHeight);
-        await gameScreen.fillTextExtended(getUIText(), 20, 20, "16px \"Press Start 2P\"", "white", 10);
+        await gameScreen.fillTextExtended(getUIText(), gameScreen.componentWidth * 0.02, 20, textStyle, "white", 10);
 
         game.active.parts.ForEach(async p => await gameScreen.drawScaledSimpleObject(p));
 
@@ -159,7 +159,7 @@
             }
         }
 
-        await gameScreen.fillTextExtended("Next: ", gameScreen.componentWidth * 0.84, 20, "16px \"Press Start 2P\"", "white", 10);
+        await gameScreen.fillTextExtended("Next: ", gameScreen.componentWidth * 0.84, 20, textStyle, "white", 10);
         game.next.Peek().parts.ForEach(async pt => await gameScreen.drawScaledSimpleObject(pt));
         await gameScreen.canvasReference.EndBatchAsync();
     }

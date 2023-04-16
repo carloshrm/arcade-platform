@@ -17,7 +17,7 @@ namespace cmArcade.Shared.Breaker
         public Ball(float row, float col)
         {
             model = BallModel.breakerBall;
-            pos = new Vector2(col - (model.width / 2), row);
+            pos = new Vector2(col - (model.width / 2), row - 10);
             healthPoints = 0;
             spriteSelect = 0;
             movementVector = new Vector2(0, 0);
@@ -25,12 +25,12 @@ namespace cmArcade.Shared.Breaker
 
         public void follow(float c)
         {
-            movementVector = new Vector2(c - (model.width / 2), movementVector.Y);
+            pos = new Vector2(c - (model.width / 2), pos.Y);
         }
 
         public void shoot()
         {
-            movementVector = new Vector2(-4, 0);
+            movementVector = new Vector2(0, -4);
         }
 
         public void lockBreak()
@@ -44,6 +44,7 @@ namespace cmArcade.Shared.Breaker
 
         public async void bounce(int rDir, int cDir)
         {
+            await Console.Out.WriteLineAsync("bounce");
             if (!bouncingTimeout)
             {
                 bouncingTimeout = true;
@@ -56,7 +57,7 @@ namespace cmArcade.Shared.Breaker
 
         public void offsetVector(float accel)
         {
-            movementVector = new Vector2(accel / -10, movementVector.Y);
+            movementVector = new Vector2((float)Math.Floor(accel / -10), movementVector.Y);
         }
 
         public bool updatePosition((int row, int col) limits)
