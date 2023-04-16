@@ -178,9 +178,6 @@
 
         public void parseKeyDown(string input)
         {
-            if (input.Equals("z"))
-                newBlockRow();
-
             if (input.Equals("a") || input.Equals("ArrowLeft"))
                 player.movingDir = Direction.Left;
             if (input.Equals("d") || input.Equals("ArrowRight"))
