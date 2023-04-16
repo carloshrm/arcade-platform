@@ -2,6 +2,7 @@
 @inject IJSRuntime jsRuntime
 @inject IScoreService scoreService
 @implements IDisposable
+@inherits GamePage<BreakerField>
 @using cmArcade.Shared.Breaker
 
 <main id="main-content" @onkeydown:preventDefault="true">
@@ -34,15 +35,8 @@
 <img hidden src=@($"/img/genericAssets/heart.png") @ref=@(gameScreen.assets["heart"]) />
 
 @code {
-    private const AppID _myID = AppID.Breaker;
-    private BreakerField game;
-
     private GameCanvas? gameScreen;
-    private Score currentScore;
-    private Score highScore;
 
-    private Timer gameControl;
-    private Timer canvasRefresh;
     private DateTime? holdStart;
     private TimeSpan timeHeld;
 
@@ -50,12 +44,10 @@
 
     private bool isMobile = false;
     private bool mobileMoveToggle = false;
-    public BreakerGame()
+
+    public BreakerGame() : base(AppID.Breaker)
     {
-        gameControl = new Timer(1) { AutoReset = true, Enabled = false };
-        canvasRefresh = new Timer(1000 / 60) { AutoReset = true, Enabled = false };
-        currentScore = new Score(AppID.Breaker);
-        highScore = currentScore;
+        gameControl.Interval = 10;
         holdStart = null;
         timeHeld = TimeSpan.Zero;
     }
@@ -83,38 +75,32 @@
         }
     }
 
-    private void toggleControlObjects()
+    protected async override Task startGame()
     {
-        gameControl.Enabled = !gameControl.Enabled;
-        canvasRefresh.Enabled = !canvasRefresh.Enabled;
-    }
-
-    private void startGame()
-    {
-        jsRuntime.InvokeVoidAsync("setFocus");
+        await jsRuntime.InvokeVoidAsync("setFocus");
         if (gameControl.Enabled)
             return;
         else
         {
             if (currentScore.scoreValue > 0)
-                resetGame();
+                await resetGame();
             currentScore.turn = 1;
             currentScore.runStart = DateTime.Now;
             toggleControlObjects();
         }
     }
 
-    private void resetGame()
+    protected override async Task resetGame()
     {
-        jsRuntime.InvokeVoidAsync("setFocus");
+        await jsRuntime.InvokeVoidAsync("setFocus");
         if (gameControl.Enabled) toggleControlObjects();
         currentScore = new Score(_myID);
         game = new BreakerField(gameScreen!.getDimensions());
         gameOver = false;
-        gameScreen.clear();
+        await gameScreen.clear();
     }
 
-    private void stopGame()
+    protected override async Task stopGame()
     {
         gameOver = true;
         toggleControlObjects();
@@ -122,7 +108,7 @@
         if (currentScore.scoreValue > highScore.scoreValue)
         {
             highScore = currentScore;
-            scoreService.setLocalScore(highScore);
+            await scoreService.setLocalScore(highScore);
         }
         StateHasChanged();
     }
@@ -147,7 +133,7 @@
         return text.ToString();
     }
 
-    private async void runGame(Object? o, ElapsedEventArgs e)
+    protected async override void runGame(Object? o, ElapsedEventArgs e)
     {
         game.updateGameState(currentScore);
         if (game.ballOnHold)
@@ -164,10 +150,11 @@
             }
             currentScore.runLength = (DateTime.Now - timeHeld) - currentScore.runStart;
         }
-        if (game.checkGameOver()) stopGame();
+        if (game.checkGameOver()) 
+            await stopGame();
     }
 
-    private async void drawGame(Object? o, ElapsedEventArgs e)
+    protected async override void drawGame(Object? o, ElapsedEventArgs e)
     {
         await gameScreen.canvasReference.BeginBatchAsync();
         await gameScreen.fillColor("black");
@@ -189,10 +176,8 @@
         await gameScreen.canvasReference.EndBatchAsync();
     }
 
-    public void Dispose()
+    public override void DisposeHarder()
     {
         gameScreen?.Dispose();
-        gameControl.Dispose();
-        canvasRefresh.Dispose();
     }
 }
