@@ -1,10 +1,10 @@
 ﻿namespace cmArcade.Shared.Invaders
 {
-    public class Space
+    public class Space : IGameField
     {
         private static Random rng = new Random();
         private int invaderShotCount = 0;
-        public const int baseScore = 8;
+        public readonly int baseScore = 8;
         public double difficultyRatio = 1;
         public bool isNextRound = false;
 
@@ -15,6 +15,8 @@
         public bool specialIsActive { get; set; }
         public List<FieldBarrier> barriers { get; set; }
         public List<LaserShot> shotsFired { get; set; }
+
+        public string uiMessage { get; private set; }
 
         public Space((int row, int col) limits)
         {
@@ -28,13 +30,14 @@
             setupBarriers();
         }
 
-        public void nextRound(int diffUp)
+        public Object getPlayer()
         {
-            difficultyRatio += diffUp / 10.0;
+            return player;
         }
 
-        public void updateGameState()
+        public void updateGameState(Score s)
         {
+            Console.WriteLine("game logic");
             hitDetection();
             player.updatePosition(limits);
             updateSpecialInvader();
@@ -139,8 +142,9 @@
                 player.movingDir = Direction.Zero;
         }
 
-        public void updateSpaceState()
+        public void updateInvaderState()
         {
+            Console.WriteLine("invader state");
             shotsFired.RemoveAll(s => s.pos.Y <= 0 || s.pos.Y >= limits.row || s.hitSomething);
             invaderShotCount = shotsFired.Count(x => !x.fromPlayer);
 
@@ -244,6 +248,16 @@
                     }
                 }
             }
+        }
+
+        public void setMessage(string msg)
+        {
+            uiMessage = msg;
+        }
+
+        public void setScoreMultiplier(int val)
+        {
+            difficultyRatio += val / 10.0;
         }
     }
 }
