@@ -159,20 +159,12 @@ namespace cmArcade.Shared.Tetris
 
         public void updateGameState(Score s)
         {
-            // TODO  - build UI, constraint playing field to 80%
-            // TODO show score string, show next blocks
-
             if (checkBottomCollision(active) is false)
                 active.step(VecDirection.Down);
             else
                 settleActive();
 
             s.scoreValue += searchLines();
-            // move blocks down
-            // settle block on bottom
-            // check for lines
-            // score
-            // spawn a new block
         }
 
         private void settleActive()
