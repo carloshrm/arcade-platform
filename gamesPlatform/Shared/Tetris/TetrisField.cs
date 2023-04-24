@@ -164,7 +164,9 @@ namespace cmArcade.Shared.Tetris
             else
                 settleActive();
 
-            s.scoreValue += searchLines();
+            int completedLines = searchLines();
+            scoreMult += completedLines;
+            s.scoreValue += baseScore * scoreMult * completedLines;
         }
 
         private void settleActive()
@@ -189,26 +191,30 @@ namespace cmArcade.Shared.Tetris
                         break;
                     }
                 }
-
+                // TODO - search for block colors 
                 if (lineFormed)
                 {
                     lineCount++;
-                    int k = i;
-                    while (k > 0)
-                    {
-                        for (int j = activeEdges + 1; j < limits.col - activeEdges; j++)
-                        {
-                            field[k][j] = field[k - 1][j];
-                            if (field[k][j] != null)
-                                field[k][j].pos = new Vector2(j, k);
-                        }
-                        k--;
-                    }
+                    dropLine(i);
                 }
 
             }
-            scoreMult += lineCount;
-            return baseScore * scoreMult * lineCount;
+            return lineCount;
+        }
+
+        private void dropLine(int line)
+        {
+            int k = line;
+            while (k > 0)
+            {
+                for (int j = activeEdges + 1; j < limits.col - activeEdges; j++)
+                {
+                    field[k][j] = field[k - 1][j];
+                    if (field[k][j] != null)
+                        field[k][j].pos = new Vector2(j, k);
+                }
+                k--;
+            }
         }
     }
 }
