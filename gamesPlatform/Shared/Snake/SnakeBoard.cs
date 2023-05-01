@@ -77,7 +77,6 @@ namespace cmArcade.Shared
                 return false;
             else
             {
-                Console.WriteLine(player.pos + "abcd   " + food.pos);
                 if (player.pos == food.pos)
                 {
                     ateFood.Invoke(this, EventArgs.Empty);
