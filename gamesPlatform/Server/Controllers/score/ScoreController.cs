@@ -26,8 +26,8 @@ namespace cmArcade.Server.Controllers
             {
                 appid = s.appID,
                 scorevalue = s.scoreValue,
-                runStart = s.runStart,
-                runLength = s.runLength,
+                runstart = s.runStart,
+                runlength = s.runLength,
                 nickname = s.nickname,
                 turn = s.turn
             };
