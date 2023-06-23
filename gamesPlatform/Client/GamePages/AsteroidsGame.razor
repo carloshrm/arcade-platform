@@ -1,10 +1,10 @@
-﻿@page "/tetris"
+﻿@page "/asteroids"
+
 @inject IJSRuntime jsRuntime
 @inject IScoreService scoreService
 @implements IDisposable
-@inherits GamePage<TetrisField>
-@using cmArcade.Shared
-@using cmArcade.Shared.Tetris
+@inherits GamePage<AsteroidsField>
+@using cmArcade.Shared.Asteroids
 
 <main id="main-content" @onkeydown:preventDefault="true">
     <div id="game-controls">
@@ -13,7 +13,7 @@
     </div>
     <div id="game-container" tabindex="0" @onkeydown=@((e) => keyDownInputHandler(e.Key)) @onkeyup=@((e) => keyUpInputHandler(e.Key))>
         <GameCanvas @ref=gameScreen appID=_myID />
-        @if (currentScore?.turn > 0 && !gameControl.Enabled)
+        @if (currentScore?.turn > 0 && gameOver)
         {
             <PostGameView currentScore=currentScore highScore=highScore app=_myID />
         }
@@ -23,9 +23,6 @@
         <TouchDPad clickCallback=keyDownInputHandler releaseCallback=keyUpInputHandler />
     }
 </main>
-
-<img hidden src=@($"/img/tetrisAssets/tetrisField.png") @ref=@(gameScreen.assets[TetrisPlayerModel.player.spriteId]) />
-
 @code {
     private GameCanvas? gameScreen;
 
@@ -36,9 +33,10 @@
 
     private string textStyle = "16px \"Press Start 2P\"";
 
-    public TetrisGame() : base(AppID.Tetris)
+    public AsteroidsGame() : base(AppID.Asteroids)
     {
-        ///
+        gameControl.Interval = 10;
+
     }
 
     protected override async Task OnInitializedAsync()
@@ -58,9 +56,9 @@
                 await gameScreen.setCanvasSize();
                 await gameScreen.canvasReference.SetFontAsync(textStyle);
                 await gameScreen.canvasReference.SetFillStyleAsync("white");
-                game = new TetrisField(gameScreen.baseResolution);
+                game = new AsteroidsField(gameScreen!.getDimensions());
             }
-            gameControl.Interval = 1000;
+            gameControl.Interval = 100;
             gameControl.Elapsed += runGame;
             canvasRefresh.Elapsed += drawGame;
             StateHasChanged();
@@ -82,16 +80,14 @@
         }
     }
 
-    protected async override Task resetGame()
+    protected override async Task resetGame()
     {
         await jsRuntime.InvokeVoidAsync("setFocus");
-        if (gameControl.Enabled)
-            toggleControlObjects();
-        gameControl.Interval = 1000;
+        if (gameControl.Enabled) toggleControlObjects();
         currentScore = new Score(_myID);
-        game = new TetrisField(gameScreen.baseResolution);
+        game = new AsteroidsField(gameScreen!.getDimensions());
         gameOver = false;
-        gameScreen?.clear();
+        await gameScreen.clear();
     }
 
     protected override async Task stopGame()
@@ -119,44 +115,22 @@
 
     private string getUIText()
     {
-        var uiInfo = new StringBuilder();
-        uiInfo.AppendLine($"Time: \n  {currentScore.runLength.ToString("mm\\:ss")}\n");
-        uiInfo.AppendLine($"Score:\n{currentScore.scoreValue}");
-        uiInfo.AppendLine($"{game.scoreMult} lines\n");
-        uiInfo.AppendLine($"Best: \n  {highScore.scoreValue}\n");
-        uiInfo.AppendLine("Arrows\n  Move\nSpacebar\n  Drop");
-        return uiInfo.ToString();
+        return "ui text";
     }
 
     protected async override void runGame(Object? o, ElapsedEventArgs e)
     {
         currentScore.turn += 1;
         game.updateGameState(currentScore);
+
         if (game.checkGameOver())
             await stopGame();
-        gameControl.Interval = 1000 - ((game.scoreMult + 1) * 20);
     }
-     
+
     protected async override void drawGame(Object? o, ElapsedEventArgs e)
     {
         await gameScreen.canvasReference.BeginBatchAsync();
-        await gameScreen.fillColor("black");
-        await gameScreen.canvasReference.DrawImageAsync(gameScreen.assets[TetrisPlayerModel.player.spriteId], 0, 0, gameScreen.componentWidth, gameScreen.componentHeight);
-        await gameScreen.fillTextExtended(getUIText(), gameScreen.componentWidth * 0.02, 20, textStyle, "white", 10);
 
-        game.active.parts.ForEach(async p => await gameScreen.drawScaledSimpleObject(p));
-
-        for (int i = 0; i < game.field.Length; i++)
-        {
-            for (int j = 0; j < game.field[i].Length; j++)
-            {
-                if (game.field[i][j] != null)
-                    await gameScreen.drawScaledSimpleObject(game.field[i][j]);
-            }
-        }
-
-        await gameScreen.fillTextExtended("Next: ", gameScreen.componentWidth * 0.84, 20, textStyle, "white", 10);
-        game.next.Peek().parts.ForEach(async pt => await gameScreen.drawScaledSimpleObject(pt));
         await gameScreen.canvasReference.EndBatchAsync();
     }
 
