@@ -1,23 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace cmArcade.Shared.Asteroids;
-
-public class Asteroid
-{
-    public Vector2 pos { get; set; }
-    public int healthPoints { get; set; }
-
-    public Asteroid((int row, int col) initialPos, int hp = 1)
-    {
-        pos = new Vector2(initialPos.col, initialPos.row);
-        healthPoints = hp;
-    }
-}
 
 public class AsteroidsField : IGameField
 {
@@ -28,33 +15,30 @@ public class AsteroidsField : IGameField
     public string uiMessage { get; set; } = string.Empty;
     public int scoreMult { get; set; } = 1;
 
-    private int difficulty = 1;
-    private readonly int asteroidCount = 8;
+    private readonly int asteroidLimit = 8;
     private readonly int baseScore = 3;
 
     private PlayerShip player { get; set; }
-    private List<Asteroid> asteroids { get; set; }
+    public List<Asteroid> asteroids { get; set; }
 
-    public AsteroidsField((int row, int col) limits, int difficulty)
+    public AsteroidsField((int row, int col) limits)
     {
         player = new PlayerShip((limits.row / 2, limits.col / 2));
-        this.difficulty = difficulty;
-
+        asteroids = GenerateField();
         // spawn randomized asteroid field
-
         // add float movement
-
     }
 
     private List<Asteroid> GenerateField()
     {
         var field = new List<Asteroid>();
-        int posOffset = (int)Math.Ceiling(limits.col * 0.05);
-        int posScale = limits.col / 10;
-        for (int i = 1; i <= asteroidCount; i++)
-        {
-            field.Add(new Asteroid((posScale * i));
-        }
+
+        field.Add(new Asteroid((200, 200)));
+        field.Add(new Asteroid((200, 600)));
+        field.Add(new Asteroid((600, 200)));
+        field.Add(new Asteroid((600, 600)));
+
+        return field;
     }
 
     public bool checkGameOver()
@@ -77,9 +61,42 @@ public class AsteroidsField : IGameField
         // TODO
     }
 
+    public void parseKeyDown(string input)
+    {
+        switch (input)
+        {
+            case "ArrowUp":
+            case "w":
+                player.movement = VecDirection.Up;
+                break;
+            case "ArrowDown":
+            case "s":
+                player.movement = VecDirection.Down;
+                break;
+            case "ArrowLeft":
+            case "a":
+                player.movement = VecDirection.Left;
+                break;
+            case "ArrowRight":
+            case "d":
+                player.movement = VecDirection.Right;
+                break;
+            case " ":
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void parseKeyUp(string dir)
+    {
+        // 
+    }
+
     public void updateGameState(Score s)
     {
-        
+        Console.WriteLine("update");
+        player.updatePosition(limits);
         // ship movement, spin
         // shots
         // hit detection

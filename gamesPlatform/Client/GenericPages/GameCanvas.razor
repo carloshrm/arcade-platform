@@ -86,7 +86,6 @@
 
     public async Task drawScaledSimpleObject(ISimpleGameObject obj)
     {
-
         var previousStyle = canvasReference.FillStyle;
         await canvasReference.SetFillStyleAsync(obj.model.color);
         await canvasReference.FillRectAsync(obj.pos.X * scaleFactor.c, obj.pos.Y * scaleFactor.r, scaleFactor.c, scaleFactor.r);

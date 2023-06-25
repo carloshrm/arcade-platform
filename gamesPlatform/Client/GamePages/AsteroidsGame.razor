@@ -23,6 +23,10 @@
         <TouchDPad clickCallback=keyDownInputHandler releaseCallback=keyUpInputHandler />
     }
 </main>
+
+<img hidden src=@($"/img/asteroidsAssets/{ShipModel.player.spriteId}.png") @ref=@(gameScreen.assets[ShipModel.player.spriteId]) />
+<img hidden src=@($"/img/asteroidsAssets/{AsteroidModel.asteroidModels.First().spriteId}.png") @ref=@(gameScreen.assets[AsteroidModel.asteroidModels.First().spriteId]) />
+
 @code {
     private GameCanvas? gameScreen;
 
@@ -130,7 +134,9 @@
     protected async override void drawGame(Object? o, ElapsedEventArgs e)
     {
         await gameScreen.canvasReference.BeginBatchAsync();
-
+        await gameScreen.fillColor("black");
+        await gameScreen.drawObject((PlayerShip) game.getPlayer());
+        await gameScreen.drawSet(game.asteroids);
         await gameScreen.canvasReference.EndBatchAsync();
     }
 
