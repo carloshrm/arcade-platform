@@ -67,19 +67,19 @@ public class AsteroidsField : IGameField
         {
             case "ArrowUp":
             case "w":
-                player.movement = VecDirection.Up;
+                player.Thrust();
                 break;
             case "ArrowDown":
             case "s":
-                player.movement = VecDirection.Down;
+                player.Thrust(false);
                 break;
             case "ArrowLeft":
             case "a":
-                player.movement = VecDirection.Left;
+                player.Rotate();
                 break;
             case "ArrowRight":
             case "d":
-                player.movement = VecDirection.Right;
+                player.Rotate();
                 break;
             case " ":
                 break;

@@ -24,7 +24,6 @@
     }
 </main>
 
-<img hidden src=@($"/img/asteroidsAssets/{ShipModel.player.spriteId}.png") @ref=@(gameScreen.assets[ShipModel.player.spriteId]) />
 <img hidden src=@($"/img/asteroidsAssets/{AsteroidModel.asteroidModels.First().spriteId}.png") @ref=@(gameScreen.assets[AsteroidModel.asteroidModels.First().spriteId]) />
 
 @code {
@@ -62,7 +61,7 @@
                 await gameScreen.canvasReference.SetFillStyleAsync("white");
                 game = new AsteroidsField(gameScreen!.getDimensions());
             }
-            gameControl.Interval = 100;
+            gameControl.Interval = 1000;
             gameControl.Elapsed += runGame;
             canvasRefresh.Elapsed += drawGame;
             StateHasChanged();
@@ -124,7 +123,7 @@
 
     protected async override void runGame(Object? o, ElapsedEventArgs e)
     {
-        currentScore.turn += 1;
+        //currentScore.turn += 1;
         game.updateGameState(currentScore);
 
         if (game.checkGameOver())
@@ -135,7 +134,9 @@
     {
         await gameScreen.canvasReference.BeginBatchAsync();
         await gameScreen.fillColor("black");
-        await gameScreen.drawObject((PlayerShip) game.getPlayer());
+
+        ((PlayerShip)game.getPlayer()).getParts().ForEach(async p => await gameScreen.drawScaledSimpleObject(p));
+
         await gameScreen.drawSet(game.asteroids);
         await gameScreen.canvasReference.EndBatchAsync();
     }

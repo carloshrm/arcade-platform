@@ -8,16 +8,16 @@ using System.Threading.Tasks;
 
 namespace cmArcade.Shared.Asteroids;
 
-public class ShipModel : GraphicAsset
+public class ShipModel : CanvasRenderedAsset
 {
-    public override string spriteId { get; set; }
-    public override int width { get; init; }
-    public override int height { get; init; }
+    public override string color { get; init; }
+    public override float width { get; init; }
+    public override float height { get; init; }
 
     public static readonly ShipModel player = new ShipModel
     {
-        spriteId = "assship",
+        color = "white",
         width = 10,
-        height = 30,
+        height = 15,
     };
 }
