@@ -67,18 +67,6 @@ namespace cmArcade.Shared.Tetris
 
         public void spin()
         {
-            // Using an R2 rotation matrix, but with the origin on the -1 block from the model shape array
-            // cos(t)   -sin(t) | x
-            // sin(t)   cos(t)  | y
-
-            // simplify with cos90deg = 0, sin90deg = 1
-            // x` = x cos90 - y sin90
-            // y' = x sin90 + y cos90
-
-            // origin (a, b)
-            // x` = a - (y - b) 
-            // y' = b + (x - a)
-
             var pvt = active.parts.Find(part => part.isPivot).pos;
 
             var prevState = new Vector2[active.parts.Count];

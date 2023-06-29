@@ -61,7 +61,7 @@
                 await gameScreen.canvasReference.SetFillStyleAsync("white");
                 game = new AsteroidsField(gameScreen!.getDimensions());
             }
-            gameControl.Interval = 1000;
+            gameControl.Interval = 100;
             gameControl.Elapsed += runGame;
             canvasRefresh.Elapsed += drawGame;
             StateHasChanged();

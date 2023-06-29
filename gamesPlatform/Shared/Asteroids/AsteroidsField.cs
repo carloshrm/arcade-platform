@@ -79,7 +79,7 @@ public class AsteroidsField : IGameField
                 break;
             case "ArrowRight":
             case "d":
-                player.Rotate();
+                player.Rotate(true);
                 break;
             case " ":
                 break;
@@ -90,7 +90,17 @@ public class AsteroidsField : IGameField
 
     public void parseKeyUp(string dir)
     {
-        // 
+        switch (dir)
+        {
+            case "ArrowLeft":
+            case "a":
+            case "ArrowRight":
+            case "d":
+                player.StopRotation();
+                break;
+            default:
+                break;
+        }
     }
 
     public void updateGameState(Score s)

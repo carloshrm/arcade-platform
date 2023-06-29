@@ -124,7 +124,7 @@
         uiInfo.AppendLine($"Score:\n{currentScore.scoreValue}");
         uiInfo.AppendLine($"{game.scoreMult} lines\n");
         uiInfo.AppendLine($"Best: \n  {highScore.scoreValue}\n");
-        uiInfo.AppendLine("Arrows\n  Move\nSpacebar\n  Drop");
+        uiInfo.AppendLine("Left-Right:\n  Move\nUp: \nSpin \nSpacebar:\n  Drop");
         return uiInfo.ToString();
     }
 
@@ -134,6 +134,7 @@
         game.updateGameState(currentScore);
         if (game.checkGameOver())
             await stopGame();
+
         gameControl.Interval = 1000 - ((game.scoreMult + 1) * 20);
     }
      
