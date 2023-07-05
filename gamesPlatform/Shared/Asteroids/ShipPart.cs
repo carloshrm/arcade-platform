@@ -2,10 +2,11 @@
 
 namespace cmArcade.Shared.Asteroids;
 
-public class ShipPart : ISimpleGameObject
+public class ShipPart : ISimpleVectorialObject
 {
-    public CanvasRenderedAsset model { get; set; } = ShipModel.player;
     public Vector2 pos { get; set; }
+
+    public CanvasRenderedVectorial model { get; set; } = ShipModel.player;
 
     public ShipPart(float x, float y)
     {
