@@ -14,15 +14,17 @@ public class PlayerShip
 
     private double momentum { get; set; } = 0;
     private Vector2 movingDir { get; set; }
-    private readonly double decel = -0.02;
-    private readonly double accel = -0.2;
+    private readonly double decel = 0.02;
+    private readonly double accel = 0.2;
+    private readonly double maxSpeed = 6;
+    private double thrust = 0;
 
     public int healthPoints { get; set; } = 3;
 
     public PlayerShip((int row, int col) initialPos)
     {
-        hull = new ShipPart(initialPos.col, initialPos.row);
-        head = new ShipPart(initialPos.col, initialPos.row + hull.model.objHeight);
+        hull = new ShipPart(initialPos.col, initialPos.row) { model = ShipModel.hull };
+        head = new ShipPart(initialPos.col, initialPos.row + hull.model.objHeight) { model = ShipModel.head };
         movingDir = new Vector2(0, 0);
     }
 
@@ -30,14 +32,14 @@ public class PlayerShip
     {
         if (fw)
         {
-            if (momentum < 6)
+            if (momentum < maxSpeed)
                 momentum += accel;
 
-            var dir = Vector2.Multiply(movingDir, (float)momentum) - (head.pos - hull.pos);
-            movingDir = new Vector2(dir.X / dir.Length(), dir.Y / dir.Length());
+            var dir = Vector2.Normalize(movingDir - (head.pos - hull.pos));
+            movingDir = Vector2.Normalize(Vector2.Add(dir, movingDir));
         } else
         {
-            if (momentum > 0)
+            if (momentum > -maxSpeed)
                 momentum -= accel;
         }
     }
@@ -57,11 +59,18 @@ public class PlayerShip
     {
         // cos(t)   -sin(t) | x
         // sin(t)   cos(t)  | y
-        var angle = rotateCw ? rotateAngle : -rotateAngle;
-        Vector2 center = head.pos - hull.pos;
+        double angle = rotateCw ? rotateAngle : -rotateAngle;
+        head.pos = RotateVector(hull.pos, head.pos, angle);
+        head.model.points = head.model.points.Select(p => RotateVector(new Vector2(0), p, angle));
+        hull.model.points = hull.model.points.Select(p => RotateVector(new Vector2(0), p, angle));
+    }
+
+    private Vector2 RotateVector(Vector2 rf, Vector2 vec, double angle)
+    {
+        Vector2 center = vec - rf;
         double x = center.X * Math.Cos(angle) - center.Y * Math.Sin(angle);
         double y = center.X * Math.Sin(angle) + center.Y * Math.Cos(angle);
-        head.pos = new Vector2((float)x + hull.pos.X, (float)y + hull.pos.Y);
+        return new Vector2((float)x + rf.X, (float)y + rf.Y);
     }
 
     public void updatePosition((int row, int col) limits)
@@ -70,8 +79,8 @@ public class PlayerShip
             ApplyRotation();
 
         var dirVec = Vector2.Multiply(movingDir, (float)momentum);
-        head.pos += dirVec;
-        hull.pos += dirVec;
+        head.pos -= dirVec;
+        hull.pos -= dirVec;
 
         if (momentum != 0)
         {

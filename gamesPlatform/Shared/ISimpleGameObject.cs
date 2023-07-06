@@ -1,10 +1,9 @@
 ﻿using System.Numerics;
 
-namespace cmArcade.Shared
+namespace cmArcade.Shared;
+
+public interface ISimpleGameObject
 {
-    public interface ISimpleGameObject
-    {
-        CanvasRenderedAsset model { get; set; }
-        Vector2 pos { get; set; }
-    }
+    CanvasRenderedAsset model { get; set; }
+    Vector2 pos { get; set; }
 }

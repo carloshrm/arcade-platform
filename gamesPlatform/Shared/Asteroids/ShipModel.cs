@@ -13,22 +13,39 @@ public class ShipModel : CanvasRenderedVectorial
 {
     public override string lnColor { get; init; }
     public override float lnWidth { get; init; }
-    public override List<Vector2> points { get; init; }
+    public override IEnumerable<Vector2> points { get; set; }
     public override float objWidth { get; init; }
     public override float objHeight { get; init; }
 
-    public static readonly ShipModel player = new ShipModel
+    public static readonly ShipModel head = new ShipModel
     {
-        lnColor = "green",
-        lnWidth = 4,
+        lnColor = "red",
+        lnWidth = 2,
         points = new List<Vector2>
         {
+            new Vector2(0, 14),
             new Vector2(10, 0),
             new Vector2(-10, 0),
-            new Vector2(0, 10),
+        },
+        objHeight = 14,
+        objWidth = 10,
+    };
+
+    public static readonly ShipModel hull = new ShipModel
+    {
+        lnColor = "red",
+        lnWidth = 2,
+        points = new List<Vector2>
+        {
+            new Vector2(10, 10),
+            new Vector2(-10, 10),
+            new Vector2(-14, -10),
+            new Vector2(-6, -2),
             new Vector2(0, -10),
+            new Vector2(6, -2),
+            new Vector2(14, -10),
         },
         objHeight = 10,
-        objWidth = 10,
+        objWidth = 14,
     };
 }
