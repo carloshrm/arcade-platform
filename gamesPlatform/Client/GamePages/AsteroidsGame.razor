@@ -25,7 +25,7 @@
 </main>
 
 <img hidden src=@($"/img/asteroidsAssets/{AsteroidModel.asteroidModels.First().spriteId}.png") @ref=@(gameScreen.assets[AsteroidModel.asteroidModels.First().spriteId]) />
-<img hidden src=@($"/img/asteroidsAssets/{ShipModel.player.spriteId}.png") @ref=@(gameScreen.assets[ShipModel.player.spriteId]) />
+@*<img hidden src=@($"/img/asteroidsAssets/{ShipModel.player.spriteId}.png") @ref=@(gameScreen.assets[ShipModel.player.spriteId]) />*@
 
 @code {
     private GameCanvas? gameScreen;
@@ -135,7 +135,7 @@
         await gameScreen.canvasReference.BeginBatchAsync();
         await gameScreen.fillColor("black");
 
-        ((PlayerShip)game.getPlayer()).getParts().ForEach(async p => await gameScreen.drawObject(p, p.pos));
+        ((PlayerShip)game.getPlayer()).getParts().ForEach(async p => await gameScreen.drawVectorial(p));
 
         await gameScreen.drawSet(game.asteroids);
         await gameScreen.canvasReference.EndBatchAsync();

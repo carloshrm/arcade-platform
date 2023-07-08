@@ -136,6 +136,25 @@
         }
     }
 
+    public async Task drawVectorial(ISimpleVectorialObject obj)
+    {
+        await canvasReference.BeginPathAsync();
+        await canvasReference.SetLineWidthAsync(obj.model.lnWidth);
+        await canvasReference.SetStrokeStyleAsync(obj.model.lnColor);
+        bool first = true;
+        foreach (var pt in obj.model.points)
+        {
+            if (first)
+            {
+                await canvasReference.MoveToAsync(pt.X + obj.pos.X, pt.Y + obj.pos.Y);
+                first = false;
+            }
+            await canvasReference.LineToAsync(pt.X + obj.pos.X, pt.Y + obj.pos.Y);
+        }
+        await canvasReference.ClosePathAsync();
+        await canvasReference.StrokeAsync();
+    }
+
     public async Task drawSet(IEnumerable<IGameObject> list)
     {
         foreach (var o in list)
