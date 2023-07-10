@@ -2,24 +2,22 @@
 
 namespace cmArcade.Shared.Asteroids;
 
-public class Asteroid : IGameObject
+public class Asteroid : ISimpleVectorialObject
 {
+    public CanvasRenderedVectorial model { get; set; }
     public Vector2 pos { get; set; }
-    public int healthPoints { get; set; }
 
-    public List<GraphicAsset>? decals { get; set; }
-    public GraphicAsset model { get; set; }
-    public int spriteSelect { get; set; } = 1;
+    public Vector2 floatDir { get; set; }    
 
     public Asteroid((int row, int col) initialPos, int hp = 1)
     {
         pos = new Vector2(initialPos.col, initialPos.row);
-        healthPoints = hp;
-        model = AsteroidModel.asteroidModels.First();
+        model = AsteroidModel.GenerateRandomAsteroid();
     }
 
-    public bool updatePosition((int row, int col) limits)
+    public void UpdatePosition(int xEdge, int yEdge)
     {
-        throw new NotImplementedException();
+
     }
+
 }

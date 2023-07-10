@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,7 +16,7 @@ public class AsteroidsField : IGameField
     public string uiMessage { get; set; } = string.Empty;
     public int scoreMult { get; set; } = 1;
 
-    private readonly int asteroidLimit = 8;
+    private readonly int asteroidLimit = 5;
     private readonly int baseScore = 3;
 
     private PlayerShip player { get; set; }
@@ -33,10 +34,11 @@ public class AsteroidsField : IGameField
     {
         var field = new List<Asteroid>();
 
-        field.Add(new Asteroid((200, 200)));
-        field.Add(new Asteroid((200, 600)));
-        field.Add(new Asteroid((600, 200)));
-        field.Add(new Asteroid((600, 600)));
+        int astCount = asteroidLimit;
+        //while (astCount-- > 0)
+        //{
+            field.Add(new Asteroid((300, 600)));
+        //}
 
         return field;
     }
@@ -65,6 +67,10 @@ public class AsteroidsField : IGameField
     {
         switch (input)
         {
+            case "Space":
+            case " ":
+                player.Fire();
+                break;
             case "ArrowUp":
             case "w":
                 player.Thrust();
@@ -80,8 +86,6 @@ public class AsteroidsField : IGameField
             case "ArrowRight":
             case "d":
                 player.Rotate(true);
-                break;
-            case " ":
                 break;
             default:
                 break;

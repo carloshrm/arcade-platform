@@ -24,7 +24,7 @@
     }
 </main>
 
-<img hidden src=@($"/img/asteroidsAssets/{AsteroidModel.asteroidModels.First().spriteId}.png") @ref=@(gameScreen.assets[AsteroidModel.asteroidModels.First().spriteId]) />
+@*<img hidden src=@($"/img/asteroidsAssets/{AsteroidModel.asteroidModels.First().spriteId}.png") @ref=@(gameScreen.assets[AsteroidModel.asteroidModels.First().spriteId]) />*@
 @*<img hidden src=@($"/img/asteroidsAssets/{ShipModel.player.spriteId}.png") @ref=@(gameScreen.assets[ShipModel.player.spriteId]) />*@
 
 @code {
@@ -135,9 +135,14 @@
         await gameScreen.canvasReference.BeginBatchAsync();
         await gameScreen.fillColor("black");
 
-        ((PlayerShip)game.getPlayer()).getParts().ForEach(async p => await gameScreen.drawVectorial(p));
+        var ship = ((PlayerShip)game.getPlayer());
+        ship.getParts().ForEach(async p => await gameScreen.drawVectorial(p));
 
-        await gameScreen.drawSet(game.asteroids);
+        await gameScreen.canvasReference.SetFillStyleAsync("red");
+        foreach (var s in ship.shots)
+            await gameScreen.canvasReference.FillRectAsync(s.pos.X, s.pos.Y, 10, 10);
+
+        game.asteroids.ForEach(async a => await gameScreen.drawVectorial(a));
         await gameScreen.canvasReference.EndBatchAsync();
     }
 

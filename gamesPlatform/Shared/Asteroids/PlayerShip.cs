@@ -1,12 +1,19 @@
 ﻿using System.Net.WebSockets;
 using System.Numerics;
 
+using Timer = System.Timers.Timer;
+
 namespace cmArcade.Shared.Asteroids;
 
+public class Shot
+{
+    public Vector2 pos { get; set; }
+    public Vector2 dir { get; set; }
+}
 public class PlayerShip
 {
     private double rotateAngle = Math.PI * 5 / 180;
-    private bool rotate = false;
+    private bool isRotating = false;
     private bool rotateCw = false;
 
     private ShipPart hull { get; set; }
@@ -17,15 +24,30 @@ public class PlayerShip
     private readonly double decel = 0.02;
     private readonly double accel = 0.2;
     private readonly double maxSpeed = 6;
-    private double thrust = 0;
 
     public int healthPoints { get; set; } = 3;
+    public List<Shot> shots { get; set; }
+
+    private Timer shotCooldown { get; init; }
+    private readonly double cooldownVal = 350;
 
     public PlayerShip((int row, int col) initialPos)
     {
         hull = new ShipPart(initialPos.col, initialPos.row) { model = ShipModel.hull };
         head = new ShipPart(initialPos.col, initialPos.row + hull.model.objHeight) { model = ShipModel.head };
         movingDir = new Vector2(0, 0);
+        shots = new List<Shot>();
+        shotCooldown = new Timer() { AutoReset = false, Enabled = false, Interval = cooldownVal };
+    }
+
+    public void Fire()
+    {
+        if (!shotCooldown.Enabled && shots.Count() <= 4)
+        {
+            shots.Add(new Shot() { pos = head.pos, dir = head.pos - hull.pos });
+            Console.WriteLine("fire" + shots.Count());
+            shotCooldown.Start();
+        }
     }
 
     public void Thrust(bool fw = true)
@@ -47,12 +69,12 @@ public class PlayerShip
     public void Rotate(bool cw = false)
     {
         rotateCw = cw;
-        rotate = true;
+        isRotating = true;
     }
 
     public void StopRotation()
     {
-        rotate = false;
+        isRotating = false;
     }
 
     private void ApplyRotation()
@@ -75,12 +97,14 @@ public class PlayerShip
 
     public void updatePosition((int row, int col) limits)
     {
-        if (rotate)
+        if (isRotating)
             ApplyRotation();
 
         var dirVec = Vector2.Multiply(movingDir, (float)momentum);
         head.pos -= dirVec;
         hull.pos -= dirVec;
+
+        shots.ForEach(s => s.pos += s.dir);
 
         if (momentum != 0)
         {
