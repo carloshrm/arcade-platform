@@ -9,9 +9,9 @@ public class Asteroid : ISimpleVectorialObject
 
     public Vector2 floatDir { get; set; }    
 
-    public Asteroid((int row, int col) initialPos, int hp = 1)
+    public Asteroid(Vector2 pos)
     {
-        pos = new Vector2(initialPos.col, initialPos.row);
+        this.pos = pos;
         model = AsteroidModel.GenerateRandomAsteroid();
     }
 

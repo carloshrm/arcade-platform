@@ -24,6 +24,7 @@ public class AsteroidsField : IGameField
 
     public AsteroidsField((int row, int col) limits)
     {
+        this.limits = limits;
         player = new PlayerShip((limits.row / 2, limits.col / 2));
         asteroids = GenerateField();
         // spawn randomized asteroid field
@@ -35,10 +36,16 @@ public class AsteroidsField : IGameField
         var field = new List<Asteroid>();
 
         int astCount = asteroidLimit;
-        //while (astCount-- > 0)
-        //{
-            field.Add(new Asteroid((300, 600)));
-        //}
+        int initialX = limits.col / asteroidLimit;
+        int initialY = limits.row / asteroidLimit;
+        var prevPoint = new Vector2(initialX, initialY);
+        while (astCount-- > 0)
+        {
+            field.Add(new Asteroid(prevPoint));
+            prevPoint = new Vector2(
+                prevPoint.X + initialX + rng.Next(0, 50), 
+                prevPoint.Y + initialY + rng.Next(0, 50));
+        }
 
         return field;
     }
