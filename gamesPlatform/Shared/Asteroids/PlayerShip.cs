@@ -33,8 +33,8 @@ public class PlayerShip
 
     public PlayerShip((int row, int col) initialPos)
     {
-        hull = new ShipPart(initialPos.col, initialPos.row) { model = ShipModel.hull };
-        head = new ShipPart(initialPos.col, initialPos.row + hull.model.objHeight) { model = ShipModel.head };
+        hull = new ShipPart(initialPos.col, initialPos.row) { model = ShipModel.GetHull() };
+        head = new ShipPart(initialPos.col, initialPos.row + hull.model.objHeight) { model = ShipModel.GetHead() };
         movingDir = new Vector2(0, 0);
         shots = new List<Shot>();
         shotCooldown = new Timer() { AutoReset = false, Enabled = false, Interval = cooldownVal };
@@ -45,7 +45,6 @@ public class PlayerShip
         if (!shotCooldown.Enabled && shots.Count() <= 4)
         {
             shots.Add(new Shot() { pos = head.pos, dir = head.pos - hull.pos });
-            Console.WriteLine("fire" + shots.Count());
             shotCooldown.Start();
         }
     }

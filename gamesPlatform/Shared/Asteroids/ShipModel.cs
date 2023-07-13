@@ -17,7 +17,7 @@ public class ShipModel : CanvasRenderedVectorial
     public override float objWidth { get; init; }
     public override float objHeight { get; init; }
 
-    public static readonly ShipModel head = new ShipModel
+    public static ShipModel GetHead() => new()
     {
         lnColor = "red",
         lnWidth = 2,
@@ -31,7 +31,7 @@ public class ShipModel : CanvasRenderedVectorial
         objWidth = 10,
     };
 
-    public static readonly ShipModel hull = new ShipModel
+    public static ShipModel GetHull() => new()
     {
         lnColor = "red",
         lnWidth = 2,

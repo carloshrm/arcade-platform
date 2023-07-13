@@ -34,6 +34,7 @@ public class AsteroidsField : IGameField
     private List<Asteroid> GenerateField()
     {
         var field = new List<Asteroid>();
+        var playerPos = player.getParts().Select(p => p.pos);
 
         int astCount = asteroidLimit;
         int initialX = limits.col / asteroidLimit;
@@ -42,11 +43,17 @@ public class AsteroidsField : IGameField
         while (astCount-- > 0)
         {
             field.Add(new Asteroid(prevPoint));
-            prevPoint = new Vector2(
-                prevPoint.X + initialX + rng.Next(0, 50), 
-                prevPoint.Y + initialY + rng.Next(0, 50));
-        }
 
+            float nextX = 0;
+            float nextY = 0;
+            do
+            {
+                nextX = (limits.col / 2) + rng.Next(-initialX, initialX);
+                nextY = prevPoint.Y + initialY + rng.Next(0, 50);
+            } while (playerPos.Any(p => p.X == nextX || p.Y == nextY));
+
+            prevPoint = new Vector2(nextX, nextY);
+        }
         return field;
     }
 
