@@ -5,14 +5,9 @@ using Timer = System.Timers.Timer;
 
 namespace cmArcade.Shared.Asteroids;
 
-public class Shot
-{
-    public Vector2 pos { get; set; }
-    public Vector2 dir { get; set; }
-}
 public class PlayerShip
 {
-    private double rotateAngle = Math.PI * 5 / 180;
+    private readonly double rotateAngle = Math.PI * 9 / 180;
     private bool isRotating = false;
     private bool rotateCw = false;
 
@@ -21,8 +16,8 @@ public class PlayerShip
 
     private double momentum { get; set; } = 0;
     private Vector2 movingDir { get; set; }
-    private readonly double decel = 0.02;
-    private readonly double accel = 0.2;
+    private readonly double decel = 0.06;
+    private readonly double accel = 0.4;
     private readonly double maxSpeed = 6;
 
     public int healthPoints { get; set; } = 3;
@@ -60,7 +55,7 @@ public class PlayerShip
             movingDir = Vector2.Normalize(Vector2.Add(dir, movingDir));
         } else
         {
-            if (momentum > -maxSpeed)
+            if (momentum > 0)
                 momentum -= accel;
         }
     }
@@ -103,14 +98,18 @@ public class PlayerShip
         head.pos -= dirVec;
         hull.pos -= dirVec;
 
-        shots.ForEach(s => s.pos += s.dir);
-
         if (momentum != 0)
         {
             momentum += momentum > 0 ? -decel : +decel;
             if (momentum > 0 && momentum < 0.01)
                 momentum = 0;
         }
+    }
+
+    public void UpdateShots()
+    {
+        shots.ForEach(s => s.UpdatePosition());
+        shots.RemoveAll(s => s.fade);
     }
 
     public List<ShipPart> getParts()
