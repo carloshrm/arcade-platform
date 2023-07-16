@@ -1,4 +1,7 @@
 ﻿using System.Numerics;
+using System.Timers;
+
+using Timer = System.Timers.Timer;
 
 namespace cmArcade.Shared.Asteroids;
 
@@ -8,7 +11,7 @@ public class Shot
     public Vector2 dir { get; set; }
 
     public bool fade { get; set; } = false;
-    private System.Timers.Timer lifetime = new System.Timers.Timer() { Enabled = true, Interval = 2000 };
+    private Timer lifetime = new Timer() { Enabled = true, Interval = 2000 };
 
     public Shot()
     {
@@ -17,6 +20,6 @@ public class Shot
 
     public void UpdatePosition()
     {
-        pos += Vector2.Multiply(dir, 2);
+        pos += dir;
     }
 }
