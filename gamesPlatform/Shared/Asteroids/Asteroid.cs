@@ -17,7 +17,7 @@ public class Asteroid : ISimpleVectorialObject
 
     public void UpdatePosition(int xEdge, int yEdge)
     {
-
+        //Console.WriteLine(pos.X + " :: " + pos.Y);
     }
 
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,10 +26,9 @@ public class AsteroidsField : IGameField
     public AsteroidsField((int row, int col) limits)
     {
         this.limits = limits;
+        lines = new List<Vector2>();
         player = new PlayerShip((limits.row / 2, limits.col / 2));
         asteroids = GenerateField();
-        // spawn randomized asteroid field
-        // add float movement
     }
 
     private List<Asteroid> GenerateField()
@@ -37,24 +37,65 @@ public class AsteroidsField : IGameField
         var playerPos = player.getParts().Select(p => p.pos);
 
         int astCount = asteroidLimit;
-        int initialX = limits.col / asteroidLimit;
-        int initialY = limits.row / asteroidLimit;
-        var prevPoint = new Vector2(initialX, initialY);
         while (astCount-- > 0)
         {
-            field.Add(new Asteroid(prevPoint));
 
             float nextX = 0;
             float nextY = 0;
             do
             {
-                nextX = (limits.col / 2) + rng.Next(-initialX, initialX);
-                nextY = prevPoint.Y + initialY + rng.Next(0, 50);
+                nextX = rng.Next(100, limits.col - 100);
+                nextY = rng.Next(100, limits.row - 100);
             } while (playerPos.Any(p => p.X == nextX || p.Y == nextY));
 
-            prevPoint = new Vector2(nextX, nextY);
+            field.Add(new Asteroid(new Vector2(nextX, nextY)));
         }
         return field;
+    }
+    public List<Vector2> lines { get; set; }
+    private void CheckHit()
+    {
+        if (player.shots.Count == 0) 
+            return;
+
+        lines = new List<Vector2>();
+
+        foreach (var a in asteroids)
+        {
+            Vector2? previousPoint = null;
+            foreach (var p in a.model.points)
+            {
+                if (previousPoint == null)
+                    previousPoint = p;
+                else
+                {
+                    int x = (int) (previousPoint.Value.X + a.pos.X);
+                    int pointX = (int)(p.X + a.pos.X);
+                    int y = (int) (previousPoint.Value.Y + a.pos.Y);
+                    int pointY = (int)(p.Y + a.pos.Y);
+                    while (x != pointX || y != pointY)
+                    {
+                        lines.Add(new Vector2(x, y));
+                        //Console.WriteLine($"x {x} to {pointX}");
+                        //Console.WriteLine($"y {y} to {pointY}");
+                        if (x != pointX)
+                            x += x > pointX ? -1 : 1;
+
+                        if (y != pointY)
+                            y += y > pointY ? -1 : 1;
+                    }
+                    previousPoint = p;
+                }
+            }
+        }
+        foreach (var ps in player.shots)
+        {
+            foreach (var ln in lines)
+            {
+                if ((int)ps.pos.X == ln.X && (int)ps.pos.Y == ln.Y)
+                    Console.WriteLine("!! - hit");
+            }
+        }
     }
 
     public bool checkGameOver()
@@ -123,12 +164,12 @@ public class AsteroidsField : IGameField
 
     public void updateGameState(Score s)
     {
-        Console.WriteLine("update");
         player.updatePosition(limits);
-        // ship movement, spin
+        player.UpdateShots(limits.col, limits.row);
+        CheckHit();
+        //asteroids.ForEach(a => a.UpdatePosition(limits.col, limits.row));
         // shots
         // hit detection
         // respawn asteroids
-
     }
 }

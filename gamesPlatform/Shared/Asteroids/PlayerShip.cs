@@ -7,7 +7,7 @@ namespace cmArcade.Shared.Asteroids;
 
 public class PlayerShip
 {
-    private readonly double rotateAngle = Math.PI * 9 / 180;
+    private readonly double rotateAngle = Math.PI * 2 / 180;
     private bool isRotating = false;
     private bool rotateCw = false;
 
@@ -16,9 +16,9 @@ public class PlayerShip
 
     private double momentum { get; set; } = 0;
     private Vector2 movingDir { get; set; }
-    private readonly double decel = 0.06;
-    private readonly double accel = 0.4;
-    private readonly double maxSpeed = 6;
+    private readonly double decel = 0.02;
+    private readonly double accel = 0.08;
+    private readonly double maxSpeed = 4;
 
     public int healthPoints { get; set; } = 3;
     public List<Shot> shots { get; set; }
@@ -106,10 +106,12 @@ public class PlayerShip
         }
     }
 
-    public void UpdateShots()
+    public void UpdateShots(int xEdge, int yEdge)
     {
         shots.ForEach(s => s.UpdatePosition());
-        shots.RemoveAll(s => s.fade);
+        shots.RemoveAll(s => s.fade || 
+            s.pos.X <= 0 || s.pos.X >= xEdge ||
+            s.pos.Y <= 0 || s.pos.Y >= yEdge);
     }
 
     public List<ShipPart> getParts()

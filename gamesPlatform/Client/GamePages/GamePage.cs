@@ -23,7 +23,7 @@ namespace cmArcade.Client.GamePages
         public GamePage(AppID app)
         {
             _myID = app;
-            canvasRefresh = new Timer(1000 / 30) { AutoReset = true, Enabled = false };
+            canvasRefresh = new Timer(1000 / 60) { AutoReset = true, Enabled = false };
             gameControl = new Timer(50) { AutoReset = true, Enabled = false };
             currentScore = new Score(_myID);
             highScore = currentScore;

@@ -25,7 +25,7 @@ public class AsteroidModel : CanvasRenderedVectorial
 
         int pointCount = rng.Next(4, 10);
         var startingPt = new Vector2(0, rng.Next(15, 30));
-        double angleDiv = 6.28 / pointCount;
+        double angleDiv = 6.28 / --pointCount;
         double angle = angleDiv;
         while (pointCount-- > 0) 
         {
