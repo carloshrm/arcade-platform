@@ -5,17 +5,23 @@ using Timer = System.Timers.Timer;
 
 namespace cmArcade.Shared.Asteroids;
 
-public class Shot
+public class Shot : ISimpleVectorialObject
 {
     public Vector2 pos { get; set; }
     public Vector2 dir { get; set; }
 
     public bool fade { get; set; } = false;
+
+    public CanvasRenderedVectorial model { get; set; }
+
     private Timer lifetime = new Timer() { Enabled = true, Interval = 2000 };
 
-    public Shot()
+    public Shot(Vector2 pos, Vector2 dir)
     {
+        this.pos = pos;
+        this.dir = dir;
         lifetime.Elapsed += (o, e) => fade = true;
+        model = new ShotModel() { points = new List<Vector2>() { dir, dir * 2 } };
     }
 
     public void UpdatePosition()
