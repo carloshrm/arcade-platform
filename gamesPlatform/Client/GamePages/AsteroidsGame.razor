@@ -39,7 +39,7 @@
 
     public AsteroidsGame() : base(AppID.Asteroids)
     {
-        gameControl.Interval = 10;
+        gameControl.Interval = 50;
     }
 
     protected override async Task OnInitializedAsync()
@@ -136,12 +136,14 @@
 
         var ship = ((PlayerShip)game.getPlayer());
         ship.getParts().ForEach(async p => await gameScreen.drawVectorial(p));
+        ship.shots.ForEach(async sht => await gameScreen.drawVectorial(sht));
+        await gameScreen.canvasReference.SetFillStyleAsync("pink");
 
-        await gameScreen.canvasReference.SetFillStyleAsync("red");
-        foreach (var s in ship.shots)
-            await gameScreen.canvasReference.FillRectAsync(s.pos.X, s.pos.Y, 10, 10);
-
-        game.asteroids.ForEach(async a => await gameScreen.drawVectorial(a));
+        game.asteroids.ForEach(async a => 
+        {
+            await gameScreen.drawVectorial(a);
+            await gameScreen.canvasReference.FillRectAsync(a.pos.X, a.pos.Y, 4, 4);
+        });
         await gameScreen.canvasReference.EndBatchAsync();
     }
 

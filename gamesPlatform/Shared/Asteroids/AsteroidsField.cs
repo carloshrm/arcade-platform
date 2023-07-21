@@ -17,7 +17,7 @@ public class AsteroidsField : IGameField
     public string uiMessage { get; set; } = string.Empty;
     public int scoreMult { get; set; } = 1;
 
-    private readonly int asteroidLimit = 5;
+    private readonly int asteroidLimit = 1;
     private readonly int baseScore = 3;
 
     private PlayerShip player { get; set; }
@@ -26,7 +26,6 @@ public class AsteroidsField : IGameField
     public AsteroidsField((int row, int col) limits)
     {
         this.limits = limits;
-        lines = new List<Vector2>();
         player = new PlayerShip((limits.row / 2, limits.col / 2));
         asteroids = GenerateField();
     }
@@ -52,48 +51,31 @@ public class AsteroidsField : IGameField
         }
         return field;
     }
-    public List<Vector2> lines { get; set; }
     private void CheckHit()
     {
-        if (player.shots.Count == 0) 
+        if (player.shots.Count == 0)
             return;
 
-        lines = new List<Vector2>();
-
-        foreach (var a in asteroids)
-        {
-            Vector2? previousPoint = null;
-            foreach (var p in a.model.points)
-            {
-                if (previousPoint == null)
-                    previousPoint = p;
-                else
-                {
-                    int x = (int) (previousPoint.Value.X + a.pos.X);
-                    int pointX = (int)(p.X + a.pos.X);
-                    int y = (int) (previousPoint.Value.Y + a.pos.Y);
-                    int pointY = (int)(p.Y + a.pos.Y);
-                    while (x != pointX || y != pointY)
-                    {
-                        lines.Add(new Vector2(x, y));
-                        //Console.WriteLine($"x {x} to {pointX}");
-                        //Console.WriteLine($"y {y} to {pointY}");
-                        if (x != pointX)
-                            x += x > pointX ? -1 : 1;
-
-                        if (y != pointY)
-                            y += y > pointY ? -1 : 1;
-                    }
-                    previousPoint = p;
-                }
-            }
-        }
         foreach (var ps in player.shots)
         {
-            foreach (var ln in lines)
+            foreach (var a in asteroids)
             {
-                if ((int)ps.pos.X == ln.X && (int)ps.pos.Y == ln.Y)
-                    Console.WriteLine("!! - hit");
+                if (Math.Abs(ps.pos.X - a.pos.X) > 40 || Math.Abs(ps.pos.Y - a.pos.Y) > 40)
+                    continue;
+
+                Vector2 closestPoint = Vector2.Zero;
+                foreach (var p in a.model.points)
+                {
+                    if (closestPoint == Vector2.Zero ||
+                        Vector2.Distance(p + a.pos, ps.pos) <= Vector2.Distance(closestPoint, ps.pos))
+                    {
+                        closestPoint = p + a.pos;
+                    }
+                }
+                if (Vector2.Distance(ps.pos, a.pos) <= Vector2.Distance(closestPoint, a.pos))
+                {
+                    ps.fade = true;
+                }
             }
         }
     }
