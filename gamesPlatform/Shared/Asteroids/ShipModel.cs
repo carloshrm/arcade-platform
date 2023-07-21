@@ -11,11 +11,11 @@ namespace cmArcade.Shared.Asteroids;
 
 public class ShipModel : CanvasRenderedVectorial
 {
-    public override string lnColor { get; init; }
-    public override float lnWidth { get; init; }
+    public override string lnColor { get; set; }
+    public override float lnWidth { get; set; }
     public override IEnumerable<Vector2> points { get; set; }
-    public override float objWidth { get; init; }
-    public override float objHeight { get; init; }
+    public override float objWidth { get; set; }
+    public override float objHeight { get; set; }
 
     public static ShipModel GetHead() => new()
     {
