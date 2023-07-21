@@ -7,7 +7,7 @@ namespace cmArcade.Shared.Asteroids;
 
 public class PlayerShip
 {
-    private readonly double rotateAngle = Math.PI * 2 / 180;
+    private readonly double rotateAngle = Math.PI * 5 / 180;
     private bool isRotating = false;
     private bool rotateCw = false;
 
@@ -16,8 +16,8 @@ public class PlayerShip
 
     private double momentum { get; set; } = 0;
     private Vector2 movingDir { get; set; }
-    private readonly double decel = 0.02;
-    private readonly double accel = 0.08;
+    private readonly double decel = 0.06;
+    private readonly double accel = 0.4;
     private readonly double maxSpeed = 4;
 
     public int healthPoints { get; set; } = 3;
@@ -39,7 +39,7 @@ public class PlayerShip
     {
         if (!shotCooldown.Enabled && shots.Count() <= 4)
         {
-            shots.Add(new Shot() { pos = head.pos, dir = head.pos - hull.pos });
+            shots.Add(new Shot(head.pos, head.pos - hull.pos));
             shotCooldown.Start();
         }
     }
