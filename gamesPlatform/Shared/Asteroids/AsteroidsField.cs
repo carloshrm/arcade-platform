@@ -17,7 +17,7 @@ public class AsteroidsField : IGameField
     public string uiMessage { get; set; } = string.Empty;
     public int scoreMult { get; set; } = 1;
 
-    private readonly int asteroidLimit = 1;
+    private readonly int asteroidLimit = 5;
     private readonly int baseScore = 3;
 
     private PlayerShip player { get; set; }
@@ -53,14 +53,11 @@ public class AsteroidsField : IGameField
     }
     private void CheckHit()
     {
-        if (player.shots.Count == 0)
-            return;
-
-        foreach (var ps in player.shots)
+        Parallel.ForEach(player.shots, (ps) =>
         {
             foreach (var a in asteroids)
             {
-                if (Math.Abs(ps.pos.X - a.pos.X) > 40 || Math.Abs(ps.pos.Y - a.pos.Y) > 40)
+                if (Math.Abs(ps.pos.X - a.pos.X) > 70 || Math.Abs(ps.pos.Y - a.pos.Y) > 70)
                     continue;
 
                 Vector2 closestPoint = Vector2.Zero;
@@ -74,10 +71,32 @@ public class AsteroidsField : IGameField
                 }
                 if (Vector2.Distance(ps.pos, a.pos) <= Vector2.Distance(closestPoint, a.pos))
                 {
+                    a.wasHit = true;
+                    a.floatDir += ps.dir;
                     ps.fade = true;
                 }
             }
-        }
+        });
+    }
+
+    private void CleanupAsteroids()
+    {
+        var secondary = new List<Asteroid>();
+        asteroids.RemoveAll(a =>
+        {
+            if (a.wasHit)
+            {
+                if (a.isPrimary)
+                {
+                    var debris = new Asteroid(a.pos, false);
+                    debris.floatDir += Vector2.Normalize(a.floatDir);
+                    secondary.Add(debris);
+                }
+                return true;
+            } else
+                return false;
+        });
+        asteroids.AddRange(secondary);
     }
 
     public bool checkGameOver()
@@ -147,9 +166,10 @@ public class AsteroidsField : IGameField
     public void updateGameState(Score s)
     {
         player.updatePosition(limits);
-        player.UpdateShots(limits.col, limits.row);
         CheckHit();
-        //asteroids.ForEach(a => a.UpdatePosition(limits.col, limits.row));
+        player.UpdateShots(limits.col, limits.row);
+        CleanupAsteroids();
+        Parallel.ForEach(asteroids, (ast) => ast.UpdatePosition(limits.col, limits.row));
         // shots
         // hit detection
         // respawn asteroids
