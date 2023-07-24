@@ -18,13 +18,12 @@ public class AsteroidModel : CanvasRenderedVectorial
         objHeight = 0;
     }
 
-    public static AsteroidModel GenerateRandomAsteroid()
+    public static AsteroidModel GenerateRandomAsteroid(bool isPrimary)
     {
-        var rng = new Random();
         var newPoints = new List<Vector2>();
 
-        int pointCount = rng.Next(5, 9);
-        var startingPt = new Vector2(0, rng.Next(10, 20));
+        int pointCount = Random.Shared.Next(6, 10);
+        var startingPt = new Vector2(isPrimary ? 20 : 0, Random.Shared.Next(10, isPrimary ? 60 : 20));
         double angleDiv = 6.28 / --pointCount;
         double angle = angleDiv;
 
@@ -34,9 +33,8 @@ public class AsteroidModel : CanvasRenderedVectorial
             double x = startingPt.X * Math.Cos(angle) - startingPt.Y * Math.Sin(angle);
             double y = startingPt.X * Math.Sin(angle) + startingPt.Y * Math.Cos(angle);
             var newPt = new Vector2(
-                (float)(x + (x * rng.NextDouble())),
-                (float)(y + (y * rng.NextDouble()))
-                );
+                (float)(x + (x * Random.Shared.NextDouble())),
+                (float)(y + (y * Random.Shared.NextDouble())));
             newPoints.Add(newPt);
             angle += angleDiv;
         }
