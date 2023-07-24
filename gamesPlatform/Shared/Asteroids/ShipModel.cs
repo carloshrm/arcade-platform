@@ -19,31 +19,31 @@ public class ShipModel : CanvasRenderedVectorial
 
     public static ShipModel GetHead() => new()
     {
-        lnColor = "red",
+        lnColor = "cyan",
         lnWidth = 2,
         points = new List<Vector2>
         {
-            new Vector2(0, 14),
-            new Vector2(10, 0),
-            new Vector2(-10, 0),
+            new Vector2(0, 16),
+            new Vector2(8, -2),
+            new Vector2(-8, -2),
         },
-        objHeight = 14,
-        objWidth = 10,
+        objHeight = 16,
+        objWidth = 8,
     };
 
     public static ShipModel GetHull() => new()
     {
-        lnColor = "red",
+        lnColor = "cyan",
         lnWidth = 2,
         points = new List<Vector2>
         {
-            new Vector2(10, 10),
-            new Vector2(-10, 10),
-            new Vector2(-14, -10),
+            new Vector2(8, 8),
+            new Vector2(-8, 8),
+            new Vector2(-14, -8),
             new Vector2(-6, -2),
-            new Vector2(0, -10),
+            new Vector2(0, -8),
             new Vector2(6, -2),
-            new Vector2(14, -10),
+            new Vector2(14, -8),
         },
         objHeight = 10,
         objWidth = 14,
