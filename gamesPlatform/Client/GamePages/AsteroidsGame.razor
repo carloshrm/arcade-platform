@@ -35,7 +35,7 @@
     private bool isMobile = false;
     private bool mobileMoveToggle = false;
 
-    private string textStyle = "16px \"Press Start 2P\"";
+    private string textStyle = "12px \"Press Start 2P\"";
 
     public AsteroidsGame() : base(AppID.Asteroids)
     {
@@ -117,7 +117,11 @@
 
     private string getUIText()
     {
-        return "ui text";
+        var uiInfo = new StringBuilder();
+        uiInfo.AppendLine($"Time: \n  {currentScore.runLength.ToString("mm\\:ss")}\n");
+        uiInfo.AppendLine($"Score:\n  {currentScore.scoreValue}");
+        uiInfo.AppendLine($"Best: \n  {highScore.scoreValue}\n");
+        return uiInfo.ToString();
     }
 
     protected async override void runGame(Object? o, ElapsedEventArgs e)
@@ -138,7 +142,7 @@
         ship.getParts().ForEach(async p => await gameScreen.drawVectorial(p));
         ship.shots.ForEach(async sht => await gameScreen.drawVectorial(sht));
         await gameScreen.canvasReference.SetFillStyleAsync("pink");
-
+        await gameScreen.fillTextExtended(getUIText(), gameScreen.componentWidth * 0.02, 20, textStyle, "white", 10);
         game.asteroids.ForEach(async a => 
         {
             await gameScreen.drawVectorial(a);

@@ -10,9 +10,12 @@ public class PlayerShip
     private readonly double rotateAngle = Math.PI * 5 / 180;
     private bool isRotating = false;
     private bool rotateCw = false;
+    private bool isThrusting = false;
+    private bool movingFw = false;
 
     private ShipPart hull { get; set; }
     private ShipPart head { get; set; }
+    private ShipPart jet { get; set; }
 
     private double momentum { get; set; } = 0;
     private Vector2 movingDir { get; set; }
@@ -30,6 +33,7 @@ public class PlayerShip
     {
         hull = new ShipPart(initialPos.col, initialPos.row) { model = ShipModel.GetHull() };
         head = new ShipPart(initialPos.col, initialPos.row + hull.model.objHeight) { model = ShipModel.GetHead() };
+        jet = new ShipPart(initialPos.col, initialPos.row) { model = ShipModel.GetJet() };
         movingDir = new Vector2(0, 0);
         shots = new List<Shot>();
         shotCooldown = new Timer() { AutoReset = false, Enabled = false, Interval = cooldownVal };
@@ -46,18 +50,33 @@ public class PlayerShip
 
     public void Thrust(bool fw = true)
     {
-        if (fw)
-        {
-            if (momentum < maxSpeed)
-                momentum += accel;
+        isThrusting = true;
+        movingFw = fw;
+    }
 
-            var dir = Vector2.Normalize(movingDir - (head.pos - hull.pos));
-            movingDir = Vector2.Normalize(Vector2.Add(dir, movingDir));
-        } else
+    private void ApplyThrust()
+    {
+        if (isThrusting)
         {
-            if (momentum > 0)
-                momentum -= accel;
+            if (movingFw)
+            {
+                if (momentum < maxSpeed)
+                    momentum += accel;
+
+                var dir = Vector2.Normalize(movingDir - (head.pos - hull.pos));
+                movingDir = Vector2.Normalize(Vector2.Add(dir, movingDir));
+            }
+            else
+            {
+                if (momentum > 0)
+                    momentum -= accel;
+            }
         }
+    }
+
+    public void StopThrust()
+    {
+        isThrusting = false;
     }
 
     public void Rotate(bool cw = false)
@@ -79,6 +98,7 @@ public class PlayerShip
         head.pos = RotateVector(hull.pos, head.pos, angle);
         head.model.points = head.model.points.Select(p => RotateVector(new Vector2(0), p, angle));
         hull.model.points = hull.model.points.Select(p => RotateVector(new Vector2(0), p, angle));
+        jet.model.points = jet.model.points.Select(p => RotateVector(new Vector2(0), p, angle));
     }
 
     private Vector2 RotateVector(Vector2 rf, Vector2 vec, double angle)
@@ -94,9 +114,13 @@ public class PlayerShip
         if (isRotating)
             ApplyRotation();
 
+        if (isThrusting)
+            ApplyThrust();
+
         var dirVec = Vector2.Multiply(movingDir, (float)momentum);
         head.pos -= dirVec;
         hull.pos -= dirVec;
+        jet.pos -= dirVec;
 
         if (momentum != 0)
         {
@@ -109,13 +133,18 @@ public class PlayerShip
     public void UpdateShots(int xEdge, int yEdge)
     {
         shots.ForEach(s => s.UpdatePosition());
-        shots.RemoveAll(s => s.fade || 
+        shots.RemoveAll(s => s.fade ||
             s.pos.X <= 0 || s.pos.X >= xEdge ||
             s.pos.Y <= 0 || s.pos.Y >= yEdge);
     }
 
     public List<ShipPart> getParts()
     {
-        return new List<ShipPart>() { hull, head };
+        var parts = new List<ShipPart>();
+        if (isThrusting)
+            parts.Add(jet);
+        parts.Add(hull);
+        parts.Add(head);
+        return parts;
     }
 }

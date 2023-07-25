@@ -79,13 +79,15 @@ public class AsteroidsField : IGameField
         });
     }
 
-    private void CleanupAsteroids()
+    private int CleanupAsteroids()
     {
+        int score = 0;
         var secondary = new List<Asteroid>();
         asteroids.RemoveAll(a =>
         {
             if (a.wasHit)
             {
+                score += baseScore;
                 if (a.isPrimary)
                 {
                     var debris = new Asteroid(a.pos, false);
@@ -97,6 +99,7 @@ public class AsteroidsField : IGameField
                 return false;
         });
         asteroids.AddRange(secondary);
+        return score;
     }
 
     public bool checkGameOver()
@@ -152,6 +155,12 @@ public class AsteroidsField : IGameField
     {
         switch (dir)
         {
+            case "ArrowUp":
+            case "w":
+            case "ArrowDown":
+            case "s":
+                player.StopThrust();
+                break;
             case "ArrowLeft":
             case "a":
             case "ArrowRight":
@@ -168,7 +177,7 @@ public class AsteroidsField : IGameField
         player.updatePosition(limits);
         CheckHit();
         player.UpdateShots(limits.col, limits.row);
-        CleanupAsteroids();
+        s.scoreValue += CleanupAsteroids();
         Parallel.ForEach(asteroids, (ast) => ast.UpdatePosition(limits.col, limits.row));
         // shots
         // hit detection

@@ -17,6 +17,20 @@ public class ShipModel : CanvasRenderedVectorial
     public override float objWidth { get; set; }
     public override float objHeight { get; set; }
 
+    public static ShipModel GetJet() => new()
+    {
+        lnColor = "orange",
+        lnWidth = 4,
+        points = new List<Vector2>
+        {
+            new Vector2(-2, 0),
+            new Vector2(2, 0),
+            new Vector2(0, -6),
+        },
+        objHeight = 4,
+        objWidth = 4,
+    };
+
     public static ShipModel GetHead() => new()
     {
         lnColor = "cyan",
@@ -41,7 +55,7 @@ public class ShipModel : CanvasRenderedVectorial
             new Vector2(-8, 8),
             new Vector2(-14, -8),
             new Vector2(-6, -2),
-            new Vector2(0, -8),
+            new Vector2(0, 0),
             new Vector2(6, -2),
             new Vector2(14, -8),
         },
