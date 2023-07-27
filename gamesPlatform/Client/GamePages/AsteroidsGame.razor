@@ -8,8 +8,8 @@
 
 <main id="main-content" @onkeydown:preventDefault="true">
     <div id="game-controls">
-        <button type="button" class="soft-shadow game-button @((currentScore.scoreValue > 0 && gameControl.Enabled) ? "dark-bg ok" : "")" @onclick=startGame>start</button>
-        <button type="button" class="soft-shadow game-button" @onclick=resetGame>reset</button>
+        <button type="button" class="soft-shadow game-button @((currentScore.scoreValue > 0 && gameControl.Enabled) ? "dark-bg ok" : "")" @onclick=StartGame>start</button>
+        <button type="button" class="soft-shadow game-button" @onclick=ResetGame>reset</button>
     </div>
     <div id="game-container" tabindex="0" @onkeydown=@((e) => keyDownInputHandler(e.Key)) @onkeyup=@((e) => keyUpInputHandler(e.Key))>
         <GameCanvas @ref=gameScreen appID=_myID />
@@ -61,13 +61,13 @@
                 await gameScreen.canvasReference.SetFillStyleAsync("white");
                 game = new AsteroidsField(gameScreen!.getDimensions());
             }
-            gameControl.Elapsed += runGame;
-            canvasRefresh.Elapsed += drawGame;
+            gameControl.Elapsed += RunGame;
+            canvasRefresh.Elapsed += DrawGame;
             StateHasChanged();
         }
     }
 
-    protected async override Task startGame()
+    protected async override Task StartGame()
     {
         await jsRuntime.InvokeVoidAsync("setFocus");
         if (gameControl.Enabled)
@@ -75,27 +75,27 @@
         else
         {
             if (currentScore.scoreValue > 0)
-                await resetGame();
+                await ResetGame();
             currentScore.turn = 1;
             currentScore.runStart = DateTime.Now;
-            toggleControlObjects();
+            ToggleControlObjects();
         }
     }
 
-    protected override async Task resetGame()
+    protected override async Task ResetGame()
     {
         await jsRuntime.InvokeVoidAsync("setFocus");
-        if (gameControl.Enabled) toggleControlObjects();
+        if (gameControl.Enabled) ToggleControlObjects();
         currentScore = new Score(_myID);
         game = new AsteroidsField(gameScreen!.getDimensions());
         gameOver = false;
         await gameScreen.clear();
     }
 
-    protected override async Task stopGame()
+    protected override async Task StopGame()
     {
         gameOver = true;
-        toggleControlObjects();
+        ToggleControlObjects();
         currentScore.runLength = DateTime.Now - currentScore.runStart;
         if (currentScore.scoreValue > highScore.scoreValue)
         {
@@ -124,23 +124,22 @@
         return uiInfo.ToString();
     }
 
-    protected async override void runGame(Object? o, ElapsedEventArgs e)
+    protected async override void RunGame(Object? o, ElapsedEventArgs e)
     {
-        //currentScore.turn += 1;
         game.updateGameState(currentScore);
 
         if (game.checkGameOver())
-            await stopGame();
+            await StopGame();
     }
 
-    protected async override void drawGame(Object? o, ElapsedEventArgs e)
+    protected async override void DrawGame(Object? o, ElapsedEventArgs e)
     {
         await gameScreen.canvasReference.BeginBatchAsync();
         await gameScreen.fillColor("black");
 
         var ship = ((PlayerShip)game.getPlayer());
         ship.getParts().ForEach(async p => await gameScreen.drawVectorial(p));
-        ship.shots.ForEach(async sht => await gameScreen.drawVectorial(sht));
+        ship.shots.ForEach(async s => await gameScreen.drawVectorial(s));
         await gameScreen.canvasReference.SetFillStyleAsync("pink");
         await gameScreen.fillTextExtended(getUIText(), gameScreen.componentWidth * 0.02, 20, textStyle, "white", 10);
         game.asteroids.ForEach(async a => 

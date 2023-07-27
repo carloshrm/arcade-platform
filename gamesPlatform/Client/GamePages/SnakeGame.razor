@@ -17,8 +17,8 @@
             <span> Time:@currentScore?.runLength.ToString("mm\\:ss") </span>
         </div>
         <div>
-            <button type="button" class="soft-shadow game-button @((turnCount > 0 && gameControl.Enabled) ? "dark-bg on" : "")" @onclick=startGame>start</button>
-            <button type="button" class="soft-shadow game-button" @onclick=resetGame>reset</button>
+            <button type="button" class="soft-shadow game-button @((turnCount > 0 && gameControl.Enabled) ? "dark-bg on" : "")" @onclick=StartGame>start</button>
+            <button type="button" class="soft-shadow game-button" @onclick=ResetGame>reset</button>
         </div>
     </div>
     <div id="game-container" class="soft-shadow" tabindex="0" @onkeydown=@((e) => playerInputHandler(e.Key))>
@@ -56,9 +56,9 @@
     {
         if (firstRender)
         {
-            await resetGame();
-            canvasRefresh.Elapsed += drawGame;
-            gameControl.Elapsed += runGame;
+            await ResetGame();
+            canvasRefresh.Elapsed += DrawGame;
+            gameControl.Elapsed += RunGame;
         }
     }
 
@@ -80,12 +80,12 @@
         canMove = false;
     }
 
-    protected async override Task stopGame()
+    protected async override Task StopGame()
     {
-        toggleControlObjects();
+        ToggleControlObjects();
     }
 
-    protected async override Task startGame()
+    protected async override Task StartGame()
     {
         await jsRuntime.InvokeVoidAsync("setFocus");
         if (gameControl.Enabled)
@@ -95,19 +95,19 @@
             if (currentScore.scoreValue > 0)
             {
                 currentScore = new Score(_myID);
-                await resetGame();
+                await ResetGame();
             }
-            toggleControlObjects();
+            ToggleControlObjects();
             currentScore.runStart = DateTime.Now;
         }
     }
 
-    protected async override Task resetGame()
+    protected async override Task ResetGame()
     {
         turnCount = 0;
         gameControl.Interval = 400;
         if (gameControl.Enabled)
-            toggleControlObjects();
+            ToggleControlObjects();
         await gameScreen.setCanvasSize();
         await gameScreen.clear();
         game = new SnakeBoard(
@@ -116,14 +116,14 @@
         game.ateFood += increaseSpeed;
     }
 
-    protected override void runGame(Object? src, ElapsedEventArgs e)
+    protected override void RunGame(Object? src, ElapsedEventArgs e)
     {
         turnCount++;
         currentScore.runLength = e.SignalTime - currentScore.runStart;
         currentScore.scoreValue += (long)Math.Ceiling(turnCount / 10.0) * game!.player.healthPoints;
         if (game.checkSnakeParts() is false)
         {
-            toggleControlObjects();
+            ToggleControlObjects();
             if (currentScore.scoreValue > highScore.scoreValue)
             {
                 highScore = currentScore;
@@ -137,7 +137,7 @@
         StateHasChanged();
     }
 
-    protected async override void drawGame(Object? o, ElapsedEventArgs e)
+    protected async override void DrawGame(Object? o, ElapsedEventArgs e)
     {
         await gameScreen.canvasReference.BeginBatchAsync();
         await gameScreen.fillColor("white");

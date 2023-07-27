@@ -30,17 +30,17 @@ namespace cmArcade.Client.GamePages
             game = default;
         }
 
-        protected void toggleControlObjects()
+        protected void ToggleControlObjects()
         {
             gameControl.Enabled = !gameControl.Enabled;
             canvasRefresh.Enabled = !canvasRefresh.Enabled;
         }
 
-        protected abstract Task startGame();
-        protected abstract Task stopGame();
-        protected abstract Task resetGame();
-        protected abstract void runGame(Object? o, ElapsedEventArgs e);
-        protected abstract void drawGame(Object? o, ElapsedEventArgs e);
+        protected abstract Task StartGame();
+        protected abstract Task StopGame();
+        protected abstract Task ResetGame();
+        protected abstract void RunGame(object? o, ElapsedEventArgs e);
+        protected abstract void DrawGame(object? o, ElapsedEventArgs e);
         public void Dispose()
         {
             gameControl.Dispose();
