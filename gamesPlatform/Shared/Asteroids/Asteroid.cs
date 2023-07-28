@@ -23,6 +23,10 @@ public class Asteroid : ISimpleVectorialObject
     public void UpdatePosition(int xEdge, int yEdge)
     {
         pos += floatDir;
+        if (pos.X < 0) pos = new Vector2(xEdge - 1, pos.Y);
+        else if (pos.Y < 0) pos = new Vector2(pos.X, yEdge);
+        else if (pos.X >= xEdge) pos = new Vector2(0, pos.Y);
+        else if (pos.Y >= yEdge) pos = new Vector2(pos.X, 0);
     }
 
 }
