@@ -90,9 +90,12 @@ public class AsteroidsField : IGameField
                 score += baseScore;
                 if (a.isPrimary)
                 {
-                    var debris = new Asteroid(a.pos, false);
-                    debris.floatDir += Vector2.Normalize(a.floatDir);
-                    secondary.Add(debris);
+                    var fragmentA = new Asteroid(a.pos, false);
+                    fragmentA.floatDir += Vector2.Normalize(a.floatDir);
+                    var fragmentB = new Asteroid(a.pos, false);
+                    fragmentB.floatDir += Vector2.Negate(fragmentA.floatDir);
+                    secondary.Add(fragmentA);
+                    secondary.Add(fragmentB);
                 }
                 return true;
             } else

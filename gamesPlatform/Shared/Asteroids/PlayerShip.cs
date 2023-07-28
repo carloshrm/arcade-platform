@@ -128,7 +128,24 @@ public class PlayerShip
             if (momentum > 0 && momentum < 0.01)
                 momentum = 0;
         }
+
+        if (hull.pos.X < 0)
+            WarpShip(new Vector2(limits.col - 1, hull.pos.Y));
+        else if (hull.pos.Y < 0)
+            WarpShip(new Vector2(hull.pos.X, limits.row - 1));
+        else if (hull.pos.X >= limits.col)
+            WarpShip(new Vector2(0, hull.pos.Y));
+        else if (hull.pos.Y >= limits.row)
+            WarpShip(new Vector2(hull.pos.X, 0));
     }
+
+    private void WarpShip(Vector2 dest)
+    {
+        head.pos = new Vector2(dest.X + (head.pos.X - hull.pos.X), dest.Y + (head.pos.Y - hull.pos.Y));
+        hull.pos = dest;
+        jet.pos = hull.pos;
+    }
+
 
     public void UpdateShots(int xEdge, int yEdge)
     {
