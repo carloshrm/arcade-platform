@@ -138,14 +138,14 @@
         await gameScreen.fillColor("black");
 
         var ship = ((PlayerShip)game.getPlayer());
-        ship.getParts().ForEach(async p => await gameScreen.drawVectorial(p));
-        ship.shots.ForEach(async s => await gameScreen.drawVectorial(s));
+        ship.getParts().ForEach(async p => await gameScreen.drawVectorial(p, true));
+        ship.shots.ForEach(async s => await gameScreen.drawVectorial(s, true));
         await gameScreen.canvasReference.SetFillStyleAsync("pink");
         await gameScreen.fillTextExtended(getUIText(), gameScreen.componentWidth * 0.02, 20, textStyle, "white", 10);
         game.asteroids.ForEach(async a => 
         {
-            await gameScreen.drawVectorial(a);
-            await gameScreen.canvasReference.FillRectAsync(a.pos.X, a.pos.Y, 4, 4);
+            await gameScreen.drawVectorial(a, true);
+            //await gameScreen.canvasReference.FillRectAsync(a.pos.X, a.pos.Y, 4, 4);
         });
         await gameScreen.canvasReference.EndBatchAsync();
     }
