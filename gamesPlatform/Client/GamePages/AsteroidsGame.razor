@@ -85,7 +85,10 @@
     protected override async Task ResetGame()
     {
         await jsRuntime.InvokeVoidAsync("setFocus");
-        if (gameControl.Enabled) ToggleControlObjects();
+
+        if (gameControl.Enabled) 
+            ToggleControlObjects();
+
         currentScore = new Score(_myID);
         game = new AsteroidsField(gameScreen!.getDimensions());
         gameOver = false;
@@ -130,6 +133,8 @@
 
         if (game.checkGameOver())
             await StopGame();
+        
+        currentScore.runLength = DateTime.Now - currentScore.runStart;
     }
 
     protected async override void DrawGame(Object? o, ElapsedEventArgs e)

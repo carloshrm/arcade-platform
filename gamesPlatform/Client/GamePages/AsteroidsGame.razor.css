@@ -1,0 +1,49 @@
+﻿* {
+    font-family: 'Press Start 2P', cursive !important;
+    outline: none;
+}
+
+#game-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-items: center;
+    color: white;
+    padding: 1em;
+}
+
+#game-container {
+    margin: 1em auto;
+    background-color: black;
+    border: 1px solid var(--color-highlight-hsat);
+}
+
+@media (max-width: 500) and (orientation: portrait) {
+    #game-container::before {
+        font-size: 10px;
+        content: "Turn your phone sideways to play!";
+    }
+
+    #game-controls {
+        pointer-events: none;
+        text-decoration: line-through;
+    }
+}
+
+@media (max-width: 500) and (orientation: landscape) {
+    #game-container {
+        margin: 0 auto;
+        transform: scale(0.6, 0.45) translateX(-10%) translateY(-60%);
+    }
+
+    #game-controls {
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        margin: 0;
+        padding: 0;
+    }
+
+    #main-content {
+        max-height: 100vh;
+    }
+}
