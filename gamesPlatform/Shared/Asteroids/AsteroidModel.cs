@@ -4,16 +4,17 @@ namespace cmArcade.Shared.Asteroids;
 
 public class AsteroidModel : CanvasRenderedVectorial
 {
-    public override string lnColor { get; set; }
-    public override float lnWidth { get; set; }
+    public override string strokeColor { get; set; }
+    public override float strokeLineWidth { get; set; }
     public override IEnumerable<Vector2> points { get; set; }
     public override float objWidth { get; set; }
     public override float objHeight { get; set; }
+    public override string? fillColor { get; set; }
 
     private AsteroidModel()
     {
-        lnColor = "gray";
-        lnWidth = 2f;
+        strokeColor = "gray";
+        strokeLineWidth = 2f;
         objWidth = 0;
         objHeight = 0;
     }
