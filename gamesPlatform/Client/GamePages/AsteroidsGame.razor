@@ -120,11 +120,10 @@
 
     private string getUIText()
     {
-        var uiInfo = new StringBuilder();
-        uiInfo.AppendLine($"Time: \n  {currentScore.runLength.ToString("mm\\:ss")}\n");
-        uiInfo.AppendLine($"Score:\n  {currentScore.scoreValue}");
-        uiInfo.AppendLine($"Best: \n  {highScore.scoreValue}\n");
-        return uiInfo.ToString();
+        return 
+            $"Time: \n  {currentScore.runLength.ToString("mm\\:ss")}\n" +
+            $"Score:\n  {currentScore.scoreValue}" +
+            $"Best: \n  {highScore.scoreValue}\n";
     }
 
     protected async override void RunGame(Object? o, ElapsedEventArgs e)
