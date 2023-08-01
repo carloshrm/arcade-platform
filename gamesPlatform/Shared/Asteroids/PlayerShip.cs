@@ -7,7 +7,7 @@ namespace cmArcade.Shared.Asteroids;
 
 public class PlayerShip
 {
-    private readonly double rotateAngle = Math.PI * 5 / 180;
+    private readonly float rotateAngle = (float)(Math.PI * 5 / 180);
     private bool isRotating = false;
     private bool rotateCw = false;
     private bool isThrusting = false;
@@ -17,17 +17,17 @@ public class PlayerShip
     private ShipPart head { get; set; }
     private ShipPart jet { get; set; }
 
-    private double momentum { get; set; } = 0;
+    private float momentum { get; set; } = 0;
     private Vector2 movingDir { get; set; }
-    private readonly double decel = 0.06;
-    private readonly double accel = 0.4;
-    private readonly double maxSpeed = 4;
+    private readonly float decel = 0.06f;
+    private readonly float accel = 0.4f;
+    private readonly float maxSpeed = 4f;
 
     public int healthPoints { get; set; } = 3;
     public List<Shot> shots { get; set; }
 
     private Timer shotCooldown { get; init; }
-    private readonly double cooldownVal = 350;
+    private readonly float cooldownVal = 350;
 
     public PlayerShip((int row, int col) initialPos)
     {
@@ -94,14 +94,14 @@ public class PlayerShip
     {
         // cos(t)   -sin(t) | x
         // sin(t)   cos(t)  | y
-        double angle = rotateCw ? rotateAngle : -rotateAngle;
+        float angle = rotateCw ? rotateAngle : -rotateAngle;
         head.pos = RotateVector(hull.pos, head.pos, angle);
         head.model.points = head.model.points.Select(p => RotateVector(new Vector2(0), p, angle));
         hull.model.points = hull.model.points.Select(p => RotateVector(new Vector2(0), p, angle));
         jet.model.points = jet.model.points.Select(p => RotateVector(new Vector2(0), p, angle));
     }
 
-    private Vector2 RotateVector(Vector2 rf, Vector2 vec, double angle)
+    private Vector2 RotateVector(Vector2 rf, Vector2 vec, float angle)
     {
         Vector2 center = vec - rf;
         double x = center.X * Math.Cos(angle) - center.Y * Math.Sin(angle);
@@ -158,7 +158,7 @@ public class PlayerShip
     public List<ShipPart> getParts()
     {
         var parts = new List<ShipPart>();
-        if (isThrusting)
+        if (isThrusting && movingFw)
             parts.Add(jet);
         parts.Add(hull);
         parts.Add(head);

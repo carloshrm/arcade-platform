@@ -136,15 +136,10 @@
         }
     }
 
-    public async Task drawVectorial(ISimpleVectorialObject obj, bool isStroke = false)
+    public async Task drawVectorial(ISimpleVectorialObject obj)
     {
         await canvasReference.BeginPathAsync();
-        await canvasReference.SetLineWidthAsync(obj.model.lnWidth);
-
-        if (isStroke)
-            await canvasReference.SetStrokeStyleAsync(obj.model.lnColor);
-        else
-            await canvasReference.SetFillStyleAsync(obj.model.lnColor);
+        await canvasReference.SetLineWidthAsync(obj.model.strokeLineWidth);
 
         bool first = true;
         foreach (var pt in obj.model.points)
@@ -158,10 +153,14 @@
         }
         await canvasReference.ClosePathAsync();
 
-        if (isStroke)
-            await canvasReference.StrokeAsync();
-        else
+        await canvasReference.SetStrokeStyleAsync(obj.model.strokeColor);
+        await canvasReference.StrokeAsync();
+
+        if (obj.model.fillColor != null)
+        {
+            await canvasReference.SetFillStyleAsync(obj.model.fillColor);
             await canvasReference.FillAsync();
+        }            
     }
 
     public async Task drawSet(IEnumerable<IGameObject> list)

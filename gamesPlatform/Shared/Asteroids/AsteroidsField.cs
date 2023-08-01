@@ -139,15 +139,15 @@ public class AsteroidsField : IGameField
                 break;
             case "ArrowDown":
             case "s":
-                player.Thrust(false);
+                player.Thrust(fw: false);
                 break;
             case "ArrowLeft":
             case "a":
-                player.Rotate();
+                player.Rotate(cw: false);
                 break;
             case "ArrowRight":
             case "d":
-                player.Rotate(true);
+                player.Rotate(cw: true);
                 break;
             default:
                 break;
@@ -181,9 +181,6 @@ public class AsteroidsField : IGameField
         CheckHit();
         player.UpdateShots(limits.col, limits.row);
         s.scoreValue += CleanupAsteroids();
-        Parallel.ForEach(asteroids, (ast) => ast.UpdatePosition(limits.col, limits.row));
-        // shots
-        // hit detection
-        // respawn asteroids
+        asteroids.ForEach((ast) => ast.UpdatePosition(limits.col, limits.row));
     }
 }
