@@ -45,7 +45,8 @@ public class AsteroidsField : IGameField
             {
                 nextX = rng.Next(100, limits.col - 100);
                 nextY = rng.Next(100, limits.row - 100);
-            } while (playerPos.Any(p => p.X == nextX || p.Y == nextY));
+            } while (playerPos.Any(p => p.X == nextX || p.Y == nextY)
+                    || field.Any(a => a.pos.X == nextX || a.pos.Y == nextY));
 
             field.Add(new Asteroid(new Vector2(nextX, nextY)));
         }
@@ -53,30 +54,48 @@ public class AsteroidsField : IGameField
     }
     private void CheckHit()
     {
-        Parallel.ForEach(player.shots, (ps) =>
+        Parallel.ForEach(player.shots, (shot) =>
         {
-            foreach (var a in asteroids)
+            foreach (var astr in asteroids)
             {
-                if (Math.Abs(ps.pos.X - a.pos.X) > 70 || Math.Abs(ps.pos.Y - a.pos.Y) > 70)
+                if (Math.Abs(shot.pos.X - astr.pos.X) > 70 || Math.Abs(shot.pos.Y - astr.pos.Y) > 70)
                     continue;
 
-                Vector2 closestPoint = Vector2.Zero;
-                foreach (var p in a.model.points)
+                Vector2 closestPoint = astr.FindClosestPoint(shot.pos);
+                if (Vector2.Distance(shot.pos, astr.pos) <= Vector2.Distance(closestPoint, astr.pos))
                 {
-                    if (closestPoint == Vector2.Zero ||
-                        Vector2.Distance(p + a.pos, ps.pos) <= Vector2.Distance(closestPoint, ps.pos))
-                    {
-                        closestPoint = p + a.pos;
-                    }
-                }
-                if (Vector2.Distance(ps.pos, a.pos) <= Vector2.Distance(closestPoint, a.pos))
-                {
-                    a.wasHit = true;
-                    a.floatDir += ps.dir;
-                    ps.fade = true;
+                    astr.wasHit = true;
+                    astr.floatDir += shot.dir;
+                    shot.fade = true;
                 }
             }
         });
+    }
+
+    private void BumpAsteroids()
+    {
+        foreach (var currentAst in asteroids)
+        {
+            foreach (var floatingAst in asteroids)
+            {
+                if (currentAst == floatingAst
+                    || (Math.Abs(currentAst.pos.X - floatingAst.pos.X) > 100
+                        && Math.Abs(currentAst.pos.Y - floatingAst.pos.Y) > 100))
+                    continue;
+                else
+                {
+                    var localClosestPoint = currentAst.FindClosestPoint(floatingAst.pos);
+                    var floatingclosestPoint = floatingAst.FindClosestPoint(currentAst.pos);
+
+                    var outer = Vector2.Distance(floatingclosestPoint, currentAst.pos);
+                    var local = Vector2.Distance(localClosestPoint, currentAst.pos);
+                    if (outer < local)
+                    {
+                        currentAst.model.fillColor = "green";
+                    }
+                }
+            }
+        }
     }
 
     private int CleanupAsteroids()
@@ -98,7 +117,8 @@ public class AsteroidsField : IGameField
                     secondary.Add(fragmentB);
                 }
                 return true;
-            } else
+            }
+            else
                 return false;
         });
         asteroids.AddRange(secondary);
@@ -182,5 +202,6 @@ public class AsteroidsField : IGameField
         player.UpdateShots(limits.col, limits.row);
         s.scoreValue += CleanupAsteroids();
         asteroids.ForEach((ast) => ast.UpdatePosition(limits.col, limits.row));
+        BumpAsteroids();
     }
 }
