@@ -29,4 +29,13 @@ public class Asteroid : ISimpleVectorialObject
         else if (pos.Y >= yEdge) pos = new Vector2(pos.X, 0);
     }
 
+    public override bool Equals(object? obj)
+    {
+        if (obj == null || obj is not Asteroid)
+            return false;
+        else
+            return (int)pos.X == (int)((Asteroid)obj).pos.X 
+                && (int)pos.Y == (int)((Asteroid)obj).pos.Y;
+    }   
+
 }
