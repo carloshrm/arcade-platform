@@ -10,7 +10,7 @@ public class Asteroid : ISimpleVectorialObject
     public bool wasHit { get; set; } = false;
     public bool isPrimary { get; set; }
 
-    public Vector2 floatDir { get; set; }    
+    public Vector2 floatDir { get; private set; }    
 
     public Asteroid(Vector2 pos, bool isPrimary = true)
     {
@@ -29,6 +29,11 @@ public class Asteroid : ISimpleVectorialObject
         else if (pos.Y >= yEdge) pos = new Vector2(pos.X, 0);
     }
 
+    public void SetFloatDir(Vector2 dir)
+    {
+        floatDir = Vector2.Normalize(dir);
+    }
+
     public override bool Equals(object? obj)
     {
         if (obj == null || obj is not Asteroid)
@@ -36,6 +41,5 @@ public class Asteroid : ISimpleVectorialObject
         else
             return (int)pos.X == (int)((Asteroid)obj).pos.X 
                 && (int)pos.Y == (int)((Asteroid)obj).pos.Y;
-    }   
-
+    }
 }

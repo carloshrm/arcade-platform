@@ -65,7 +65,7 @@ public class AsteroidsField : IGameField
                 if (Vector2.Distance(shot.pos, astr.pos) <= Vector2.Distance(closestPoint, astr.pos))
                 {
                     astr.wasHit = true;
-                    astr.floatDir += shot.dir;
+                    astr.SetFloatDir(shot.dir + astr.floatDir);
                     shot.fade = true;
                 }
             }
@@ -84,21 +84,24 @@ public class AsteroidsField : IGameField
                     continue;
                 else
                 {
-                    var localClosestPoint = currentAst.FindClosestPoint(floatingAst.pos);
-                    var floatingclosestPoint = floatingAst.FindClosestPoint(currentAst.pos);
 
-                    var outer = Vector2.Distance(floatingclosestPoint, currentAst.pos);
-                    var local = Vector2.Distance(localClosestPoint, currentAst.pos);
-                    if (outer < local)
-                    {
-                        currentAst.model.fillColor = "green";
-                    }
+                    //var localClosestPoint = currentAst.FindClosestPoint(floatingAst.pos);
+                    //var floatingclosestPoint = floatingAst.FindClosestPoint(currentAst.pos);
+
+                    //var outer = Vector2.Distance(floatingclosestPoint, currentAst.pos);
+                    //var local = Vector2.Distance(localClosestPoint, currentAst.pos);
+                    //if (outer < local)
+                    //{
+                    //    currentAst.SetFloatDir(Vector2.Negate(currentAst.floatDir) + floatingAst.floatDir);
+                    //    floatingAst.SetFloatDir(Vector2.Negate(floatingAst.floatDir) + currentAst.floatDir);
+                    //    // TODO - offset current position to avoid bumping hundreds of times in a second
+                    //}
                 }
             }
         }
     }
 
-    private int CleanupAsteroids()
+    private int UpdateAsteroidState()
     {
         int score = 0;
         var secondary = new List<Asteroid>();
@@ -109,10 +112,10 @@ public class AsteroidsField : IGameField
                 score += baseScore;
                 if (a.isPrimary)
                 {
-                    var fragmentA = new Asteroid(a.pos, false);
-                    fragmentA.floatDir += Vector2.Normalize(a.floatDir);
-                    var fragmentB = new Asteroid(a.pos, false);
-                    fragmentB.floatDir += Vector2.Negate(fragmentA.floatDir);
+                    var fragmentA = new Asteroid(new Vector2(a.pos.X + Random.Shared.Next(-10, 20), a.pos.Y), false);
+                    fragmentA.SetFloatDir(a.floatDir);
+                    var fragmentB = new Asteroid(new Vector2(a.pos.X, a.pos.Y - Random.Shared.Next(-10, 20)), false);
+                    fragmentB.SetFloatDir(Vector2.Negate(fragmentA.floatDir));
                     secondary.Add(fragmentA);
                     secondary.Add(fragmentB);
                 }
@@ -200,7 +203,7 @@ public class AsteroidsField : IGameField
         player.updatePosition(limits);
         CheckHit();
         player.UpdateShots(limits.col, limits.row);
-        s.scoreValue += CleanupAsteroids();
+        s.scoreValue += UpdateAsteroidState();
         asteroids.ForEach((ast) => ast.UpdatePosition(limits.col, limits.row));
         BumpAsteroids();
     }
