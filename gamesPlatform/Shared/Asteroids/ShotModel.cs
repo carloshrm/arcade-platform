@@ -10,4 +10,6 @@ public class ShotModel : CanvasRenderedVectorial
     public override float objWidth { get; set; } = 2f;
     public override float objHeight { get; set; } = 2f;
     public override string? fillColor { get; set; }
+    public override Vector2 upRightBounds { get; set; }
+    public override Vector2 bottomLeftBounds { get; set; }
 }

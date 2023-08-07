@@ -17,6 +17,8 @@ public class ShipModel : CanvasRenderedVectorial
     public override float objWidth { get; set; }
     public override float objHeight { get; set; }
     public override string? fillColor { get; set; } = null;
+    public override Vector2 upRightBounds { get; set; }
+    public override Vector2 bottomLeftBounds { get; set; }
 
     public static ShipModel GetJet() => new()
     {
@@ -31,12 +33,15 @@ public class ShipModel : CanvasRenderedVectorial
         },
         objHeight = 4,
         objWidth = 4,
+        upRightBounds = new Vector2(6, 0),
+        bottomLeftBounds = new Vector2(-6, -12),
     };
 
     public static ShipModel GetHead() => new()
     {
-        strokeColor = "#00A5E5",
+        strokeColor = "#50AAE5",
         strokeLineWidth = 2,
+        fillColor = " #AA00A0",
         points = new List<Vector2>
         {
             new Vector2(0, 16),
@@ -45,13 +50,15 @@ public class ShipModel : CanvasRenderedVectorial
         },
         objHeight = 16,
         objWidth = 8,
+        upRightBounds = new Vector2(8, 16),
+        bottomLeftBounds = new Vector2(-8, -2),
     };
 
     public static ShipModel GetHull() => new()
     {
-        strokeColor = "#00A5E5",
+        strokeColor = "#50AAE5",
         strokeLineWidth = 2,
-        fillColor = " #5000E5",
+        fillColor = " #AA00A0",
         points = new List<Vector2>
         {
             new Vector2(8, 8),
@@ -64,5 +71,7 @@ public class ShipModel : CanvasRenderedVectorial
         },
         objHeight = 10,
         objWidth = 14,
+        upRightBounds = new Vector2(14, 8),
+        bottomLeftBounds = new Vector2(-14, -8),        
     };
 }
