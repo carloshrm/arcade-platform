@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
 
 namespace cmArcade.Shared.Asteroids;
 
@@ -10,10 +11,12 @@ public class AsteroidModel : CanvasRenderedVectorial
     public override float objWidth { get; set; }
     public override float objHeight { get; set; }
     public override string? fillColor { get; set; }
+    public override Vector2 upRightBounds { get; set; }
+    public override Vector2 bottomLeftBounds { get; set; }
 
     private AsteroidModel()
     {
-        strokeColor = "gray";
+        strokeColor = "white";
         strokeLineWidth = 2f;
         objWidth = 0;
         objHeight = 0;
@@ -28,6 +31,11 @@ public class AsteroidModel : CanvasRenderedVectorial
         double angleDiv = 6.28 / --pointCount;
         double angle = angleDiv;
 
+        float leftWidth = 1;
+        float rightWidth = -1;
+        float topHeight = -1;
+        float bottomHeight = 1;
+
         while (pointCount-- > 0)
         {
             //create points by spinning around the initial pos offsetting the next one outwards by random
@@ -37,8 +45,28 @@ public class AsteroidModel : CanvasRenderedVectorial
                 (float)(x + (x * Random.Shared.NextDouble())),
                 (float)(y + (y * Random.Shared.NextDouble())));
             newPoints.Add(newPt);
+
+            if (newPt.X > rightWidth)
+                rightWidth = newPt.X;
+            else if (newPt.X < leftWidth)
+                leftWidth = newPt.X;
+
+            if (newPt.Y < bottomHeight)
+                bottomHeight = newPt.Y;
+            else if (newPt.Y > topHeight)
+                topHeight = newPt.Y;
+
             angle += angleDiv;
         }
-        return new AsteroidModel() { points = newPoints };
+        return new AsteroidModel() {
+            points = newPoints,
+            objWidth = rightWidth + Math.Abs(leftWidth),
+            objHeight = topHeight + Math.Abs(bottomHeight),
+            upRightBounds = new Vector2(rightWidth, topHeight),
+            bottomLeftBounds = new Vector2(leftWidth, bottomHeight),
+            fillColor = isPrimary
+                ? (Random.Shared.NextDouble() > 0.5 ? "#81858955" : "#A9A9A999")
+                : "#E5E4E2EE"
+        };
     }
 }

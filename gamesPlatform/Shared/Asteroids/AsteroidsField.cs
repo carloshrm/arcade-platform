@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.Versioning;
@@ -17,7 +18,7 @@ public class AsteroidsField : IGameField
     public string uiMessage { get; set; } = string.Empty;
     public int scoreMult { get; set; } = 1;
 
-    private readonly int asteroidLimit = 5;
+    private readonly int asteroidLimit = 4;
     private readonly int baseScore = 3;
 
     private PlayerShip player { get; set; }
@@ -54,7 +55,7 @@ public class AsteroidsField : IGameField
     }
     private void CheckHit()
     {
-        Parallel.ForEach(player.shots, (shot) =>
+        foreach (var shot in player.shots)
         {
             foreach (var astr in asteroids)
             {
@@ -65,16 +66,17 @@ public class AsteroidsField : IGameField
                 if (Vector2.Distance(shot.pos, astr.pos) <= Vector2.Distance(closestPoint, astr.pos))
                 {
                     astr.wasHit = true;
-                    astr.SetFloatDir(shot.dir + astr.floatDir);
+                    astr.SetNormalizedFloatDir(shot.dir + astr.floatDir);
                     shot.fade = true;
+                    return;
                 }
             }
-        });
+        };
     }
 
     private void BumpAsteroids()
     {
-        foreach (var currentAst in asteroids)
+        foreach (Asteroid currentAst in asteroids.Where(c => !c.isPrimary))
         {
             foreach (var floatingAst in asteroids)
             {
@@ -85,17 +87,16 @@ public class AsteroidsField : IGameField
                 else
                 {
 
-                    //var localClosestPoint = currentAst.FindClosestPoint(floatingAst.pos);
-                    //var floatingclosestPoint = floatingAst.FindClosestPoint(currentAst.pos);
+                    var innerClosestPoint = currentAst.FindClosestPoint(floatingAst.pos);
+                    var outerClosestPoint = floatingAst.FindClosestPoint(currentAst.pos);
+                    var outer = Vector2.Distance(outerClosestPoint, currentAst.pos);
+                    var inner = Vector2.Distance(innerClosestPoint, currentAst.pos);
+                    if (outer < inner)
+                    {
+                        currentAst.Bump(floatingAst.floatDir);
+                        currentAst.model.fillColor = "red";
 
-                    //var outer = Vector2.Distance(floatingclosestPoint, currentAst.pos);
-                    //var local = Vector2.Distance(localClosestPoint, currentAst.pos);
-                    //if (outer < local)
-                    //{
-                    //    currentAst.SetFloatDir(Vector2.Negate(currentAst.floatDir) + floatingAst.floatDir);
-                    //    floatingAst.SetFloatDir(Vector2.Negate(floatingAst.floatDir) + currentAst.floatDir);
-                    //    // TODO - offset current position to avoid bumping hundreds of times in a second
-                    //}
+                    }
                 }
             }
         }
@@ -112,10 +113,10 @@ public class AsteroidsField : IGameField
                 score += baseScore;
                 if (a.isPrimary)
                 {
-                    var fragmentA = new Asteroid(new Vector2(a.pos.X + Random.Shared.Next(-10, 20), a.pos.Y), false);
-                    fragmentA.SetFloatDir(a.floatDir);
-                    var fragmentB = new Asteroid(new Vector2(a.pos.X, a.pos.Y - Random.Shared.Next(-10, 20)), false);
-                    fragmentB.SetFloatDir(Vector2.Negate(fragmentA.floatDir));
+                    var fragmentA = new Asteroid(new Vector2(a.pos.X, a.pos.Y), false);
+                    fragmentA.SetNormalizedFloatDir(a.floatDir);
+                    var fragmentB = new Asteroid(new Vector2(a.pos.X + fragmentA.model.objWidth, a.pos.Y + fragmentA.model.objHeight), false);
+                    fragmentB.SetNormalizedFloatDir(Vector2.Negate(fragmentA.floatDir));
                     secondary.Add(fragmentA);
                     secondary.Add(fragmentB);
                 }
