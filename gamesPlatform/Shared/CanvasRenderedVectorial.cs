@@ -11,4 +11,6 @@ public abstract class CanvasRenderedVectorial
     public abstract IEnumerable<Vector2> points { get; set; }
     public abstract float objWidth { get; set; }
     public abstract float objHeight { get; set; }
+    public abstract Vector2 upRightBounds { get; set; }
+    public abstract Vector2 bottomLeftBounds { get; set; }
 }
