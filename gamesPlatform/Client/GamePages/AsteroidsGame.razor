@@ -86,7 +86,7 @@
     {
         await jsRuntime.InvokeVoidAsync("setFocus");
 
-        if (gameControl.Enabled) 
+        if (gameControl.Enabled)
             ToggleControlObjects();
 
         currentScore = new Score(_myID);
@@ -120,10 +120,10 @@
 
     private string getUIText()
     {
-        return 
-            $"Time: \n  {currentScore.runLength.ToString("mm\\:ss")}\n" +
-            $"Score:\n  {currentScore.scoreValue}" +
-            $"Best: \n  {highScore.scoreValue}\n";
+        return
+            $"Time: \n  {currentScore.runLength.ToString("mm\\:ss")} \n" +
+            $"Score:\n  {currentScore.scoreValue} \n" +
+            $"Best: \n  {highScore.scoreValue} \n";
     }
 
     protected async override void RunGame(Object? o, ElapsedEventArgs e)
@@ -132,7 +132,7 @@
 
         if (game.checkGameOver())
             await StopGame();
-        
+
         currentScore.runLength = DateTime.Now - currentScore.runStart;
     }
 
@@ -144,14 +144,12 @@
         var ship = ((PlayerShip)game.getPlayer());
         ship.getParts().ForEach(async p => await gameScreen.drawVectorial(p));
         ship.shots.ForEach(async s => await gameScreen.drawVectorial(s));
-        await gameScreen.canvasReference.SetFillStyleAsync("pink");
         await gameScreen.fillTextExtended(getUIText(), gameScreen.componentWidth * 0.02, 20, textStyle, "white", 10);
-        game.asteroids.ForEach(async a => 
+        game.asteroids.ForEach(async a =>
         {
             await gameScreen.drawVectorial(a);
-            //await gameScreen.canvasReference.FillRectAsync(a.pos.X, a.pos.Y, 4, 4);
         });
-        await gameScreen.canvasReference.EndBatchAsync();
+        await gameScreen.canvasReference.EndBatchAsync();        
     }
 
     public override void DisposeHarder()
