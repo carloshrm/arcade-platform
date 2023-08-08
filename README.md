@@ -2,9 +2,9 @@
 
 Play here - https://cmarcade.azurewebsites.net
 
-Full-stack project that aims to rekame classic games like snake, space invaders, breakout and others in C# for web from scratch (without a game engine) using Blazor and ASP.NET server.
+Full-stack project that aims to remake classic old games like snake, space invaders, breakout and others for web, coding everything from the ground up (without a game engine) using C# .NET 6, with Blazor and ASP.NET server.
 
-Also featuring an API allowing users to keep high scores and showing leaderboards for each game, working through Dapper on PostgreSQL.  
+The project also features an API that allows users to submit their highest scores and view a leaderboard for each game, this API is exposed on the ASP.NET backend, working through Dapper and an external PostgreSQL database.  
 
-The app is hosted on Microsoft Azure Apps through a continuous deployment pipeline using github actions.
-Scores are stored on an external Postgresql database, hosted on https://supabase.com/
+The app is hosted on Microsoft Azure Apps (https://azure.microsoft.com/en-us/products/app-service), using a continuous deployment pipeline with github actions.
+The external PostgreSQL database is hosted on https://supabase.com/
