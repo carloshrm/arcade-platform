@@ -41,7 +41,7 @@ public class ShipModel : CanvasRenderedVectorial
     {
         strokeColor = "#50AAE5",
         strokeLineWidth = 2,
-        fillColor = " #AA00A0",
+        fillColor = " #4000A0",
         points = new List<Vector2>
         {
             new Vector2(0, 16),
@@ -58,7 +58,7 @@ public class ShipModel : CanvasRenderedVectorial
     {
         strokeColor = "#50AAE5",
         strokeLineWidth = 2,
-        fillColor = " #AA00A0",
+        fillColor = " #4000A0",
         points = new List<Vector2>
         {
             new Vector2(8, 8),

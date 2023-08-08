@@ -94,8 +94,6 @@ public class AsteroidsField : IGameField
                     if (outer < inner)
                     {
                         currentAst.Bump(floatingAst.floatDir);
-                        currentAst.model.fillColor = "red";
-
                     }
                 }
             }
