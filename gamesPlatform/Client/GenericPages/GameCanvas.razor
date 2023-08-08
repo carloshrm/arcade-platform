@@ -59,16 +59,14 @@
         windowHeight = await jsRuntime.InvokeAsync<long>("getWindowHeight");
 
         int screenLimit = Math.Min((int)(windowWidth * 0.08) * 10, (int)(windowHeight * 0.08) * 10);
-
         (componentWidth, componentHeight) = appID switch
         {
             AppID.Snake => 
                 (screenLimit - (screenLimit % baseResolution.c), screenLimit - (screenLimit % baseResolution.r)),
-            AppID.Tetris => 
+            AppID.Tetris =>
                 (screenLimit - (screenLimit % baseResolution.c), screenLimit - (screenLimit % baseResolution.r)),
             _ => baseResolution            
         };
-
         StateHasChanged();
         setupScaleFactor();
     }
@@ -86,7 +84,6 @@
 
     public async Task drawScaledSimpleObject(ISimpleGameObject obj)
     {
-
         var previousStyle = canvasReference.FillStyle;
         await canvasReference.SetFillStyleAsync(obj.model.color);
         await canvasReference.FillRectAsync(obj.pos.X * scaleFactor.c, obj.pos.Y * scaleFactor.r, scaleFactor.c, scaleFactor.r);
@@ -114,6 +111,56 @@
                     d.width, d.height);
             }
         }
+    }
+
+    public async Task drawObject(IDrawable obj, Vector2 pos)
+    {
+        // renders from the top left
+        await canvasReference.DrawImageAsync(
+            assets[obj.model.spriteId], // asset image reference
+            obj.spriteSelect * obj.model.width, obj.model.height * 0, // asset position on referenced image
+            obj.model.width, obj.model.height, // asset size on image
+            pos.X, pos.Y, // canvas x and y coords for rendering
+            obj.model.width, obj.model.height); // size for rendering in canvas
+        if (obj.decals != null)
+        {
+            foreach (var d in obj.decals)
+            {
+                int widthPadding = d.width < obj.model.width ? (d.width / -2) + ((obj.model.width) / 2) : 0;
+                int heightPadding = d.height < obj.model.height ? (d.height / -2) + ((obj.model.height) / 2) : 0;
+                await canvasReference.DrawImageAsync(
+                    assets[d.spriteId], 0, 0, d.width, d.height,
+                    pos.X + widthPadding, pos.Y + heightPadding,
+                    d.width, d.height);
+            }
+        }
+    }
+
+    public async Task drawVectorial(ISimpleVectorialObject obj)
+    {
+        await canvasReference.BeginPathAsync();
+        await canvasReference.SetLineWidthAsync(obj.model.strokeLineWidth);
+
+        bool first = true;
+        foreach (var pt in obj.model.points)
+        {
+            if (first)
+            {
+                await canvasReference.MoveToAsync(pt.X + obj.pos.X, pt.Y + obj.pos.Y);
+                first = false;
+            }
+            await canvasReference.LineToAsync(pt.X + obj.pos.X, pt.Y + obj.pos.Y);
+        }
+        await canvasReference.ClosePathAsync();
+
+        await canvasReference.SetStrokeStyleAsync(obj.model.strokeColor);
+        await canvasReference.StrokeAsync();
+
+        if (obj.model.fillColor != null)
+        {
+            await canvasReference.SetFillStyleAsync(obj.model.fillColor);
+            await canvasReference.FillAsync();
+        }            
     }
 
     public async Task drawSet(IEnumerable<IGameObject> list)
