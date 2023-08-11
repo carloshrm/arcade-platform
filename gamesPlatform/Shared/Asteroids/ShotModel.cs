@@ -4,6 +4,8 @@ namespace cmArcade.Shared.Asteroids;
 
 public class ShotModel : CanvasRenderedVectorial
 {
+    public ShotModel(IEnumerable<Vector2> points) : base(points) { }
+
     public override string strokeColor { get; set; } = "red";
     public override float strokeLineWidth { get; set; } = 4f;
     public override IEnumerable<Vector2> points { get; set; }

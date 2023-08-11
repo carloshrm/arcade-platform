@@ -13,14 +13,11 @@ public class AsteroidsField : IGameField
 {
     private readonly (int row, int col) limits;
     private readonly Random rng = new Random();
-
     public int activeEdges { get; private set; }
     public string uiMessage { get; set; } = string.Empty;
     public int scoreMult { get; set; } = 1;
-
-    private readonly int asteroidLimit = 4;
+    private readonly int asteroidLimit = 6;
     private readonly int baseScore = 3;
-
     private PlayerShip player { get; set; }
     public List<Asteroid> asteroids { get; set; }
 
@@ -39,7 +36,6 @@ public class AsteroidsField : IGameField
         int astCount = asteroidLimit;
         while (astCount-- > 0)
         {
-
             float nextX = 0;
             float nextY = 0;
             do
@@ -47,7 +43,12 @@ public class AsteroidsField : IGameField
                 nextX = rng.Next(100, limits.col - 100);
                 nextY = rng.Next(100, limits.row - 100);
             } while (playerPos.Any(p => p.X == nextX || p.Y == nextY)
-                    || field.Any(a => a.pos.X == nextX || a.pos.Y == nextY));
+                    || field.Any(a =>
+                        (a.pos.X + a.model.bottomLeftBounds.X <= nextX
+                        && a.pos.X + a.model.upRightBounds.X >= nextX)
+                    &&
+                        (a.pos.Y + a.model.upRightBounds.Y <= nextY
+                        && a.pos.Y + a.model.bottomLeftBounds.Y <= nextY)));
 
             field.Add(new Asteroid(new Vector2(nextX, nextY)));
         }
@@ -68,10 +69,10 @@ public class AsteroidsField : IGameField
                     astr.wasHit = true;
                     astr.SetNormalizedFloatDir(shot.dir + astr.floatDir);
                     shot.fade = true;
-                    return;
+                    break;
                 }
             }
-        };
+        }
     }
 
     private void BumpAsteroids()
@@ -80,11 +81,9 @@ public class AsteroidsField : IGameField
         {
             foreach (var floatingAst in asteroids)
             {
-                if (currentAst == floatingAst
-                    || (Math.Abs(currentAst.pos.X - floatingAst.pos.X) > 100
-                        && Math.Abs(currentAst.pos.Y - floatingAst.pos.Y) > 100))
-                    continue;
-                else
+                if (currentAst != floatingAst
+                    && (Math.Abs(currentAst.pos.X - floatingAst.pos.X) <= 100
+                        || Math.Abs(currentAst.pos.Y - floatingAst.pos.Y) <= 100))
                 {
 
                     var innerClosestPoint = currentAst.FindClosestPoint(floatingAst.pos);
@@ -100,7 +99,7 @@ public class AsteroidsField : IGameField
         }
     }
 
-    private int UpdateAsteroidState()
+    private int UpdateFieldState()
     {
         int score = 0;
         var secondary = new List<Asteroid>();
@@ -129,7 +128,7 @@ public class AsteroidsField : IGameField
 
     public bool checkGameOver()
     {
-        return false;
+        return player.healthPoints == 0;
     }
 
     public object getPlayer()
@@ -202,7 +201,7 @@ public class AsteroidsField : IGameField
         player.updatePosition(limits);
         CheckHit();
         player.UpdateShots(limits.col, limits.row);
-        s.scoreValue += UpdateAsteroidState();
+        s.scoreValue += UpdateFieldState();
         asteroids.ForEach((ast) => ast.UpdatePosition(limits.col, limits.row));
         BumpAsteroids();
     }

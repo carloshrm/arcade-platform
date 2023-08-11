@@ -9,12 +9,9 @@ public class Asteroid : ISimpleVectorialObject
 {
     public CanvasRenderedVectorial model { get; set; }
     public Vector2 pos { get; set; }
-
     public bool wasHit { get; set; } = false;
     public bool isPrimary { get; set; }
-
     private float bumpLimit { get; set; }
-
     public Vector2 floatDir { get; set; }    
 
     public Asteroid(Vector2 pos, bool isPrimary = true)
@@ -35,11 +32,8 @@ public class Asteroid : ISimpleVectorialObject
 
         if (bumpLimit > 0)
         {
-            Console.WriteLine(bumpLimit);
             bumpLimit--;
         }
-        if (floatDir.X == float.NaN || pos.X == float.NaN)
-            Debugger.Break();
     }
 
     public void SetNormalizedFloatDir(Vector2 dir)
@@ -68,9 +62,7 @@ public class Asteroid : ISimpleVectorialObject
     {
         if (bumpLimit < 10)
         {
-            var negated = Vector2.Negate(floatDir);
-
-            SetNormalizedFloatDir(negated * dir);
+            SetNormalizedFloatDir(Vector2.Negate(floatDir) * dir);
             bumpLimit += 50;
         }
     }

@@ -25,16 +25,15 @@ public class PlayerShip
 
     public int healthPoints { get; set; } = 3;
     public List<Shot> shots { get; set; }
-
     private Timer shotCooldown { get; init; }
     private readonly float cooldownVal = 350;
 
     public PlayerShip((int row, int col) initialPos)
     {
         hull = new ShipPart(initialPos.col, initialPos.row) { model = ShipModel.GetHull() };
-        head = new ShipPart(initialPos.col, initialPos.row + hull.model.objHeight) { model = ShipModel.GetHead() };
+        head = new ShipPart(initialPos.col, initialPos.row + hull.model.upRightBounds.Y) { model = ShipModel.GetHead() };
         jet = new ShipPart(initialPos.col, initialPos.row) { model = ShipModel.GetJet() };
-        movingDir = new Vector2(0, 0);
+        movingDir = Vector2.Zero;
         shots = new List<Shot>();
         shotCooldown = new Timer() { AutoReset = false, Enabled = false, Interval = cooldownVal };
     }
@@ -121,14 +120,12 @@ public class PlayerShip
         head.pos -= dirVec;
         hull.pos -= dirVec;
         jet.pos -= dirVec;
-
         if (momentum != 0)
         {
             momentum += momentum > 0 ? -decel : +decel;
             if (momentum > 0 && momentum < 0.01)
                 momentum = 0;
         }
-
         if (hull.pos.X < 0)
             WarpShip(new Vector2(limits.col - 1, hull.pos.Y));
         else if (hull.pos.Y < 0)
@@ -157,11 +154,10 @@ public class PlayerShip
 
     public List<ShipPart> getParts()
     {
-        var parts = new List<ShipPart>();
+        var parts = new List<ShipPart> { hull, head };
         if (isThrusting && movingFw)
             parts.Add(jet);
-        parts.Add(hull);
-        parts.Add(head);
+
         return parts;
     }
 }

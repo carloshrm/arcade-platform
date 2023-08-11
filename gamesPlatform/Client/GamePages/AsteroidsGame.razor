@@ -40,6 +40,8 @@
     public AsteroidsGame() : base(AppID.Asteroids)
     {
         gameControl.Interval = 50;
+        //TODO - show game over screen, upload score, fix asteroids spawning on top of each other, respawn destroyed asteroids
+        //TODO - tune ship movement and feel (speed up), fix shot tunneling small asteroids, simplify bump based on boundaries
     }
 
     protected override async Task OnInitializedAsync()
@@ -47,6 +49,7 @@
         isMobile = await jsRuntime.InvokeAsync<bool>("isMobile");
         if (isMobile)
             textStyle = "8px \"Press Start 2P\"";
+
         highScore = await scoreService.readLocalScore(_myID);
     }
 
@@ -85,7 +88,6 @@
     protected override async Task ResetGame()
     {
         await jsRuntime.InvokeVoidAsync("setFocus");
-
         if (gameControl.Enabled)
             ToggleControlObjects();
 
@@ -129,7 +131,6 @@
     protected async override void RunGame(Object? o, ElapsedEventArgs e)
     {
         game.updateGameState(currentScore);
-
         if (game.checkGameOver())
             await StopGame();
 
@@ -146,9 +147,7 @@
         ship.shots.ForEach(async s => await gameScreen.drawVectorial(s));
 
         await gameScreen.fillTextExtended(getUIText(), gameScreen.componentWidth * 0.02, 20, textStyle, "white", 10);
-
         game.asteroids.ForEach(async a => await gameScreen.drawVectorial(a));
-
         await gameScreen.canvasReference.EndBatchAsync();        
     }
 

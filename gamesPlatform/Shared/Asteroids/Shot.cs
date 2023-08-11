@@ -21,7 +21,7 @@ public class Shot : ISimpleVectorialObject
         this.pos = pos;
         this.dir = dir * 2.5f;
         lifetime.Elapsed += (o, e) => fade = true;
-        model = new ShotModel() { points = new List<Vector2>() { dir, this.dir } };
+        model = new ShotModel(new List<Vector2>() { dir, this.dir });
     }
 
     public void UpdatePosition()
