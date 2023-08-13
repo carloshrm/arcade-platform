@@ -7,12 +7,13 @@ using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 
+using static System.Net.Mime.MediaTypeNames;
+
 namespace cmArcade.Shared.Asteroids;
 
 public class AsteroidsField : IGameField
 {
     private readonly (int row, int col) limits;
-    private readonly Random rng = new Random();
     public int activeEdges { get; private set; }
     public string uiMessage { get; set; } = string.Empty;
     public int scoreMult { get; set; } = 1;
@@ -31,7 +32,6 @@ public class AsteroidsField : IGameField
     private List<Asteroid> GenerateField()
     {
         var field = new List<Asteroid>();
-        var playerPos = player.getParts().Select(p => p.pos);
 
         int astCount = asteroidLimit;
         while (astCount-- > 0)
@@ -40,20 +40,33 @@ public class AsteroidsField : IGameField
             float nextY = 0;
             do
             {
-                nextX = rng.Next(100, limits.col - 100);
-                nextY = rng.Next(100, limits.row - 100);
-            } while (playerPos.Any(p => p.X == nextX || p.Y == nextY)
-                    || field.Any(a =>
-                        (a.pos.X + a.model.bottomLeftBounds.X <= nextX
-                        && a.pos.X + a.model.upRightBounds.X >= nextX)
-                    &&
-                        (a.pos.Y + a.model.upRightBounds.Y <= nextY
-                        && a.pos.Y + a.model.bottomLeftBounds.Y <= nextY)));
+                nextX = Random.Shared.Next(100, limits.col - 100);
+                nextY = Random.Shared.Next(100, limits.row - 100);
+            } while (player.getParts().Any(p => CheckCollision(p, nextX, nextY))
+                    || field.Any(a => CheckCollision(a, nextX, nextY)));
 
             field.Add(new Asteroid(new Vector2(nextX, nextY)));
         }
         return field;
     }
+
+    private Asteroid SpawnAsteroidOutside()
+    {
+        return new Asteroid(
+                new Vector2(
+                    Random.Shared.Next(-10, 0),
+                    Random.Shared.Next(-10, 0))
+                );
+    }
+
+    private bool CheckCollision(ISimpleVectorialObject a, float x, float y)
+    {
+        return a.pos.X + a.model.bottomLeftBounds.X <= x 
+            && a.pos.X + a.model.upRightBounds.X >= x
+            && a.pos.Y + a.model.upRightBounds.Y <= y 
+            && a.pos.Y + a.model.bottomLeftBounds.Y <= y;
+    }
+
     private void CheckHit()
     {
         foreach (var shot in player.shots)
@@ -103,7 +116,7 @@ public class AsteroidsField : IGameField
     {
         int score = 0;
         var secondary = new List<Asteroid>();
-        asteroids.RemoveAll(a =>
+        int removedCount = asteroids.RemoveAll(a =>
         {
             if (a.wasHit)
             {
@@ -123,6 +136,8 @@ public class AsteroidsField : IGameField
                 return false;
         });
         asteroids.AddRange(secondary);
+        for (int i = 0; i < removedCount; i++)
+            asteroids.Add(SpawnAsteroidOutside());
         return score;
     }
 
