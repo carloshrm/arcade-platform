@@ -19,9 +19,9 @@ public class PlayerShip
 
     private float momentum { get; set; } = 0;
     private Vector2 movingDir { get; set; }
-    private readonly float decel = 0.06f;
+    private readonly float decel = 0.04f;
     private readonly float accel = 0.4f;
-    private readonly float maxSpeed = 4f;
+    private readonly float maxSpeed = 6f;
 
     public int healthPoints { get; set; } = 3;
     public List<Shot> shots { get; set; }
@@ -62,8 +62,8 @@ public class PlayerShip
                 if (momentum < maxSpeed)
                     momentum += accel;
 
-                var dir = Vector2.Normalize(movingDir - (head.pos - hull.pos));
-                movingDir = Vector2.Normalize(Vector2.Add(dir, movingDir));
+                float scalar = (float)Math.Clamp((maxSpeed / momentum) - 1, 0.1, 0.8);
+                movingDir = Vector2.Normalize(Vector2.Lerp(movingDir, (hull.pos - head.pos), scalar));
             }
             else
             {
@@ -143,13 +143,12 @@ public class PlayerShip
         jet.pos = hull.pos;
     }
 
-
-    public void UpdateShots(int xEdge, int yEdge)
+    public void UpdateShots((int xEdge, int yEdge) limits)
     {
         shots.ForEach(s => s.UpdatePosition());
         shots.RemoveAll(s => s.fade ||
-            s.pos.X <= 0 || s.pos.X >= xEdge ||
-            s.pos.Y <= 0 || s.pos.Y >= yEdge);
+            s.pos.X <= 0 || s.pos.X >= limits.xEdge ||
+            s.pos.Y <= 0 || s.pos.Y >= limits.yEdge);
     }
 
     public List<ShipPart> getParts()
