@@ -211,7 +211,8 @@ public class AsteroidsField : IGameField
 
     private void RespawnAsteroids()
     {
-        while (asteroids.Count(a => a.isPrimary) < asteroidLimit)
+        int ct = asteroids.Count(a => a.isPrimary);
+        while (ct++ < asteroidLimit)
             SpawnAsteroidOutside();
     }
 
