@@ -136,8 +136,6 @@ public class AsteroidsField : IGameField
                 return false;
         });
         asteroids.AddRange(secondary);
-        for (int i = 0; i < removedCount; i++)
-            asteroids.Add(SpawnAsteroidOutside());
         return score;
     }
 
@@ -211,13 +209,20 @@ public class AsteroidsField : IGameField
         }
     }
 
+    private void RespawnAsteroids()
+    {
+        while (asteroids.Count(a => a.isPrimary) < asteroidLimit)
+            SpawnAsteroidOutside();
+    }
+
     public void updateGameState(Score s)
     {
         player.updatePosition(limits);
         CheckHit();
-        player.UpdateShots(limits.col, limits.row);
+        player.UpdateShots(limits);
         s.scoreValue += UpdateFieldState();
-        asteroids.ForEach((ast) => ast.UpdatePosition(limits.col, limits.row));
+        RespawnAsteroids();
+        asteroids.ForEach(a => a.UpdatePosition(limits));
         BumpAsteroids();
     }
 }
