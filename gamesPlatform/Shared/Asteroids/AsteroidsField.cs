@@ -67,6 +67,11 @@ public class AsteroidsField : IGameField
             && a.pos.Y + a.model.bottomLeftBounds.Y <= y;
     }
 
+    private bool CheckCollision(ISimpleVectorialObject a, ISimpleVectorialObject b)
+    {
+        return CheckCollision(a, b.pos.X, b.pos.Y);
+    }
+
     private void CheckHit()
     {
         foreach (var shot in player.shots)
@@ -90,7 +95,7 @@ public class AsteroidsField : IGameField
 
     private void BumpAsteroids()
     {
-        foreach (Asteroid currentAst in asteroids.Where(c => !c.isPrimary))
+        foreach (var currentAst in asteroids.Where(c => !c.isPrimary))
         {
             foreach (var floatingAst in asteroids)
             {
@@ -141,7 +146,8 @@ public class AsteroidsField : IGameField
 
     public bool checkGameOver()
     {
-        return player.healthPoints == 0;
+        var playerParts = player.getParts();
+        return player.healthPoints == 0 || asteroids.Any(a => playerParts.Any(pt => CheckCollision(pt, a)));
     }
 
     public object getPlayer()
