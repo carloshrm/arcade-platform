@@ -55,8 +55,7 @@ public class AsteroidsField : IGameField
         return new Asteroid(
                 new Vector2(
                     Random.Shared.Next(-10, 0),
-                    Random.Shared.Next(-10, 0))
-                );
+                    Random.Shared.Next(-10, 0)));
     }
 
     private bool CheckCollision(ISimpleVectorialObject a, float x, float y)
