@@ -31,7 +31,7 @@ public class PlayerShip
     public PlayerShip((int row, int col) initialPos)
     {
         hull = new ShipPart(initialPos.col, initialPos.row) { model = ShipModel.GetHull() };
-        head = new ShipPart(initialPos.col, initialPos.row + hull.model.upRightBounds.Y) { model = ShipModel.GetHead() };
+        head = new ShipPart(initialPos.col, initialPos.row + hull.model.topRightBounds.Y) { model = ShipModel.GetHead() };
         jet = new ShipPart(initialPos.col, initialPos.row) { model = ShipModel.GetJet() };
         movingDir = Vector2.Zero;
         shots = new List<Shot>();

@@ -17,7 +17,7 @@ public class ShipModel : CanvasRenderedVectorial
     public override float objWidth { get; set; }
     public override float objHeight { get; set; }
     public override string? fillColor { get; set; } = null;
-    public override Vector2 upRightBounds { get; set; }
+    public override Vector2 topRightBounds { get; set; }
     public override Vector2 bottomLeftBounds { get; set; }
 
     public ShipModel(IEnumerable<Vector2> points) : base(points) { }

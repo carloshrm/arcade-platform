@@ -11,7 +11,7 @@ public abstract class CanvasRenderedVectorial
     public abstract IEnumerable<Vector2> points { get; set; }
     public abstract float objWidth { get; set; }
     public abstract float objHeight { get; set; }
-    public abstract Vector2 upRightBounds { get; set; }
+    public abstract Vector2 topRightBounds { get; set; }
     public abstract Vector2 bottomLeftBounds { get; set; }
 
     protected CanvasRenderedVectorial(IEnumerable<Vector2> points)
@@ -38,7 +38,7 @@ public abstract class CanvasRenderedVectorial
 
         objWidth = rightWidth + Math.Abs(leftWidth);
         objHeight = topHeight + Math.Abs(bottomHeight);
-        upRightBounds = new Vector2(rightWidth, topHeight);
+        topRightBounds = new Vector2(rightWidth, topHeight);
         bottomLeftBounds = new Vector2(leftWidth, bottomHeight);
     }
 
