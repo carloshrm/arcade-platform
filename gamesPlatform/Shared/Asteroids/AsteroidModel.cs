@@ -11,7 +11,7 @@ public class AsteroidModel : CanvasRenderedVectorial
     public override float objWidth { get; set; }
     public override float objHeight { get; set; }
     public override string? fillColor { get; set; }
-    public override Vector2 upRightBounds { get; set; }
+    public override Vector2 topRightBounds { get; set; }
     public override Vector2 bottomLeftBounds { get; set; }
 
     public AsteroidModel(IEnumerable<Vector2> points) : base(points)

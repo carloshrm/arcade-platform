@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Numerics;
-using System.Runtime.Versioning;
-using System.Text;
-using System.Threading.Tasks;
-
-using static System.Net.Mime.MediaTypeNames;
+﻿using System.Numerics;
 
 namespace cmArcade.Shared.Asteroids;
 
@@ -17,7 +8,7 @@ public class AsteroidsField : IGameField
     public int activeEdges { get; private set; }
     public string uiMessage { get; set; } = string.Empty;
     public int scoreMult { get; set; } = 1;
-    private readonly int asteroidLimit = 6;
+    private readonly int asteroidLimit = 1;
     private readonly int baseScore = 3;
     private PlayerShip player { get; set; }
     public List<Asteroid> asteroids { get; set; }
@@ -58,17 +49,17 @@ public class AsteroidsField : IGameField
                     Random.Shared.Next(-10, 0)));
     }
 
-    private bool CheckCollision(ISimpleVectorialObject a, float x, float y)
+    private bool CheckCollision(ISimpleVectorialObject target, float objX, float objY)
     {
-        return a.pos.X + a.model.bottomLeftBounds.X <= x 
-            && a.pos.X + a.model.upRightBounds.X >= x
-            && a.pos.Y + a.model.upRightBounds.Y <= y 
-            && a.pos.Y + a.model.bottomLeftBounds.Y <= y;
+        return target.pos.Y + target.model.topRightBounds.Y >= objY 
+            && target.pos.Y + target.model.bottomLeftBounds.Y <= objY 
+            && target.pos.X + target.model.bottomLeftBounds.X <= objX 
+            && target.pos.X + target.model.topRightBounds.X >= objX;
     }
 
-    private bool CheckCollision(ISimpleVectorialObject a, ISimpleVectorialObject b)
+    private bool CheckCollision(ISimpleVectorialObject tgt, ISimpleVectorialObject obj)
     {
-        return CheckCollision(a, b.pos.X, b.pos.Y);
+        return CheckCollision(tgt, obj.pos.X, obj.pos.Y);
     }
 
     private void CheckHit()
@@ -145,8 +136,11 @@ public class AsteroidsField : IGameField
 
     public bool checkGameOver()
     {
-        var playerParts = player.getParts();
-        return player.healthPoints == 0 || asteroids.Any(a => playerParts.Any(pt => CheckCollision(pt, a)));
+        var playerParts = player.getParts().Take(2);
+        return
+            player.healthPoints == 0
+            || asteroids.Any(a => CheckCollision(a, playerParts.First())
+                                || CheckCollision(a, playerParts.Last()));
     }
 
     public object getPlayer()

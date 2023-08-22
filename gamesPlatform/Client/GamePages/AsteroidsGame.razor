@@ -145,7 +145,18 @@
         ship.shots.ForEach(async s => await gameScreen.drawVectorial(s));
 
         await gameScreen.fillTextExtended(getUIText(), gameScreen.componentWidth * 0.02, 20, textStyle, "white", 10);
-        game.asteroids.ForEach(async a => await gameScreen.drawVectorial(a));
+        game.asteroids.ForEach(async a =>
+        {
+            await gameScreen.drawVectorial(a);
+            await gameScreen.canvasReference.SetStrokeStyleAsync("#00550088");
+            await gameScreen.canvasReference.MoveToAsync(a.pos.X + a.model.topRightBounds.X, a.pos.Y + a.model.topRightBounds.Y);
+            await gameScreen.canvasReference.LineToAsync(a.pos.X + a.model.topRightBounds.X, a.pos.Y + a.model.bottomLeftBounds.Y);
+            await gameScreen.canvasReference.LineToAsync(a.pos.X + a.model.bottomLeftBounds.X, a.pos.Y + a.model.bottomLeftBounds.Y);
+            await gameScreen.canvasReference.LineToAsync(a.pos.X + a.model.bottomLeftBounds.X, a.pos.Y + a.model.topRightBounds.Y);
+            await gameScreen.canvasReference.ClosePathAsync();
+            await gameScreen.canvasReference.StrokeAsync();
+        }
+        );
         await gameScreen.canvasReference.EndBatchAsync();        
     }
 
