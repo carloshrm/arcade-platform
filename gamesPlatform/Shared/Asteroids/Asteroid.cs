@@ -9,12 +9,9 @@ public class Asteroid : ISimpleVectorialObject
 {
     public CanvasRenderedVectorial model { get; set; }
     public Vector2 pos { get; set; }
-
     public bool wasHit { get; set; } = false;
     public bool isPrimary { get; set; }
-
     private float bumpLimit { get; set; }
-
     public Vector2 floatDir { get; set; }    
 
     public Asteroid(Vector2 pos, bool isPrimary = true)
@@ -25,21 +22,18 @@ public class Asteroid : ISimpleVectorialObject
         floatDir = new Vector2((float)Random.Shared.NextDouble(), (float)Random.Shared.NextDouble());
     }
 
-    public void UpdatePosition(int xEdge, int yEdge)
+    public void UpdatePosition((int xEdge, int yEdge) limits)
     {
         pos += floatDir;
-        if (pos.X < 0) pos = new Vector2(xEdge - 1, pos.Y);
-        else if (pos.Y < 0) pos = new Vector2(pos.X, yEdge);
-        else if (pos.X >= xEdge) pos = new Vector2(0, pos.Y);
-        else if (pos.Y >= yEdge) pos = new Vector2(pos.X, 0);
+        if (pos.X < 0) pos = new Vector2(limits.xEdge - 1, pos.Y);
+        else if (pos.Y < 0) pos = new Vector2(pos.X, limits.yEdge);
+        else if (pos.X >= limits.xEdge) pos = new Vector2(0, pos.Y);
+        else if (pos.Y >= limits.yEdge) pos = new Vector2(pos.X, 0);
 
         if (bumpLimit > 0)
         {
-            Console.WriteLine(bumpLimit);
             bumpLimit--;
         }
-        if (floatDir.X == float.NaN || pos.X == float.NaN)
-            Debugger.Break();
     }
 
     public void SetNormalizedFloatDir(Vector2 dir)
@@ -68,9 +62,7 @@ public class Asteroid : ISimpleVectorialObject
     {
         if (bumpLimit < 10)
         {
-            var negated = Vector2.Negate(floatDir);
-
-            SetNormalizedFloatDir(negated * dir);
+            SetNormalizedFloatDir(Vector2.Negate(floatDir) * dir);
             bumpLimit += 50;
         }
     }

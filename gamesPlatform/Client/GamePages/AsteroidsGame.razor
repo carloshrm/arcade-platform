@@ -24,9 +24,6 @@
     }
 </main>
 
-@*<img hidden src=@($"/img/asteroidsAssets/{AsteroidModel.asteroidModels.First().spriteId}.png") @ref=@(gameScreen.assets[AsteroidModel.asteroidModels.First().spriteId]) />*@
-@*<img hidden src=@($"/img/asteroidsAssets/{ShipModel.player.spriteId}.png") @ref=@(gameScreen.assets[ShipModel.player.spriteId]) />*@
-
 @code {
     private GameCanvas? gameScreen;
 
@@ -47,6 +44,7 @@
         isMobile = await jsRuntime.InvokeAsync<bool>("isMobile");
         if (isMobile)
             textStyle = "8px \"Press Start 2P\"";
+
         highScore = await scoreService.readLocalScore(_myID);
     }
 
@@ -85,7 +83,6 @@
     protected override async Task ResetGame()
     {
         await jsRuntime.InvokeVoidAsync("setFocus");
-
         if (gameControl.Enabled)
             ToggleControlObjects();
 
@@ -129,7 +126,6 @@
     protected async override void RunGame(Object? o, ElapsedEventArgs e)
     {
         game.updateGameState(currentScore);
-
         if (game.checkGameOver())
             await StopGame();
 
@@ -146,9 +142,7 @@
         ship.shots.ForEach(async s => await gameScreen.drawVectorial(s));
 
         await gameScreen.fillTextExtended(getUIText(), gameScreen.componentWidth * 0.02, 20, textStyle, "white", 10);
-
         game.asteroids.ForEach(async a => await gameScreen.drawVectorial(a));
-
         await gameScreen.canvasReference.EndBatchAsync();        
     }
 
