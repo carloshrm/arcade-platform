@@ -77,7 +77,6 @@ public class AsteroidsField : IGameField
                     astr.wasHit = true;
                     astr.SetNormalizedFloatDir(shot.dir + astr.floatDir);
                     shot.fade = true;
-                    break;
                 }
             }
         }
