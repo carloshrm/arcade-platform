@@ -8,7 +8,7 @@ public class AsteroidsField : IGameField
     public int activeEdges { get; private set; }
     public string uiMessage { get; set; } = string.Empty;
     public int scoreMult { get; set; } = 1;
-    private readonly int asteroidLimit = 1;
+    private readonly int asteroidLimit = 5;
     private readonly int baseScore = 3;
     private PlayerShip player { get; set; }
     public List<Asteroid> asteroids { get; set; }
