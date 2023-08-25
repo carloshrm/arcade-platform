@@ -108,11 +108,10 @@
         gameControl.Interval = 400;
         if (gameControl.Enabled)
             ToggleControlObjects();
-        await gameScreen.setCanvasSize();
-        await gameScreen.clear();
-        game = new SnakeBoard(
-            gameScreen.baseResolution,
-            gameScreen.canvasReference);
+
+        await gameScreen.SetCanvasSize();
+        gameScreen.ClearCanvas();
+        game = new SnakeBoard(gameScreen.baseResolution);
         game.ateFood += increaseSpeed;
     }
 
@@ -139,15 +138,11 @@
 
     protected async override void DrawGame(Object? o, ElapsedEventArgs e)
     {
-        await gameScreen.canvasReference.BeginBatchAsync();
-        await gameScreen.fillColor("white");
-        await gameScreen.drawScaledSimpleObject(game.food);        
-        await gameScreen.drawScaledSimpleObject(game.player);        
-        foreach (var tailPiece in game.player.tail)
-        {
-            await gameScreen.drawScaledSimpleObject(tailPiece);
-        }        
-        await gameScreen.canvasReference.EndBatchAsync();
+        gameScreen.FillCanvas("white");
+        game.food.ForEach(f => gameScreen.DrawScaledObject(f));
+        gameScreen.DrawScaledObject(game.player);
+        game.player.tail.ForEach(tp => gameScreen.DrawScaledObject(tp));
+        await gameScreen.RenderQueue();
     }
 
     public override void DisposeHarder()
