@@ -1,22 +1,19 @@
 ﻿@inject IConfiguration appConfig
 @inject IJSRuntime jsRuntime
-@using Blazor.Extensions
-@using Blazor.Extensions.Canvas.Canvas2D
+@using Excubo.Blazor.Canvas
+@using Excubo.Blazor.Canvas.Contexts
 @implements IDisposable
 
-<BECanvas Width="@componentWidth" Height="@componentHeight" @ref="_componentReference" />
+<Canvas @ref="displayCanvas" width="@componentWidth" height="@componentHeight" />
 
 @code {
     [Parameter] public AppID appID { get; set; }
 
-    private BECanvasComponent? _componentReference { get; set; }
-    public Canvas2DContext? canvasReference { get; set; }
-    public Dictionary<string, ElementReference> assets;
+    public Canvas displayCanvas { get; set; }
+    public Context2D displayContext { get; set; }
+    private Context2D? _renderContext;
 
-    public GameCanvas()
-    {
-        assets = new Dictionary<string, ElementReference>();
-    }
+    private Queue<Action<Batch2D>> _renderQueue = new();
 
     public int componentWidth { get; set; }
     public int componentHeight { get; set; }
@@ -25,21 +22,25 @@
     public (int r, int c) baseResolution { get; set; }
     public (int r, int c) scaleFactor { get; set; } = (1, 1);
 
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            canvasReference = await _componentReference.CreateCanvas2DAsync();
+            displayContext = await displayCanvas.GetContext2DAsync();
+            if (_renderContext == null)
+            {
+                await jsRuntime.InvokeVoidAsync("eval", $"window._renderContext = new OffscreenCanvas({componentWidth}, {componentHeight})");
+                _renderContext = await CanvasHelper.GetContext2DAsync(jsRuntime, "window._renderContext");
+            }
         }
     }
 
     protected override async Task OnInitializedAsync()
     {
-        await readConfigValues();
+        await ReadConfigurationValues();
     }
 
-    private async Task readConfigValues()
+    private async Task ReadConfigurationValues()
     {
         foreach (var setting in appConfig.GetSection("games").GetChildren())
         {
@@ -53,7 +54,15 @@
         }        
     }
 
-    public async Task setCanvasSize()
+    public async void SetupImageAssets(IEnumerable<string> assets)
+    {
+        foreach (var assetID in assets)
+        {
+            await jsRuntime.InvokeVoidAsync("eval", $"{assetID} = document.getElementById('{assetID}')");
+        }
+    }
+
+    public async Task SetCanvasSize()
     {
         windowWidth = await jsRuntime.InvokeAsync<long>("getWindowWidth");
         windowHeight = await jsRuntime.InvokeAsync<long>("getWindowHeight");
@@ -68,160 +77,191 @@
             _ => baseResolution            
         };
         StateHasChanged();
-        setupScaleFactor();
+        SetupScaleFactor();
     }
 
-    public async Task drawScaledColored(float c, float r, string color)
+    public async Task RenderQueue()
     {
-        await canvasReference.SetFillStyleAsync(color);
-        await canvasReference.FillRectAsync(c * scaleFactor.c, r * scaleFactor.r, scaleFactor.c, scaleFactor.r);
+        await using (var batch = _renderContext.CreateBatch())
+        {
+            foreach (var fnCall in _renderQueue)
+            {
+                fnCall.Invoke(batch);
+            }
+            _renderQueue.Clear();
+            await displayContext.DrawImageAsync("window._renderContext", 0, 0);
+        }
     }
 
-    public async Task drawScaled(float c, float r)
+    public void DrawScaledRectColored(float c, float r, string color)
     {
-        await canvasReference.FillRectAsync(c * scaleFactor.c, r * scaleFactor.r, scaleFactor.c, scaleFactor.r);
+        _renderQueue.Enqueue(async (Batch2D targetContext) => 
+        {
+            await targetContext.FillStyleAsync(color);
+            await targetContext.FillRectAsync(c * scaleFactor.c, r * scaleFactor.r, scaleFactor.c, scaleFactor.r);
+        });
     }
 
-    public async Task drawScaledSimpleObject(ISimpleGameObject obj)
+    public void DrawScaledRect(float c, float r)
     {
-        var previousStyle = canvasReference.FillStyle;
-        await canvasReference.SetFillStyleAsync(obj.model.color);
-        await canvasReference.FillRectAsync(obj.pos.X * scaleFactor.c, obj.pos.Y * scaleFactor.r, scaleFactor.c, scaleFactor.r);
-        await canvasReference.SetFillStyleAsync(previousStyle);
+        _renderQueue.Enqueue(async (Batch2D targetContext) => await targetContext.FillRectAsync(c * scaleFactor.c, r * scaleFactor.r, scaleFactor.c, scaleFactor.r));
     }
 
-    public async Task drawObject(IGameObject obj)
+    public void DrawScaledObject(ISimpleGameObject obj)
+    {
+        _renderQueue.Enqueue(async (Batch2D targetContext) =>
+        {
+            await targetContext.FillStyleAsync(obj.model.color);
+            await targetContext.FillRectAsync(obj.pos.X * scaleFactor.c, obj.pos.Y * scaleFactor.r, scaleFactor.c, scaleFactor.r);
+        });
+    }
+
+    public void DrawObject(IGameObject obj)
     {
         // renders from the top left
-        await canvasReference.DrawImageAsync(
-            assets[obj.model.spriteId], // asset image reference
-            obj.spriteSelect * obj.model.width, obj.model.height * 0, // asset position on referenced image
-            obj.model.width, obj.model.height, // asset size on image
-            obj.pos.X, obj.pos.Y, // canvas x and y coords for rendering
-            obj.model.width, obj.model.height); // size for rendering in canvas
-        if (obj.decals != null)
+        _renderQueue.Enqueue(async (Batch2D targetContext) =>
         {
-            foreach (var d in obj.decals)
+            await targetContext.DrawImageAsync(
+                obj.model.spriteId, // asset image reference
+                obj.spriteSelect * obj.model.width, obj.model.height * 0, // asset position on referenced image
+                obj.model.width, obj.model.height, // asset size on image
+                obj.pos.X, obj.pos.Y, // canvas x and y coords for rendering
+                obj.model.width, obj.model.height); // size for rendering in canvas
+            if (obj.decals != null)
             {
-                int widthPadding = d.width < obj.model.width ? (d.width / -2) + ((obj.model.width) / 2) : 0;
-                int heightPadding = d.height < obj.model.height ? (d.height / -2) + ((obj.model.height) / 2) : 0;
-                await canvasReference.DrawImageAsync(
-                    assets[d.spriteId], 0, 0, d.width, d.height,
-                    obj.pos.X + widthPadding, obj.pos.Y + heightPadding,
-                    d.width, d.height);
+                foreach (var d in obj.decals)
+                {
+                    int widthPadding = d.width < obj.model.width ? (d.width / -2) + ((obj.model.width) / 2) : 0;
+                    int heightPadding = d.height < obj.model.height ? (d.height / -2) + ((obj.model.height) / 2) : 0;
+                    await targetContext.DrawImageAsync(
+                        d.spriteId, 0, 0, d.width, d.height,
+                        obj.pos.X + widthPadding, obj.pos.Y + heightPadding,
+                        d.width, d.height);
+                }
             }
-        }
+        });
     }
 
-    public async Task drawObject(IDrawable obj, Vector2 pos)
+    public void DrawObject(IDrawable obj, Vector2 pos)
     {
         // renders from the top left
-        await canvasReference.DrawImageAsync(
-            assets[obj.model.spriteId], // asset image reference
-            obj.spriteSelect * obj.model.width, obj.model.height * 0, // asset position on referenced image
-            obj.model.width, obj.model.height, // asset size on image
-            pos.X, pos.Y, // canvas x and y coords for rendering
-            obj.model.width, obj.model.height); // size for rendering in canvas
-        if (obj.decals != null)
+        _renderQueue.Enqueue(async (Batch2D targetContext) =>
         {
-            foreach (var d in obj.decals)
+            await targetContext.DrawImageAsync(
+                obj.model.spriteId, // asset image reference
+                obj.spriteSelect * obj.model.width, obj.model.height * 0, // asset position on referenced image
+                obj.model.width, obj.model.height, // asset size on image
+                pos.X, pos.Y, // canvas x and y coords for rendering
+                obj.model.width, obj.model.height); // size for rendering in canvas
+            if (obj.decals != null)
             {
-                int widthPadding = d.width < obj.model.width ? (d.width / -2) + ((obj.model.width) / 2) : 0;
-                int heightPadding = d.height < obj.model.height ? (d.height / -2) + ((obj.model.height) / 2) : 0;
-                await canvasReference.DrawImageAsync(
-                    assets[d.spriteId], 0, 0, d.width, d.height,
-                    pos.X + widthPadding, pos.Y + heightPadding,
-                    d.width, d.height);
+                foreach (var d in obj.decals)
+                {
+                    int widthPadding = d.width < obj.model.width ? (d.width / -2) + ((obj.model.width) / 2) : 0;
+                    int heightPadding = d.height < obj.model.height ? (d.height / -2) + ((obj.model.height) / 2) : 0;
+                    await targetContext.DrawImageAsync(
+                        d.spriteId, 0, 0, d.width, d.height,
+                        pos.X + widthPadding, pos.Y + heightPadding,
+                        d.width, d.height);
+                }
             }
-        }
+        });
     }
 
-    public async Task drawVectorial(ISimpleVectorialObject obj)
+    public void DrawVectorialObject(ISimpleVectorialObject obj)
     {
-        await canvasReference.BeginPathAsync();
-        await canvasReference.SetLineWidthAsync(obj.model.strokeLineWidth);
-
-        bool first = true;
-        foreach (var pt in obj.model.points)
+        _renderQueue.Enqueue(async (Batch2D targetContext) =>
         {
-            if (first)
+            await targetContext.BeginPathAsync();
+
+            bool first = true;
+            foreach (var pt in obj.model.points)
             {
-                await canvasReference.MoveToAsync(pt.X + obj.pos.X, pt.Y + obj.pos.Y);
-                first = false;
+                if (first)
+                {
+                    await targetContext.MoveToAsync(pt.X + obj.pos.X, pt.Y + obj.pos.Y);
+                    first = false;
+                }
+                await targetContext.LineToAsync(pt.X + obj.pos.X, pt.Y + obj.pos.Y);
             }
-            await canvasReference.LineToAsync(pt.X + obj.pos.X, pt.Y + obj.pos.Y);
-        }
-        await canvasReference.ClosePathAsync();
+            await targetContext.ClosePathAsync();
 
-        await canvasReference.SetStrokeStyleAsync(obj.model.strokeColor);
-        await canvasReference.StrokeAsync();
+            await targetContext.StrokeStyleAsync(obj.model.strokeColor);
+            await targetContext.StrokeAsync();
 
-        if (obj.model.fillColor != null)
-        {
-            await canvasReference.SetFillStyleAsync(obj.model.fillColor);
-            await canvasReference.FillAsync();
-        }            
+            if (obj.model.fillColor != null)
+            {
+                await targetContext.FillStyleAsync(obj.model.fillColor);
+                await targetContext.FillAsync(FillRule.NonZero);
+            }            
+
+        });
     }
 
-    public async Task drawSet(IEnumerable<IGameObject> list)
+    public void DrawVectorialSet(IEnumerable<ISimpleVectorialObject> list)
+    {
+        foreach (var obj in list)
+            DrawVectorialObject(obj);
+    }
+
+    public void DrawObjectSet(IEnumerable<IGameObject> list)
     {
         foreach (var o in list)
+            DrawObject(o);
+    }
+
+    public void ClearCanvas()
+    {
+        _renderQueue.Enqueue(async (Batch2D targetContext) =>
         {
-            await drawObject(o);
-        }
+            await targetContext.ClearRectAsync(0, 0, componentWidth, componentHeight);
+        });
     }
 
-    public async Task clear()
+    public void FillCanvas(string color)
     {
-        await canvasReference.ClearRectAsync(0, 0, _componentReference.Width, _componentReference.Height);
-    }
-
-    public async Task fillColor(string color)
-    {
-        var previousStyle = canvasReference.FillStyle;
-        await canvasReference.SetFillStyleAsync(color);
-        await canvasReference.FillRectAsync(0, 0, _componentReference.Width, _componentReference.Height);
-        await canvasReference.SetFillStyleAsync(previousStyle);
-    }
-
-    public async Task fillTextExtended(string text, double x, double y, string font, string style = "", int linePadding = 0)
-    {
-        var previousStyle = canvasReference.FillStyle;
-        var previousFont = canvasReference.Font;
-
-        await canvasReference.SetFontAsync(font);
-        await canvasReference.SetFillStyleAsync(style == "" ? previousStyle : style);
-
-        var lines = text.Split('\n');
-        int yOffset = int.Parse(font.Substring(0, font.IndexOf("px"))) + linePadding;
-        for (int i = 0; i < lines.Length; i++)
+        _renderQueue.Enqueue(async (Batch2D targetContext) =>
         {
-            await canvasReference.FillTextAsync(lines[i], x, y + (yOffset * i));
-        }
-
-        await canvasReference.SetFillStyleAsync(previousStyle);
-        await canvasReference.SetFontAsync(previousFont);
+            await targetContext.FillStyleAsync(color);
+            await targetContext.FillRectAsync(0, 0, componentWidth, componentHeight);
+        });
     }
 
-    public void setupScaleFactor()
+    public void FillTextExtended(string text, double x, double y, string font, string style, int linePadding = 0)
+    {
+        _renderQueue.Enqueue(async (Batch2D targetContext) =>
+        {
+            await targetContext.FontAsync(font);
+            await targetContext.FillStyleAsync(style);
+
+            var lines = text.Split('\n');
+            int yOffset = int.Parse(font.Substring(0, font.IndexOf("px"))) + linePadding;
+            for (int i = 0; i < lines.Length; i++)
+            {
+                await targetContext.FillTextAsync(lines[i], x, y + (yOffset * i));
+            }
+        });
+    }
+
+    public void SetupScaleFactor()
     {
         scaleFactor = (componentHeight / baseResolution.r, componentWidth / baseResolution.c);
         if (scaleFactor.c == 0 || scaleFactor.r == 0)
             scaleFactor = (1, 1);
     }
 
-    public (int y, int x) getDimensions()
+    public (int y, int x) GetDimensions()
     {
         return (y: componentHeight, x: componentWidth);
     }
 
-    public (int, int) getScreenSize()
+    public (int, int) GetScreenSize()
     {
         return ((int)windowWidth, (int)windowHeight);
     }
 
     public void Dispose()
     {
-        canvasReference?.Dispose();
+        displayContext.DisposeAsync();
     }
 }
