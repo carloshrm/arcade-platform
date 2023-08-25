@@ -1,0 +1,7 @@
+﻿
+<img hidden src=@($"/img/game-{appID}/{assetID}.png") id=@($"im-{assetID}") class="game-im-asset" />
+
+@code {
+    [Parameter] public AppID appID { get; set; }
+    [Parameter] public string assetID { get; set; }
+}
