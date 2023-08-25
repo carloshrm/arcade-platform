@@ -8,22 +8,21 @@ namespace cmArcade.Shared
     {
         private (int r, int c) limits { get; set; }
         public SnakePlayer player { get; private set; }
-        public SnakeFood food { get; private set; }
-
+        public List<SnakeFood> food { get; private set; }
+        private readonly int maxFood = 2;
         private string uiMessage { get; set; } = string.Empty;
         private int scoreMultipier = 0;
 
         public event EventHandler ateFood;
-        private Canvas2DContext canvas;
 
-        public SnakeBoard((int r, int c) limits, Canvas2DContext c)
+        public SnakeBoard((int r, int c) limits)
         {
             this.limits = limits;
             player = new SnakePlayer(2, limits);
             ateFood += player.growSnake;
             ateFood += makeFood;
-            canvas = c;
             makeFood(this, EventArgs.Empty);
+            food = new List<SnakeFood>();
         }
 
         public void setScoreMultiplier(int m)
@@ -41,13 +40,16 @@ namespace cmArcade.Shared
             var rng = new Random();
             Vector2 newPos;
             bool invalid;
-
-            do
+            int currentFood = maxFood;
+            while (currentFood-- > 0)
             {
-                newPos = new Vector2(rng.Next(1, limits.r - 2), rng.Next(1, limits.c - 2));
-                invalid = player.pos == newPos || player.tail.Exists(p => p.pos == newPos);
-            } while (invalid);
-            food = new SnakeFood(newPos);
+                do
+                {
+                    newPos = new Vector2(rng.Next(1, limits.r - 2), rng.Next(1, limits.c - 2));
+                    invalid = player.pos == newPos || player.tail.Exists(p => p.pos == newPos);
+                } while (invalid);
+                food.Add(new SnakeFood(newPos));
+            }
         }
 
         public bool checkGameOver()
@@ -77,10 +79,8 @@ namespace cmArcade.Shared
                 return false;
             else
             {
-                if (player.pos == food.pos)
-                {
+                if (food.Any(f => player.pos == f.pos))
                     ateFood.Invoke(this, EventArgs.Empty);
-                }
             }
             return true;
         }
