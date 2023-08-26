@@ -18,11 +18,11 @@ namespace cmArcade.Shared
         public SnakeBoard((int r, int c) limits)
         {
             this.limits = limits;
+            food = new List<SnakeFood>();
             player = new SnakePlayer(2, limits);
             ateFood += player.growSnake;
             ateFood += makeFood;
             makeFood(this, EventArgs.Empty);
-            food = new List<SnakeFood>();
         }
 
         public void setScoreMultiplier(int m)
@@ -40,8 +40,7 @@ namespace cmArcade.Shared
             var rng = new Random();
             Vector2 newPos;
             bool invalid;
-            int currentFood = maxFood;
-            while (currentFood-- > 0)
+            while (food.Count() <= maxFood)
             {
                 do
                 {
@@ -79,13 +78,17 @@ namespace cmArcade.Shared
                 return false;
             else
             {
-                if (food.Any(f => player.pos == f.pos))
+                var chomp = food.Find(f => player.pos == f.pos);
+                if (chomp != null)
+                {
                     ateFood.Invoke(this, EventArgs.Empty);
+                    food.Remove(chomp);
+                }
             }
             return true;
         }
 
-        public Object getPlayer()
+        public object getPlayer()
         {
             return player;
         }
