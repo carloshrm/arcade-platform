@@ -37,7 +37,6 @@
 
         public void updateGameState(Score s)
         {
-            Console.WriteLine("game logic");
             hitDetection();
             player.updatePosition(limits);
             updateSpecialInvader();
@@ -82,12 +81,11 @@
         public void setupCommonInvaders()
         {
             int invadersPerRow = 10;
-            int tallestInvader = ShipModel.invaderShips.Values.Max(x => x.height) + 6;
+            int tallestInvader = ShipModel.invaderShips.Max(x => x.height) + 6;
             int rowPos = limits.row / 22;
             int colSize = (int)(limits.col / invadersPerRow * 0.7);
-            for (int i = 0; i < 4; i++)
+            foreach (var model in ShipModel.invaderShips.Take(4))
             {
-                var model = ShipModel.invaderShips[(i + 1).ToString()];
                 rowPos += tallestInvader;
                 for (int j = 1; j <= invadersPerRow; j++)
                 {
@@ -100,7 +98,7 @@
         private InvaderShip setupSpecialInvader()
         {
             specialIsActive = false;
-            var model = ShipModel.invaderShips.Last().Value;
+            var model = ShipModel.invaderShips.Last();
             return new InvaderShip(model.height, limits.col + model.width + 10, model);
         }
 
@@ -144,7 +142,6 @@
 
         public void updateInvaderState()
         {
-            Console.WriteLine("invader state");
             shotsFired.RemoveAll(s => s.pos.Y <= 0 || s.pos.Y >= limits.row || s.hitSomething);
             invaderShotCount = shotsFired.Count(x => !x.fromPlayer);
 
