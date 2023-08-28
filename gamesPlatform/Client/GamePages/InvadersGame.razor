@@ -4,27 +4,26 @@
 @implements IDisposable
 @inherits GamePage<Space>
 @using cmArcade.Shared.Invaders
+@using cmArcade.Client.GenericPages
 
 <main id="main-content">
     <div id="game-controls">
         <button type="button" class="soft-shadow game-button @((currentScore.scoreValue > 0 && gameControl.Enabled && gameOver == true) ? "dark-bg on" : "")" @onclick=StartGame>start</button>
         <button type="button" class="soft-shadow game-button" @onclick=ResetGame>reset</button>
     </div>
-    <div id="game-container" tabindex="0" @onkeydown=keyDownInputHandler @onkeyup=keyUpInputHandler @onclick=clickHandler>
+    <div id="game-container" tabindex="0" @onkeydown=KeyDownHandler @onkeyup=KeyUpHandler @onclick=ClickHandler>
         <GameCanvas @ref=gameScreen appID=_myID />
         @if (currentScore?.turn > 0 && gameOver)
         {
-            <PostGameView currentScore=currentScore highScore=highScore app=_myID />
+            <PostGameView currentScore=currentScore highScore=highScore appID=_myID />
         }
     </div>
 </main>
 
-@foreach (var id in new List<string>().Concat(ShipModel.invaderShips.Keys).Concat(GameDecal.invaderDecals.Keys))
-{
-    <img hidden src=@($"/img/invaderAssets/{id}.png") @ref=gameScreen.assets[id] />
+@foreach (var id in assetList)
+{    
+    <GameImageAsset assetID=@id appID=@_myID />
 }
-<img hidden src=@($"/img/invaderAssets/{ShipModel.playerShip.spriteId}.png") @ref=@(gameScreen.assets[ShipModel.playerShip.spriteId]) />
-<img hidden src=@($"/img/genericAssets/heart.png") @ref=@(gameScreen.assets["heart"]) />
 
 @code {
     private GameCanvas? gameScreen;
@@ -41,6 +40,10 @@
         invaderControl = new Timer(800) { AutoReset = true, Enabled = false };
         gameControl.Interval = 15;
         scale = 1;
+        assetList.AddRange(ShipModel.invaderShips.Select(s => s.spriteId));
+        assetList.AddRange(GameDecal.invaderDecals.Select(s => s.spriteId));
+        assetList.Add(ShipModel.playerShip.spriteId);
+        assetList.Add("heart");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -49,13 +52,12 @@
         {
             if (gameScreen != null)
             {
-                await gameScreen.setCanvasSize();
-                await gameScreen.canvasReference.SetFontAsync("16px \"Press Start 2P\"");
-                await gameScreen.canvasReference.SetFillStyleAsync("white");
-                game = new Space(gameScreen.getDimensions());
+                await gameScreen.SetCanvasSize();
+                game = new Space(gameScreen.GetDimensions());
+                gameScreen.SetupImageAsset(assetList);
             }
             highScore = await scoreService.readLocalScore(_myID);
-            invaderControl.Elapsed += invaderStep;
+            invaderControl.Elapsed += InvadersStep;
             gameControl.Elapsed += RunGame;
             canvasRefresh.Elapsed += DrawGame;
             StateHasChanged();
@@ -87,10 +89,10 @@
         await jsRuntime.InvokeVoidAsync("setFocus");
         if (gameControl.Enabled) 
             toggleControlObjects();
+
         currentScore = new Score(_myID);
-        game = new Space(gameScreen.getDimensions());
+        game = new Space(gameScreen.GetDimensions());
         gameOver = false;
-        await gameScreen.clear();
     }
 
     private new void toggleControlObjects()
@@ -105,27 +107,28 @@
         toggleControlObjects();
         for (int i = 3; i != 0; i--)
         {
-            await gameScreen.fillColor("black");
-            await gameScreen.canvasReference.FillTextAsync($"Next round in {i}...", 50, 50);
+            gameScreen.FillCanvas("black");
+            gameScreen.FillTextExtended($"Next round in {i}...", 50, 50, textStyle.font, textStyle.color);
+            await gameScreen.RenderQueue();
             await Task.Delay(1000);
         }
-        game = new Space(gameScreen.getDimensions());
+        game = new Space(gameScreen.GetDimensions());
         currentScore.turn++;
         game.setScoreMultiplier(currentScore.turn);
         toggleControlObjects();
     }
 
-    private void keyDownInputHandler(KeyboardEventArgs e)
+    private void KeyDownHandler(KeyboardEventArgs e)
     {        
         game.parseKeyDown(e.Key);
     }
 
-    private void keyUpInputHandler(KeyboardEventArgs e)
+    private void KeyUpHandler(KeyboardEventArgs e)
     {
         game.parseKeyUp(e.Key);
     }
 
-    private void clickHandler(MouseEventArgs e)
+    private void ClickHandler(MouseEventArgs e)
     {
         if (e.Button == 0 && !gameOver)
         {
@@ -150,13 +153,13 @@
         StateHasChanged();
     }
 
-    private void invaderStep(Object? o, EventArgs e)
+    private void InvadersStep(Object? o, EventArgs e)
     {
         if (game.invaders.Count == 0) 
             nextRound();
 
         game.updateInvaderState();
-        setScore(game.invaderCleanup());
+        SetScore(game.invaderCleanup());
         if (game.checkGameOver()) 
             StopGame();
 
@@ -165,41 +168,41 @@
         game.sendSpecial();
     }
 
-    private void setScore(int score)
+    private void SetScore(int score)
     {
         currentScore.scoreValue += currentScore.turn * score * (combo ? 2 : 1);
         combo = score != 0;
     }
 
-    private async Task drawUI()
+    private void DrawUI()
     {
-        await gameScreen.canvasReference.FillTextAsync(getUIText(), 10, 20);
+        gameScreen.FillTextExtended(GetUIText(), 10, 20, textStyle.font, textStyle.color);
         for (int i = 1; i <= game.player.healthPoints; i++)
         {
-            await gameScreen.canvasReference.DrawImageAsync(gameScreen.assets["heart"], gameScreen.componentWidth - (40 * i), 10);
+            gameScreen.DrawSimpleImage("heart", gameScreen.componentWidth - (40 * i), 10);
         }
     }
 
-    private string getUIText()
+    private string GetUIText()
     {
-        var text = new StringBuilder();
-        text.Append($"Score:{currentScore.scoreValue}\t");
-        if (highScore.scoreValue > 0) text.Append($"Best:{highScore.scoreValue}\t");
-        text.Append($"Level:{currentScore.turn}");
-        return text.ToString();
+        return
+            $"Score:{currentScore.scoreValue}\t" +
+            $"Best:{highScore.scoreValue}\t" +
+            $"Level:{currentScore.turn}";
     }
 
     protected async override void DrawGame(Object? o, ElapsedEventArgs e)
     {
-        await gameScreen.canvasReference.BeginBatchAsync();
-        await gameScreen.fillColor("black");
-        await drawUI();
-        await gameScreen.drawSet(game.invaders);
-        await gameScreen.drawSet(game.shotsFired);
-        await gameScreen.drawSet(game.barriers);
-        await gameScreen.drawObject(game.player);
-        if (game.specialInvader != null) await gameScreen.drawObject(game.specialInvader);
-        await gameScreen.canvasReference.EndBatchAsync();
+        gameScreen.FillCanvas("black");
+        DrawUI();
+        gameScreen.DrawObjectSet(game.invaders);
+        gameScreen.DrawObjectSet(game.shotsFired);
+        gameScreen.DrawObjectSet(game.barriers);
+        gameScreen.DrawObject(game.player);
+        if (game.specialInvader != null) 
+            gameScreen.DrawObject(game.specialInvader);
+
+        await gameScreen.RenderQueue();
     }
 
     public override void DisposeHarder()
