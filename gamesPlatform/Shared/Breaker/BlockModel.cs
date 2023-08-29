@@ -10,10 +10,10 @@
 
         public static readonly IReadOnlyList<BlockModel> blocks = new List<BlockModel>
         {
-            new BlockModel {spriteId = "blocks simple", width = 80, height = 20, HP = 1, isSpecial = false },
-            new BlockModel {spriteId = "blocks strong", width = 80, height = 20, HP = 2, isSpecial = false },
-            new BlockModel {spriteId = "blocks fragile", width = 80, height = 20, HP = 1, isSpecial = true },
-            new BlockModel {spriteId = "blocks hollow", width = 80, height = 20, HP = 2, isSpecial = true },
+            new BlockModel {spriteId = "simpleBlock", width = 80, height = 20, HP = 1, isSpecial = false },
+            new BlockModel {spriteId = "strongBlock", width = 80, height = 20, HP = 2, isSpecial = false },
+            new BlockModel {spriteId = "fragileBlock", width = 80, height = 20, HP = 1, isSpecial = true },
+            new BlockModel {spriteId = "hollowBlock", width = 80, height = 20, HP = 2, isSpecial = true },
         };
 
         public const int variationCount = 5;

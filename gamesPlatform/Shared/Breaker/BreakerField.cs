@@ -196,7 +196,7 @@
                 player.movingDir = Direction.Zero;
         }
 
-        public Object getPlayer()
+        public Object GetPlayer()
         {
             return player;
         }

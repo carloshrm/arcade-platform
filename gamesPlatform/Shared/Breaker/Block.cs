@@ -47,7 +47,7 @@ namespace cmArcade.Shared.Breaker
 
             if (healthPoints > 0 && !((BlockModel)model).isSpecial)
             {
-                addDecal(GameDecal.breakerDecals["crack"]);
+                addDecal(GameDecal.breakerDecals.First(d => d.spriteId.Contains("crack")));
                 return null;
             }
             else

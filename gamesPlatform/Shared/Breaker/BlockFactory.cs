@@ -9,7 +9,7 @@
             BlockModel hollowModel = BlockModel.blocks.Last();
             var newBlock = new Block(row, col, hollowModel, sprite);
             newBlock.setPowerup(new PowerUp(row + (hollowModel.height / 2), col + (hollowModel.width / 2), t, 0));
-            newBlock.addDecal(GameDecal.breakerDecals["powerup"]);
+            newBlock.addDecal(GameDecal.breakerDecals.First(d => d.spriteId.Contains("powerup")));
             return newBlock;
         }
 
