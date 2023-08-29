@@ -37,7 +37,7 @@ namespace cmArcade.Shared.Breaker
             return --healthPoints <= 0;
         }
 
-        public bool updatePosition((int row, int col) limits)
+        public bool UpdatePosition((int row, int col) limits)
         {
             if (pos.X >= 0 && pos.X <= limits.col - model.width - 1)
             {

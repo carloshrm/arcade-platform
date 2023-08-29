@@ -25,12 +25,12 @@ namespace cmArcade.Shared
             makeFood(this, EventArgs.Empty);
         }
 
-        public void setScoreMultiplier(int m)
+        public void SetScoreMultiplier(int m)
         {
             scoreMultipier = m;
         }
 
-        public void setMessage(String m)
+        public void ShowFieldMessage(String m)
         {
             uiMessage = m;
         }
@@ -51,7 +51,7 @@ namespace cmArcade.Shared
             }
         }
 
-        public bool checkGameOver()
+        public bool CheckGameOver()
         {
             if (player.pos.Y < 0 || player.pos.X < 0 || player.pos.Y >= limits.r || player.pos.X >= limits.c)
                 return true;
@@ -61,10 +61,10 @@ namespace cmArcade.Shared
             return false;
         }
 
-        public void updateGameState(Score s)
+        public void UpdateGameState(Score s)
         {
             player.tail.Add(new TailPiece(player.pos, player.healthPoints));
-            player.UpdatePosition(limits);
+            player.UpdatePosition();
             player.tail.RemoveAll(tp => tp.healthVal == 0);
             for (int i = 0; i < player.tail.Count; i++)
             {
@@ -74,7 +74,7 @@ namespace cmArcade.Shared
 
         public bool checkSnakeParts()
         {
-            if (checkGameOver())
+            if (CheckGameOver())
                 return false;
             else
             {

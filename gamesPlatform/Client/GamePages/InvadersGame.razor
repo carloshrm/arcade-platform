@@ -11,7 +11,7 @@
         <button type="button" class="soft-shadow game-button @((currentScore.scoreValue > 0 && gameControl.Enabled && gameOver == true) ? "dark-bg on" : "")" @onclick=StartGame>start</button>
         <button type="button" class="soft-shadow game-button" @onclick=ResetGame>reset</button>
     </div>
-    <div id="game-container" tabindex="0" @onkeydown=KeyDownHandler @onkeyup=KeyUpHandler @onclick=ClickHandler>
+    <div id="game-container" tabindex="0" @onkeydown=@((e) => KeyDownHandler(e.Key)) @onkeyup=@((e) => KeyUpHandler(e.Key)) @onclick=ClickHandler>
         <GameCanvas @ref=gameScreen appID=_myID />
         @if (currentScore?.turn > 0 && gameOver)
         {
@@ -66,7 +66,7 @@
 
     protected async override void RunGame(Object? o, ElapsedEventArgs e)
     {
-        game.updateGameState(currentScore);
+        game.UpdateGameState(currentScore);
     }
 
     protected override async Task StartGame()
@@ -114,18 +114,18 @@
         }
         game = new Space(gameScreen.GetDimensions());
         currentScore.turn++;
-        game.setScoreMultiplier(currentScore.turn);
+        game.SetScoreMultiplier(currentScore.turn);
         ToggleControlObjects();
     }
 
     protected override void KeyDownHandler(string key)
     {        
-        game.parseKeyDown(key);
+        game.ParseKeyDown(key);
     }
 
     protected override void KeyUpHandler(string key)
     {
-        game.parseKeyUp(key);
+        game.ParseKeyUp(key);
     }
 
     private void ClickHandler(MouseEventArgs e)
@@ -134,7 +134,7 @@
         {
             if (gameControl.Enabled)
             {
-                game.parseKeyDown(" ");
+                game.ParseKeyDown(" ");
                 return;
             }
         }
@@ -158,14 +158,14 @@
         if (game.invaders.Count == 0) 
             TriggerNextRound();
 
-        game.updateInvaderState();
+        game.UpdateInvaderState();
         SetScore(game.invaderCleanup());
-        if (game.checkGameOver()) 
+        if (game.CheckGameOver()) 
             StopGame();
 
         invaderControl.Interval = (game.invaders.Count / 0.05) / currentScore.turn;
-        game.invaderAttack();
-        game.sendSpecial();
+        game.InvaderAttack();
+        game.SpawnSpecialInvader();
     }
 
     private void SetScore(int score)

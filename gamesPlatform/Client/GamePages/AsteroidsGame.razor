@@ -121,8 +121,8 @@
 
     protected async override void RunGame(Object? o, ElapsedEventArgs e)
     {
-        game.updateGameState(currentScore);
-        if (game.checkGameOver())
+        game.UpdateGameState(currentScore);
+        if (game.CheckGameOver())
             await StopGame();
 
         currentScore.runLength = DateTime.Now - currentScore.runStart;

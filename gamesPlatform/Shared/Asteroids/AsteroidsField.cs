@@ -133,7 +133,7 @@ public class AsteroidsField : IGameField
         return score;
     }
 
-    public bool checkGameOver()
+    public bool CheckGameOver()
     {
         var playerParts = player.getParts().Take(2);
         return
@@ -147,12 +147,12 @@ public class AsteroidsField : IGameField
         return player;
     }
 
-    public void setMessage(string msg)
+    public void ShowFieldMessage(string msg)
     {
         // TODO
     }
 
-    public void setScoreMultiplier(int val)
+    public void SetScoreMultiplier(int val)
     {
         // TODO
     }
@@ -214,7 +214,7 @@ public class AsteroidsField : IGameField
             SpawnAsteroidOutside();
     }
 
-    public void updateGameState(Score s)
+    public void UpdateGameState(Score s)
     {
         player.updatePosition(limits);
         CheckHit();

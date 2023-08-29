@@ -11,7 +11,7 @@
         <button type="button" class="soft-shadow game-button @((currentScore.scoreValue > 0 && gameControl.Enabled) ? "dark-bg ok" : "")" @onclick=StartGame>start</button>
         <button type="button" class="soft-shadow game-button" @onclick=ResetGame>reset</button>
     </div>
-    <div id="game-container" tabindex="0" @onkeydown=@((e) => keyDownInputHandler(e.Key)) @onkeyup=@((e) => keyUpInputHandler(e.Key))>
+    <div id="game-container" tabindex="0" @onkeydown=@((e) => KeyDownHandler(e.Key)) @onkeyup=@((e) => KeyUpHandler(e.Key))>
         <GameCanvas @ref=gameScreen appID=_myID />
         @if (currentScore?.turn > 0 && !gameControl.Enabled)
         {
@@ -20,7 +20,7 @@
     </div>
     @if (isMobile)
     {
-        <TouchDPad clickCallback=keyDownInputHandler releaseCallback=keyUpInputHandler />
+        <TouchDPad clickCallback=KeyDownHandler releaseCallback=KeyUpHandler />
     }
 </main>
 
@@ -130,8 +130,8 @@
     protected async override void RunGame(Object? o, ElapsedEventArgs e)
     {
         currentScore.turn += 1;
-        game.updateGameState(currentScore);
-        if (game.checkGameOver())
+        game.UpdateGameState(currentScore);
+        if (game.CheckGameOver())
             await StopGame();
 
         gameControl.Interval = 1000 - ((game.scoreMult + 1) * 20);

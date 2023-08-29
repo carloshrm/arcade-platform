@@ -10,7 +10,7 @@
         <button type="button" class="soft-shadow game-button @((currentScore.scoreValue > 0 && gameControl.Enabled) ? "dark-bg ok" : "")" @onclick=StartGame>start</button>
         <button type="button" class="soft-shadow game-button" @onclick=ResetGame>reset</button>
     </div>
-    <div id="game-container" tabindex="0" @onkeydown=@((e) => keyDownInputHandler(e.Key)) @onkeyup=@((e) => keyUpInputHandler(e.Key))>
+    <div id="game-container" tabindex="0" @onkeydown=@((e) => KeyDownHandler(e.Key)) @onkeyup=@((e) => KeyUpHandler(e.Key))>
         <GameCanvas @ref=gameScreen appID=_myID />
         @if (currentScore?.turn > 0 && gameOver)
         {
@@ -19,7 +19,7 @@
     </div>
     @if (isMobile)
     {
-        <TouchDPad clickCallback=keyDownInputHandler releaseCallback=keyUpInputHandler />
+        <TouchDPad clickCallback=KeyDownHandler releaseCallback=KeyUpHandler />
     }
 </main>
 
@@ -118,12 +118,12 @@
 
     protected override void KeyDownHandler(string key)
     {
-        game.parseKeyDown(key);
+        game.ParseKeyDown(key);
     }
 
     protected override void KeyUpHandler(string key)
     {
-        game.parseKeyUp(key);
+        game.ParseKeyUp(key);
     }
 
     private string MakeUIText()
@@ -137,7 +137,7 @@
 
     protected async override void RunGame(Object? o, ElapsedEventArgs e)
     {
-        game.updateGameState(currentScore);
+        game.UpdateGameState(currentScore);
         if (game.ballOnHold)
         {
             if (holdStart == null)
@@ -152,7 +152,7 @@
             }
             currentScore.runLength = (DateTime.Now - timeHeld) - currentScore.runStart;
         }
-        if (game.checkGameOver())
+        if (game.CheckGameOver())
             await StopGame();
     }
 

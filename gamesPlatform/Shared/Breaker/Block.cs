@@ -65,7 +65,7 @@ namespace cmArcade.Shared.Breaker
             }
         }
 
-        public bool updatePosition((int row, int col) limits)
+        public bool UpdatePosition((int row, int col) limits)
         {
             throw new NotImplementedException();
         }

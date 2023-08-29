@@ -25,7 +25,7 @@ namespace cmArcade.Shared.Invaders
 
         }
 
-        public bool updatePosition((int row, int col) limits)
+        public bool UpdatePosition((int row, int col) limits)
         {
             return false;
         }

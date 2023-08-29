@@ -20,23 +20,23 @@ namespace cmArcade.Shared.Invaders
             spriteSelect = 0;
         }
 
-        public static void flipDirection()
+        public static void FlipDirection()
         {
             movingDirection = movingDirection == Direction.Left ? Direction.Right : Direction.Left;
         }
 
-        public void animate()
+        public void Animate()
         {
             spriteSelect = spriteSelect == 0 ? 1 : 0;
         }
 
-        public bool updatePosition((int row, int col) limits)
+        public bool UpdatePosition((int row, int col) limits)
         {
             pos += new Vector2((int)movingDirection * 18, 0);
             return pos.X <= 0 + model.width || pos.X >= limits.col - (model.width * 1.5);
         }
 
-        public void dropRow(int rowEdge)
+        public void DropRow(int rowEdge)
         {
             pos += new Vector2(0, rowEdge / 20);
         }

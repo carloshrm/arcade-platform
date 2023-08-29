@@ -5,9 +5,9 @@
         public void runEffect(IGameField fieldReference)
         {
             var field = (BreakerField)fieldReference;
-            field.setBall();
-            field.balls.Last().shoot();
-            fieldReference.setMessage("+1 Ball");
+            field.SetBall();
+            field.balls.Last().Shoot();
+            fieldReference.ShowFieldMessage("+1 Ball");
         }
     }
 }

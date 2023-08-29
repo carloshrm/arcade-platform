@@ -17,7 +17,7 @@ namespace cmArcade.Shared.Tetris
             pos = Vector2.Zero;
         }
 
-        public bool updatePosition((int row, int col) limits)
+        public bool UpdatePosition((int row, int col) limits)
         {
             pos += VecDirection.Down;
             return true;
