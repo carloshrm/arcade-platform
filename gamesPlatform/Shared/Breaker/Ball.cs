@@ -30,7 +30,7 @@ namespace cmArcade.Shared.Breaker
 
         public void Shoot()
         {
-            movementVector = new Vector2(0, -4);
+            movementVector = new Vector2(0, -6);
         }
 
         public void LockoutBreaks()

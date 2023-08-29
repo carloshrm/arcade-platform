@@ -165,7 +165,7 @@
             gameScreen.FillTextExtended(game.fieldMessages[i], 0, (gameScreen.GetDimensions().y / 2) + (i * 20), "10px \"Press Start 2P\"", "yellow");
 
         if (game.ballOnHold)
-            gameScreen.FillTextExtended("hit spacebar or up to release the ball", (gameScreen.GetDimensions().x / 5.5), (gameScreen.GetDimensions().y * 0.8), textStyle);
+            gameScreen.FillTextExtended("hit spacebar or up to release the ball", (gameScreen.GetDimensions().x * 0.3), (gameScreen.GetDimensions().y * 0.8), textStyle);
 
         for (int i = 1; i <= game.player.healthPoints; i++)
             gameScreen.DrawSimpleImage("heart", gameScreen.componentWidth - (40 * i), 10);
