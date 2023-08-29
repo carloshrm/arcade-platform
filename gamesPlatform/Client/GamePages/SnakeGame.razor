@@ -25,7 +25,7 @@
         <GameCanvas @ref=gameScreen appID=@_myID />
         @if (turnCount > 0 && !gameControl.Enabled)
         {
-            <PostGameView currentScore=currentScore highScore=highScore app=AppID.Snake />
+            <PostGameView currentScore=currentScore highScore=highScore appID=AppID.Snake />
         }
     </div>
     @if (isMobile)
@@ -62,7 +62,7 @@
         }
     }
 
-    private void increaseSpeed(Object? sender, EventArgs e)
+    private void IncreaseSpeed(Object? sender, EventArgs e)
     {
         if (gameControl.Enabled)
         {
@@ -71,13 +71,18 @@
         }
     }
 
-    private void playerInputHandler(string direction)
+    protected override void KeyDownHandler(string key)
     {
         if (gameControl.Enabled && canMove)
         {
-            game!.player.parseMoveCommand(direction);
+            game!.player.ParseInput(key);
         }
         canMove = false;
+    }
+
+    protected override void KeyUpHandler(string key)
+    {
+        //
     }
 
     protected async override Task StopGame()
@@ -112,7 +117,7 @@
         await gameScreen.SetCanvasSize();
         gameScreen.ClearCanvas();
         game = new SnakeBoard(gameScreen.baseResolution);
-        game.ateFood += increaseSpeed;
+        game.ateFood += IncreaseSpeed;
     }
 
     protected override void RunGame(Object? src, ElapsedEventArgs e)

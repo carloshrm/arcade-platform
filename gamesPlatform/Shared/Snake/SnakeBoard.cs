@@ -20,7 +20,7 @@ namespace cmArcade.Shared
             this.limits = limits;
             food = new List<SnakeFood>();
             player = new SnakePlayer(2, limits);
-            ateFood += player.growSnake;
+            ateFood += player.GrowSnake;
             ateFood += makeFood;
             makeFood(this, EventArgs.Empty);
         }
@@ -64,7 +64,7 @@ namespace cmArcade.Shared
         public void updateGameState(Score s)
         {
             player.tail.Add(new TailPiece(player.pos, player.healthPoints));
-            player.updatePosition(limits);
+            player.UpdatePosition(limits);
             player.tail.RemoveAll(tp => tp.healthVal == 0);
             for (int i = 0; i < player.tail.Count; i++)
             {
@@ -88,7 +88,7 @@ namespace cmArcade.Shared
             return true;
         }
 
-        public object getPlayer()
+        public object GetPlayer()
         {
             return player;
         }
