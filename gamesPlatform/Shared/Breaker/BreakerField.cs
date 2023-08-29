@@ -108,7 +108,7 @@
 
         private void SpawnNewBlockRow()
         {
-            blocks.ForEach(r => r.ForEach(bk => bk.dropRow()));
+            blocks.ForEach(r => r.ForEach(bk => bk.DropRow()));
             blocks.Add(BlockFactory.makeRandomizedRow(limits, 0));
         }
 
@@ -148,14 +148,14 @@
                     foreach (var block in blocks.SelectMany(row => row.Where(b => CheckHit(b, ball))))
                     {
                         if (block.model.spriteId.Contains("fragile"))
-                            block.hit();
+                            block.Hit();
                         else
                         {
                             ball.Bounce(-1, 1);
                             if (!ball.breakingTimeout)
                             {
                                 ball.LockoutBreaks();
-                                ReleasePowerup(block.hit());
+                                ReleasePowerup(block.Hit());
                             }
                         }
                     }
