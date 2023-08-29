@@ -42,7 +42,7 @@ namespace cmArcade.Shared.Tetris
             return new Tetromino(limits.col - (activeEdges / 2), TetrominoModel.shapeList.ElementAt(new Random().Next(0, TetrominoModel.shapeList.Count)));
         }
 
-        public Object getPlayer()
+        public Object GetPlayer()
         {
             return player;
         }

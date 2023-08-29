@@ -44,6 +44,8 @@ public abstract class GamePage<T> : ComponentBase, IDisposable
     protected abstract Task StartGame();
     protected abstract Task StopGame();
     protected abstract Task ResetGame();
+    protected abstract void KeyDownHandler(string key);
+    protected abstract void KeyUpHandler(string key);
     protected abstract void RunGame(object? o, ElapsedEventArgs e);
     protected abstract void DrawGame(object? o, ElapsedEventArgs e);
     public void Dispose()

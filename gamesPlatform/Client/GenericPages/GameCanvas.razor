@@ -9,8 +9,8 @@
 @code {
     [Parameter] public AppID appID { get; set; }
 
-    public Canvas displayCanvas { get; set; }
-    public Context2D displayContext { get; set; }
+    private Canvas displayCanvas { get; set; }
+    private Context2D displayContext { get; set; }
     private Context2D? _renderContext;
 
     private Queue<Action<Batch2D>> _renderQueue = new();
@@ -29,8 +29,8 @@
             displayContext = await displayCanvas.GetContext2DAsync();
             if (_renderContext == null)
             {
-                await jsRuntime.InvokeVoidAsync("eval", $"window._renderContext = new OffscreenCanvas({componentWidth}, {componentHeight})");
-                _renderContext = await CanvasHelper.GetContext2DAsync(jsRuntime, "window._renderContext");
+                await jsRuntime.InvokeVoidAsync("eval", $"window.{nameof(_renderContext)} = new OffscreenCanvas({componentWidth}, {componentHeight})");
+                _renderContext = await CanvasHelper.GetContext2DAsync(jsRuntime, $"window.{nameof(_renderContext)}");
             }
         }
     }
@@ -54,12 +54,15 @@
         }        
     }
 
-    public async void SetupImageAssets(IEnumerable<string> assets)
+    public async void SetupImageAsset(IEnumerable<string> assets)
     {
         foreach (var assetID in assets)
-        {
-            await jsRuntime.InvokeVoidAsync("eval", $"{assetID} = document.getElementById('{assetID}')");
-        }
+            SetupImageAsset(assetID);
+    }
+
+    public async void SetupImageAsset(string assetID)
+    {
+        await jsRuntime.InvokeVoidAsync("eval", $"{assetID} = document.getElementById('im-{assetID}')");
     }
 
     public async Task SetCanvasSize()
@@ -84,12 +87,10 @@
     {
         await using (var batch = _renderContext.CreateBatch())
         {
-            foreach (var fnCall in _renderQueue)
-            {
-                fnCall.Invoke(batch);
-            }
-            _renderQueue.Clear();
-            await displayContext.DrawImageAsync("window._renderContext", 0, 0);
+            while (_renderQueue.TryDequeue(out Action<Batch2D>? renderStep))
+                renderStep.Invoke(batch);
+
+            await displayContext.DrawImageAsync($"window.{nameof(_renderContext)}", 0, 0);
         }
     }
 
@@ -113,6 +114,14 @@
         {
             await targetContext.FillStyleAsync(obj.model.color);
             await targetContext.FillRectAsync(obj.pos.X * scaleFactor.c, obj.pos.Y * scaleFactor.r, scaleFactor.c, scaleFactor.r);
+        });
+    }
+
+    public void DrawSimpleImage(string assetID, double x, double y)
+    {
+        _renderQueue.Enqueue(async (Batch2D targetContext) =>
+        {
+            await targetContext.DrawImageAsync(assetID, x, y);
         });
     }
 
@@ -226,6 +235,17 @@
             await targetContext.FillRectAsync(0, 0, componentWidth, componentHeight);
         });
     }
+
+    public void FillText(string text, double x, double y)
+    {
+        _renderQueue.Enqueue(async (Batch2D targetContext) =>
+        {
+            await targetContext.FillTextAsync(text, x, y);
+        });
+    }
+
+    public void FillTextExtended(string text, double x, double y, (string font, string color) style, int linePadding = 0)
+    => FillTextExtended(text, x, y, style.font, style.color, linePadding);
 
     public void FillTextExtended(string text, double x, double y, string font, string style, int linePadding = 0)
     {

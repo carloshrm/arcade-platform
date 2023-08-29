@@ -142,7 +142,7 @@ public class AsteroidsField : IGameField
                                 || CheckCollision(a, playerParts.Last()));
     }
 
-    public object getPlayer()
+    public object GetPlayer()
     {
         return player;
     }

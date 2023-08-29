@@ -80,7 +80,7 @@
                 ResetGame();
             currentScore.turn = 1;
             currentScore.runStart = DateTime.Now;
-            toggleControlObjects();
+            ToggleControlObjects();
         }
     }
 
@@ -88,44 +88,44 @@
     {
         await jsRuntime.InvokeVoidAsync("setFocus");
         if (gameControl.Enabled) 
-            toggleControlObjects();
+            ToggleControlObjects();
 
         currentScore = new Score(_myID);
         game = new Space(gameScreen.GetDimensions());
         gameOver = false;
     }
 
-    private new void toggleControlObjects()
+    protected new void ToggleControlObjects()
     {
         gameControl.Enabled = !gameControl.Enabled;
         invaderControl.Enabled = !invaderControl.Enabled;
         canvasRefresh.Enabled = !canvasRefresh.Enabled;
     }
 
-    private async Task nextRound()
+    private async Task TriggerNextRound()
     {
-        toggleControlObjects();
+        ToggleControlObjects();
         for (int i = 3; i != 0; i--)
         {
             gameScreen.FillCanvas("black");
             gameScreen.FillTextExtended($"Next round in {i}...", 50, 50, textStyle.font, textStyle.color);
-            await gameScreen.RenderQueue();
+            gameScreen.RenderQueue();
             await Task.Delay(1000);
         }
         game = new Space(gameScreen.GetDimensions());
         currentScore.turn++;
         game.setScoreMultiplier(currentScore.turn);
-        toggleControlObjects();
+        ToggleControlObjects();
     }
 
-    private void KeyDownHandler(KeyboardEventArgs e)
+    protected override void KeyDownHandler(string key)
     {        
-        game.parseKeyDown(e.Key);
+        game.parseKeyDown(key);
     }
 
-    private void KeyUpHandler(KeyboardEventArgs e)
+    protected override void KeyUpHandler(string key)
     {
-        game.parseKeyUp(e.Key);
+        game.parseKeyUp(key);
     }
 
     private void ClickHandler(MouseEventArgs e)
@@ -149,14 +149,14 @@
             highScore = currentScore;
             scoreService.setLocalScore(highScore);
         }
-        toggleControlObjects();
+        ToggleControlObjects();
         StateHasChanged();
     }
 
     private void InvadersStep(Object? o, EventArgs e)
     {
         if (game.invaders.Count == 0) 
-            nextRound();
+            TriggerNextRound();
 
         game.updateInvaderState();
         SetScore(game.invaderCleanup());

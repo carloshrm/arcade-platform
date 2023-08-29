@@ -6,7 +6,7 @@
         <h4>Score: @currentScore?.scoreValue</h4>
         <h4>Best: @highScore?.scoreValue</h4>
         <button type="button" class="soft-shadow game-button" @onclick=@(() => { if (allowUpload) showScoreUpload = true; })>Upload!</button>
-        <LeaderboardView appID=app @ref=leaderboard />
+        <LeaderboardView appID=appID @ref=leaderboard />
     </div>
     @if (showScoreUpload && allowUpload)
     {
@@ -17,7 +17,7 @@
 @code {
     [Parameter] public Score currentScore { get; set; }
     [Parameter] public Score highScore { get; set; }
-    [Parameter] public AppID app { get; set; }
+    [Parameter] public AppID appID { get; set; }
 
     private bool allowUpload = false;
     private bool showScoreUpload = false;

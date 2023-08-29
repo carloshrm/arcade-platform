@@ -30,7 +30,7 @@
             setupBarriers();
         }
 
-        public Object getPlayer()
+        public Object GetPlayer()
         {
             return player;
         }

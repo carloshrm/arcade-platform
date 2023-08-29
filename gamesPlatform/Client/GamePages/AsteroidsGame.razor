@@ -11,16 +11,16 @@
         <button type="button" class="soft-shadow game-button @((currentScore.scoreValue > 0 && gameControl.Enabled) ? "dark-bg ok" : "")" @onclick=StartGame>start</button>
         <button type="button" class="soft-shadow game-button" @onclick=ResetGame>reset</button>
     </div>
-    <div id="game-container" tabindex="0" @onkeydown=@((e) => keyDownInputHandler(e.Key)) @onkeyup=@((e) => keyUpInputHandler(e.Key))>
+    <div id="game-container" tabindex="0" @onkeydown=@((e) => KeyDownHandler(e.Key)) @onkeyup=@((e) => KeyUpHandler(e.Key))>
         <GameCanvas @ref=gameScreen appID=_myID />
         @if (currentScore?.turn > 0 && gameOver)
         {
-            <PostGameView currentScore=currentScore highScore=highScore app=_myID />
+            <PostGameView currentScore=currentScore highScore=highScore appID=_myID />
         }
     </div>
     @if (isMobile)
     {
-        <TouchDPad clickCallback=keyDownInputHandler releaseCallback=keyUpInputHandler />
+        <TouchDPad clickCallback=KeyDownHandler releaseCallback=KeyUpHandler />
     }
 </main>
 
@@ -32,8 +32,6 @@
     private bool isMobile = false;
     private bool mobileMoveToggle = false;
 
-    private string textStyle = "12px \"Press Start 2P\"";
-
     public AsteroidsGame() : base(AppID.Asteroids)
     {
         gameControl.Interval = 50;
@@ -43,7 +41,7 @@
     {
         isMobile = await jsRuntime.InvokeAsync<bool>("isMobile");
         if (isMobile)
-            textStyle = "8px \"Press Start 2P\"";
+            textStyle = ("8px \"Press Start 2P\"", "white");
 
         highScore = await scoreService.readLocalScore(_myID);
     }
@@ -54,10 +52,8 @@
         {
             if (gameScreen != null)
             {
-                await gameScreen.setCanvasSize();
-                await gameScreen.canvasReference.SetFontAsync(textStyle);
-                await gameScreen.canvasReference.SetFillStyleAsync("white");
-                game = new AsteroidsField(gameScreen!.getDimensions());
+                await gameScreen.SetCanvasSize();
+                game = new AsteroidsField(gameScreen!.GetDimensions());
             }
             gameControl.Elapsed += RunGame;
             canvasRefresh.Elapsed += DrawGame;
@@ -87,9 +83,9 @@
             ToggleControlObjects();
 
         currentScore = new Score(_myID);
-        game = new AsteroidsField(gameScreen!.getDimensions());
+        game = new AsteroidsField(gameScreen!.GetDimensions());
         gameOver = false;
-        await gameScreen.clear();
+        gameScreen.ClearCanvas();
     }
 
     protected override async Task StopGame()
@@ -105,14 +101,14 @@
         StateHasChanged();
     }
 
-    private void keyDownInputHandler(string dir)
+    protected override void KeyDownHandler(string key)
     {
-        game.parseKeyDown(dir);
+        game.parseKeyDown(key);
     }
 
-    private void keyUpInputHandler(string dir)
+    protected override void KeyUpHandler(string key)
     {
-        game.parseKeyUp(dir);
+        game.parseKeyUp(key);
     }
 
     private string getUIText()
@@ -134,16 +130,13 @@
 
     protected async override void DrawGame(Object? o, ElapsedEventArgs e)
     {
-        await gameScreen.canvasReference.BeginBatchAsync();
-        await gameScreen.fillColor("black");
-
-        var ship = ((PlayerShip)game.getPlayer());
-        ship.getParts().ForEach(async p => await gameScreen.drawVectorial(p));
-        ship.shots.ForEach(async s => await gameScreen.drawVectorial(s));
-
-        await gameScreen.fillTextExtended(getUIText(), gameScreen.componentWidth * 0.02, 20, textStyle, "white", 10);
-        game.asteroids.ForEach(async a => await gameScreen.drawVectorial(a));
-        await gameScreen.canvasReference.EndBatchAsync();        
+        gameScreen.FillCanvas("black");
+        var ship = ((PlayerShip)game.GetPlayer());
+        gameScreen.DrawVectorialSet(ship.getParts());
+        gameScreen.DrawVectorialSet(ship.shots);
+        gameScreen.FillTextExtended(getUIText(), gameScreen.componentWidth * 0.02, 20, textStyle.font, textStyle.color, 10);
+        gameScreen.DrawVectorialSet(game.asteroids);
+        await gameScreen.RenderQueue();        
     }
 
     public override void DisposeHarder()
