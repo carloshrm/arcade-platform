@@ -235,6 +235,11 @@
         });
     }
 
+    public async void ForceCanvasClear()
+    {
+        await displayContext.ClearRectAsync(0, 0, componentWidth, componentHeight);
+    }
+
     public void FillCanvas(string color)
     {
         _renderQueue.Enqueue(async (Batch2D targetContext) =>
