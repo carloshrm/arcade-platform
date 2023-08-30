@@ -19,7 +19,7 @@ public class PlayerShip
 
     private float momentum { get; set; } = 0;
     private Vector2 movingDir { get; set; }
-    private readonly float decel = 0.04f;
+    private readonly float decel = 0.06f;
     private readonly float accel = 0.4f;
     private readonly float maxSpeed = 6f;
 
@@ -59,11 +59,10 @@ public class PlayerShip
         {
             if (movingFw)
             {
-                if (momentum < maxSpeed)
-                    momentum += accel;
+                momentum = momentum < maxSpeed ? momentum + accel : maxSpeed;
 
-                float scalar = (float)Math.Clamp((maxSpeed / momentum) - 1, 0.1, 0.8);
-                movingDir = Vector2.Normalize(Vector2.Lerp(movingDir, (hull.pos - head.pos), scalar));
+                var scalar = momentum > 3 ? 0.05 : 0.5;
+                movingDir = Vector2.Lerp(movingDir, Vector2.Normalize(hull.pos - head.pos), (float)scalar);
             }
             else
             {
@@ -108,7 +107,7 @@ public class PlayerShip
         return new Vector2((float)x + rf.X, (float)y + rf.Y);
     }
 
-    public void updatePosition((int row, int col) limits)
+    public void UpdatePosition((int row, int col) limits)
     {
         if (isRotating)
             ApplyRotation();
@@ -120,7 +119,7 @@ public class PlayerShip
         head.pos -= dirVec;
         hull.pos -= dirVec;
         jet.pos -= dirVec;
-        if (momentum != 0)
+        if (momentum != 0 && !isThrusting)
         {
             momentum += momentum > 0 ? -decel : +decel;
             if (momentum > 0 && momentum < 0.01)
@@ -151,7 +150,7 @@ public class PlayerShip
             s.pos.Y <= 0 || s.pos.Y >= limits.yEdge);
     }
 
-    public List<ShipPart> getParts()
+    public List<ShipPart> GetParts()
     {
         var parts = new List<ShipPart> { hull, head };
         if (isThrusting && movingFw)
