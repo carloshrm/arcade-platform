@@ -85,7 +85,7 @@
         currentScore = new Score(_myID);
         game = new AsteroidsField(gameScreen!.GetDimensions());
         gameOver = false;
-        gameScreen.ClearCanvas();
+        gameScreen.ForceCanvasClear();
     }
 
     protected override async Task StopGame()
@@ -132,7 +132,7 @@
     {
         gameScreen.FillCanvas("black");
         var ship = ((PlayerShip)game.GetPlayer());
-        gameScreen.DrawVectorialSet(ship.getParts());
+        gameScreen.DrawVectorialSet(ship.GetParts());
         gameScreen.DrawVectorialSet(ship.shots);
         gameScreen.FillTextExtended(getUIText(), gameScreen.componentWidth * 0.02, 20, textStyle.font, textStyle.color, 10);
         gameScreen.DrawVectorialSet(game.asteroids);
