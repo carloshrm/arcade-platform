@@ -20,7 +20,7 @@ namespace cmArcade.Shared.Breaker
             movingDir = Direction.Zero;
             healthPoints = 3;
             accel = 0;
-            weight = 0.5f;
+            weight = 0.6f;
             spriteSelect = 0;
         }
 
@@ -54,10 +54,14 @@ namespace cmArcade.Shared.Breaker
 
             if (movingDir == Direction.Right)
             {
+                if (accel < 0)
+                    accel = 0;
                 accel = accel < 8 ? accel + weight : 8;
             }
             else if (movingDir == Direction.Left)
             {
+                if (accel > 0)
+                    accel = 0;
                 accel = accel > -8 ? accel - weight : -8;
             }
             else

@@ -125,6 +125,14 @@
         });
     }
 
+    public void DrawSimpleImage(string assetID, double x, double y, double w, double h)
+    {
+        _renderQueue.Enqueue(async (Batch2D targetContext) =>
+        {
+            await targetContext.DrawImageAsync(assetID, x, y, w, h);
+        });
+    }
+
     public void DrawObject(IGameObject obj)
     {
         // renders from the top left

@@ -123,8 +123,8 @@
             $"Time: \n  {currentScore.runLength.ToString("mm\\:ss")}\n" +
             $"Score:\n{currentScore.scoreValue}" +
             $"{game.scoreMult} lines\n" +
-            $"Best: \n  {highScore.scoreValue}\n" +
-            "Left-Right:\n  Move\nUp: \nSpin \nSpacebar:\n  Drop";
+            $"Best: \n  {highScore.scoreValue}\n \n" +
+            ":: Controls ::\nA D/Arrows:\n  Move\nUp:\n  Rotate \nSpacebar:\n  Drop";
     }
 
     protected async override void RunGame(Object? o, ElapsedEventArgs e)
@@ -140,7 +140,7 @@
     protected async override void DrawGame(Object? o, ElapsedEventArgs e)
     {
         gameScreen.FillCanvas("black");
-        gameScreen.DrawSimpleImage(TetrisPlayerModel.player.spriteId, 0, 0);
+        gameScreen.DrawSimpleImage(TetrisPlayerModel.player.spriteId, 0, 0, gameScreen.componentWidth, gameScreen.componentHeight);
         gameScreen.FillTextExtended(getUIText(), gameScreen.componentWidth * 0.02, 20, textStyle, 10);
 
         game.active.parts.ForEach(p => gameScreen.DrawScaledObject(p));
