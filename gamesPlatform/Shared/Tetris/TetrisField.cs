@@ -42,22 +42,22 @@ namespace cmArcade.Shared.Tetris
             return new Tetromino(limits.col - (activeEdges / 2), TetrominoModel.shapeList.ElementAt(new Random().Next(0, TetrominoModel.shapeList.Count)));
         }
 
-        public Object getPlayer()
+        public Object GetPlayer()
         {
             return player;
         }
 
-        public void setMessage(string msg)
+        public void ShowFieldMessage(string msg)
         {
             uiMessage = msg;
         }
 
-        public void setScoreMultiplier(int val)
+        public void SetScoreMultiplier(int val)
         {
             scoreMult = val;
         }
 
-        public bool checkGameOver()
+        public bool CheckGameOver()
         {
             return active.parts.Any(p =>
             {
@@ -145,7 +145,7 @@ namespace cmArcade.Shared.Tetris
             return t.parts.Any(p => p.pos.Y + 1 >= limits.row || field[(int)p.pos.Y + 1][(int)p.pos.X] != null);
         }
 
-        public void updateGameState(Score s)
+        public void UpdateGameState(Score s)
         {
             if (checkBottomCollision(active) is false)
                 active.step(VecDirection.Down);

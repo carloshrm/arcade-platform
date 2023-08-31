@@ -25,26 +25,25 @@
             invaders = new List<InvaderShip>();
             barriers = new List<FieldBarrier>();
             this.limits = limits;
-            setupCommonInvaders();
-            specialInvader = setupSpecialInvader();
-            setupBarriers();
+            SetupCommonInvaders();
+            specialInvader = SetupSpecialInvader();
+            SetupBarriers();
         }
 
-        public Object getPlayer()
+        public Object GetPlayer()
         {
             return player;
         }
 
-        public void updateGameState(Score s)
+        public void UpdateGameState(Score s)
         {
-            Console.WriteLine("game logic");
             hitDetection();
-            player.updatePosition(limits);
-            updateSpecialInvader();
-            shotsFired.ForEach(s => s.updatePosition(limits));
+            player.UpdatePosition(limits);
+            UpdateSpecialInvader();
+            shotsFired.ForEach(s => s.UpdatePosition(limits));
         }
 
-        public void setupBarriers()
+        public void SetupBarriers()
         {
             int row = (int)(limits.row * 0.80);
             int col = limits.col / 6;
@@ -53,12 +52,12 @@
             barriers.Add(new FieldBarrier(row, col * 3));
         }
 
-        public void fireShot(IGameObject whoFired)
+        public void FireShot(IGameObject whoFired)
         {
             shotsFired.Add(new LaserShot(whoFired));
         }
 
-        public void invaderAttack()
+        public void InvaderAttack()
         {
             if (rng.Next(10) >= 7 && invaderShotCount < (int)Math.Round(3 * difficultyRatio))
             {
@@ -74,20 +73,19 @@
                     }
                     j--;
                 }
-                fireShot(selected);
+                FireShot(selected);
                 invaderShotCount++;
             }
         }
 
-        public void setupCommonInvaders()
+        public void SetupCommonInvaders()
         {
             int invadersPerRow = 10;
-            int tallestInvader = ShipModel.invaderShips.Values.Max(x => x.height) + 6;
+            int tallestInvader = ShipModel.invaderShips.Max(x => x.height) + 6;
             int rowPos = limits.row / 22;
             int colSize = (int)(limits.col / invadersPerRow * 0.7);
-            for (int i = 0; i < 4; i++)
+            foreach (var model in ShipModel.invaderShips.Take(4))
             {
-                var model = ShipModel.invaderShips[(i + 1).ToString()];
                 rowPos += tallestInvader;
                 for (int j = 1; j <= invadersPerRow; j++)
                 {
@@ -97,33 +95,33 @@
             }
         }
 
-        private InvaderShip setupSpecialInvader()
+        private InvaderShip SetupSpecialInvader()
         {
             specialIsActive = false;
-            var model = ShipModel.invaderShips.Last().Value;
+            var model = ShipModel.invaderShips.Last();
             return new InvaderShip(model.height, limits.col + model.width + 10, model);
         }
 
-        private void updateSpecialInvader()
+        private void UpdateSpecialInvader()
         {
             if (specialIsActive)
                 specialInvader.pos += VecDirection.Left * 3;
         }
 
-        public void sendSpecial()
+        public void SpawnSpecialInvader()
         {
             if (invaders.Count % 9 == 0) specialIsActive = true;
             if (specialInvader.pos.X <= 0 - specialInvader.model.width || specialInvader.healthPoints <= 0)
-                specialInvader = setupSpecialInvader();
+                specialInvader = SetupSpecialInvader();
         }
 
-        public void parseKeyDown(string input)
+        public void ParseKeyDown(string input)
         {
             if (input.Equals(" ") || input.Equals("ArrowUp"))
             {
                 if (player.canShoot)
                 {
-                    fireShot(player);
+                    FireShot(player);
                     _ = player.shotTimeout();
                 }
             }
@@ -136,37 +134,36 @@
             }
         }
 
-        public void parseKeyUp(string input)
+        public void ParseKeyUp(string input)
         {
             if (!input.Equals(" "))
                 player.movingDir = Direction.Zero;
         }
 
-        public void updateInvaderState()
+        public void UpdateInvaderState()
         {
-            Console.WriteLine("invader state");
             shotsFired.RemoveAll(s => s.pos.Y <= 0 || s.pos.Y >= limits.row || s.hitSomething);
             invaderShotCount = shotsFired.Count(x => !x.fromPlayer);
 
             bool touchedEdge = false;
             invaders.ForEach(i =>
             {
-                if (i.updatePosition(limits)) touchedEdge = true;
-                i.animate();
+                if (i.UpdatePosition(limits)) touchedEdge = true;
+                i.Animate();
             });
 
             if (touchedEdge)
             {
-                InvaderShip.flipDirection();
+                InvaderShip.FlipDirection();
                 invaders.ForEach(i =>
                 {
-                    i.dropRow(limits.row);
-                    i.updatePosition(limits);
+                    i.DropRow(limits.row);
+                    i.UpdatePosition(limits);
                 });
             }
         }
 
-        public bool checkGameOver()
+        public bool CheckGameOver()
         {
             if (player.healthPoints <= 0)
                 return true;
@@ -250,12 +247,12 @@
             }
         }
 
-        public void setMessage(string msg)
+        public void ShowFieldMessage(string msg)
         {
             uiMessage = msg;
         }
 
-        public void setScoreMultiplier(int val)
+        public void SetScoreMultiplier(int val)
         {
             difficultyRatio += val / 10.0;
         }

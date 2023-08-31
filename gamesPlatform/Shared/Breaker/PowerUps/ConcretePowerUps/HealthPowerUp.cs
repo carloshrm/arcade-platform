@@ -4,8 +4,8 @@
     {
         public void runEffect(IGameField fieldReference)
         {
-            (fieldReference.getPlayer() as PlayerPad).healthPoints++;
-            fieldReference.setMessage("+1 Life");
+            (fieldReference.GetPlayer() as PlayerPad).healthPoints++;
+            fieldReference.ShowFieldMessage("+1 Life");
         }
     }
 }

@@ -21,7 +21,7 @@ namespace cmArcade.Shared.Breaker
             effect = IPowerUpEffect.getBreakerPowerUp(type);
         }
 
-        public bool updatePosition((int row, int col) limits)
+        public bool UpdatePosition((int row, int col) limits)
         {
             pos += VecDirection.Down * 2;
             return true;

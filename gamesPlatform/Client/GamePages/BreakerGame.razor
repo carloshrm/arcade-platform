@@ -10,29 +10,23 @@
         <button type="button" class="soft-shadow game-button @((currentScore.scoreValue > 0 && gameControl.Enabled) ? "dark-bg ok" : "")" @onclick=StartGame>start</button>
         <button type="button" class="soft-shadow game-button" @onclick=ResetGame>reset</button>
     </div>
-    <div id="game-container" tabindex="0" @onkeydown=@((e) => keyDownInputHandler(e.Key)) @onkeyup=@((e) => keyUpInputHandler(e.Key))>
+    <div id="game-container" tabindex="0" @onkeydown=@((e) => KeyDownHandler(e.Key)) @onkeyup=@((e) => KeyUpHandler(e.Key))>
         <GameCanvas @ref=gameScreen appID=_myID />
         @if (currentScore?.turn > 0 && gameOver)
         {
-            <PostGameView currentScore=currentScore highScore=highScore app=_myID />
+            <PostGameView currentScore=currentScore highScore=highScore appID=_myID />
         }
     </div>
     @if (isMobile)
     {
-        <TouchDPad clickCallback=keyDownInputHandler releaseCallback=keyUpInputHandler />
+        <TouchDPad clickCallback=KeyDownHandler releaseCallback=KeyUpHandler />
     }
 </main>
 
-<img hidden src=@($"/img/breakerAssets/player.png") @ref=@(gameScreen.assets[PadModel.playerPad.spriteId]) />
-<img hidden src=@($"/img/breakerAssets/ball.png") @ref=@(gameScreen.assets[BallModel.breakerBall.spriteId]) />
-<img hidden src=@($"/img/breakerAssets/crack.png") @ref=@(gameScreen.assets["crack"]) />
-@foreach (var bm in ((IEnumerable<GraphicAsset>)BlockModel.blocks)
-                 .Concat(PowerUpModel.breakerPowerUps.Values)
-                 .Concat(GameDecal.breakerDecals.Values))
+@foreach (var id in assetList)
 {
-    <img hidden src=@($"/img/breakerAssets/{bm.spriteId}.png") @ref=@(gameScreen.assets[bm.spriteId]) />
+    <GameImageAsset assetID=@id appID=@_myID />
 }
-<img hidden src=@($"/img/genericAssets/heart.png") @ref=@(gameScreen.assets["heart"]) />
 
 @code {
     private GameCanvas? gameScreen;
@@ -50,6 +44,15 @@
         gameControl.Interval = 10;
         holdStart = null;
         timeHeld = TimeSpan.Zero;
+        assetList.AddRange(BlockModel.blocks.Select(b => b.spriteId));
+        assetList.AddRange(PowerUpModel.breakerPowerUps.Values.Select(v => v.spriteId));
+        assetList.AddRange(GameDecal.breakerDecals.Select(v => v.spriteId));
+        assetList.AddRange(new List<string>
+            {
+                PadModel.playerPad.spriteId,
+                BallModel.breakerBall.spriteId,
+                "crack", "heart"
+            });
     }
 
     protected override async Task OnInitializedAsync()
@@ -63,10 +66,9 @@
         {
             if (gameScreen != null)
             {
-                await gameScreen.setCanvasSize();
-                await gameScreen.canvasReference.SetFontAsync("16px \"Press Start 2P\"");
-                await gameScreen.canvasReference.SetFillStyleAsync("white");
-                game = new BreakerField(gameScreen.getDimensions());
+                await gameScreen.SetCanvasSize();
+                game = new BreakerField(gameScreen.GetDimensions());
+                gameScreen.SetupImageAsset(assetList);
             }
             highScore = await scoreService.readLocalScore(_myID);
             gameControl.Elapsed += RunGame;
@@ -95,9 +97,10 @@
         await jsRuntime.InvokeVoidAsync("setFocus");
         if (gameControl.Enabled) ToggleControlObjects();
         currentScore = new Score(_myID);
-        game = new BreakerField(gameScreen!.getDimensions());
+        game = new BreakerField(gameScreen!.GetDimensions());
         gameOver = false;
-        await gameScreen.clear();
+        gameScreen.ClearCanvas();
+        await gameScreen.RenderQueue();
     }
 
     protected override async Task StopGame()
@@ -113,29 +116,28 @@
         StateHasChanged();
     }
 
-    private void keyDownInputHandler(string dir)
+    protected override void KeyDownHandler(string key)
     {
-        game.parseKeyDown(dir);
+        game.ParseKeyDown(key);
     }
 
-    private void keyUpInputHandler(string dir)
+    protected override void KeyUpHandler(string key)
     {
-        game.parseKeyUp(dir);
+        game.ParseKeyUp(key);
     }
 
-    private string getUIText()
+    private string MakeUIText()
     {
-        var text = new StringBuilder();
-        text.Append($"Score:{currentScore.scoreValue}x{game.fieldScoreMultiplier}\t ");
-        if (highScore.scoreValue > 0) text.Append($"Best:{highScore.scoreValue}\t ");
-        text.Append($"Time:{currentScore.runLength.ToString("mm\\:ss")} ");
-        text.Append($"Depth:{currentScore.turn}");
-        return text.ToString();
+        return 
+            $"Score:{currentScore.scoreValue}x{game.fieldScoreMultiplier} \t " +
+            (highScore.scoreValue > 0 ? $"Best{highScore.scoreValue} \t" : "") +
+            $"Time:{currentScore.runLength.ToString("mm\\:ss")} " +
+            $"Depth:{currentScore.turn}";
     }
 
     protected async override void RunGame(Object? o, ElapsedEventArgs e)
     {
-        game.updateGameState(currentScore);
+        game.UpdateGameState(currentScore);
         if (game.ballOnHold)
         {
             if (holdStart == null)
@@ -150,30 +152,29 @@
             }
             currentScore.runLength = (DateTime.Now - timeHeld) - currentScore.runStart;
         }
-        if (game.checkGameOver()) 
+        if (game.CheckGameOver())
             await StopGame();
     }
 
     protected async override void DrawGame(Object? o, ElapsedEventArgs e)
     {
-        await gameScreen.canvasReference.BeginBatchAsync();
-        await gameScreen.fillColor("black");
-        await gameScreen.canvasReference.FillTextAsync(getUIText(), 10, 20);
+        gameScreen.FillCanvas("black");
+        gameScreen.FillTextExtended(MakeUIText(), 10, 20, textStyle);
 
         for (int i = 0; i < game.fieldMessages.Count; i++)
-            await gameScreen.fillTextExtended(game.fieldMessages[i], 0, (gameScreen.getDimensions().y / 2) + (i * 20), "10px \"Press Start 2P\"", "yellow");
+            gameScreen.FillTextExtended(game.fieldMessages[i], 0, (gameScreen.GetDimensions().y / 2) + (i * 20), "10px \"Press Start 2P\"", "yellow");
 
         if (game.ballOnHold)
-            await gameScreen.canvasReference.FillTextAsync("hit spacebar or up to release the ball", (gameScreen.getDimensions().x / 5.5), (gameScreen.getDimensions().y * 0.8));
+            gameScreen.FillTextExtended("hit spacebar or up to release the ball", (gameScreen.GetDimensions().x * 0.3), (gameScreen.GetDimensions().y * 0.8), textStyle);
 
         for (int i = 1; i <= game.player.healthPoints; i++)
-            await gameScreen.canvasReference.DrawImageAsync(gameScreen.assets["heart"], gameScreen.componentWidth - (40 * i), 10);
+            gameScreen.DrawSimpleImage("heart", gameScreen.componentWidth - (40 * i), 10);
 
-        await gameScreen.drawObject(game.player);
-        await gameScreen.drawSet(game.balls);
-        await gameScreen.drawSet(game.powerups);
-        game.blocks.ForEach(async (r) => await gameScreen.drawSet(r));
-        await gameScreen.canvasReference.EndBatchAsync();
+        gameScreen.DrawObject(game.player);
+        gameScreen.DrawObjectSet(game.balls);
+        gameScreen.DrawObjectSet(game.powerups);
+        game.blocks.ForEach(r => gameScreen.DrawObjectSet(r));
+        await gameScreen.RenderQueue();
     }
 
     public override void DisposeHarder()

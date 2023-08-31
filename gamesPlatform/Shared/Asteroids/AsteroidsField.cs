@@ -27,16 +27,16 @@ public class AsteroidsField : IGameField
         int astCount = asteroidLimit;
         while (astCount-- > 0)
         {
-            float nextX = 0;
-            float nextY = 0;
+            Asteroid newAsteroid;
             do
             {
-                nextX = Random.Shared.Next(100, limits.col - 100);
-                nextY = Random.Shared.Next(100, limits.row - 100);
-            } while (player.getParts().Any(p => CheckCollision(p, nextX, nextY))
-                    || field.Any(a => CheckCollision(a, nextX, nextY)));
+                float nextX = Random.Shared.Next(100, limits.col - 100);
+                float nextY = Random.Shared.Next(100, limits.row - 100);
+                newAsteroid = new Asteroid(new Vector2((float)nextX, (float)nextY));
+            } while (player.GetParts().Any(p => CheckCollision(newAsteroid, p))
+                    || field.Any(a => CheckCollision(newAsteroid, a)));
 
-            field.Add(new Asteroid(new Vector2(nextX, nextY)));
+            field.Add(newAsteroid);
         }
         return field;
     }
@@ -133,26 +133,26 @@ public class AsteroidsField : IGameField
         return score;
     }
 
-    public bool checkGameOver()
+    public bool CheckGameOver()
     {
-        var playerParts = player.getParts().Take(2);
+        var playerParts = player.GetParts().Take(2);
         return
             player.healthPoints == 0
             || asteroids.Any(a => CheckCollision(a, playerParts.First())
                                 || CheckCollision(a, playerParts.Last()));
     }
 
-    public object getPlayer()
+    public object GetPlayer()
     {
         return player;
     }
 
-    public void setMessage(string msg)
+    public void ShowFieldMessage(string msg)
     {
         // TODO
     }
 
-    public void setScoreMultiplier(int val)
+    public void SetScoreMultiplier(int val)
     {
         // TODO
     }
@@ -214,9 +214,9 @@ public class AsteroidsField : IGameField
             SpawnAsteroidOutside();
     }
 
-    public void updateGameState(Score s)
+    public void UpdateGameState(Score s)
     {
-        player.updatePosition(limits);
+        player.UpdatePosition(limits);
         CheckHit();
         player.UpdateShots(limits);
         s.scoreValue += UpdateFieldState();

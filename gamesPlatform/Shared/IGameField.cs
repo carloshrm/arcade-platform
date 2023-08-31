@@ -2,10 +2,10 @@
 {
     public interface IGameField
     {
-        public Object getPlayer();
-        public void updateGameState(Score s);
-        public bool checkGameOver();
-        public void setMessage(string msg);
-        public void setScoreMultiplier(int val);
+        public Object GetPlayer();
+        public void UpdateGameState(Score s);
+        public bool CheckGameOver();
+        public void ShowFieldMessage(string msg);
+        public void SetScoreMultiplier(int val);
     }
 }

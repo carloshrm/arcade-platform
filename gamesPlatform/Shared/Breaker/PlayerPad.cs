@@ -24,7 +24,7 @@ namespace cmArcade.Shared.Breaker
             spriteSelect = 0;
         }
 
-        public void setWeight(float w)
+        public void SetWeight(float w)
         {
             if (w > 0)
                 weight = w;
@@ -37,7 +37,7 @@ namespace cmArcade.Shared.Breaker
             return --healthPoints <= 0;
         }
 
-        public bool updatePosition((int row, int col) limits)
+        public bool UpdatePosition((int row, int col) limits)
         {
             if (pos.X >= 0 && pos.X <= limits.col - model.width - 1)
             {
@@ -54,11 +54,15 @@ namespace cmArcade.Shared.Breaker
 
             if (movingDir == Direction.Right)
             {
-                accel = accel < 6 ? accel + weight : 6;
+                if (accel < 0)
+                    accel = 0;
+                accel = accel < 8 ? accel + weight : 8;
             }
             else if (movingDir == Direction.Left)
             {
-                accel = accel > -6 ? accel - weight : -6;
+                if (accel > 0)
+                    accel = 0;
+                accel = accel > -8 ? accel - weight : -8;
             }
             else
             {

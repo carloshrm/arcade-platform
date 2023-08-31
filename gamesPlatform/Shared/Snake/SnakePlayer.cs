@@ -28,12 +28,12 @@ namespace cmArcade.Shared
             movingDirection = VecDirection.Left;
         }
 
-        public void growSnake(Object? sender, EventArgs e)
+        public void GrowSnake(Object? sender, EventArgs e)
         {
             healthPoints++;
         }
 
-        public void parseMoveCommand(string keyValue)
+        public void ParseInput(string keyValue)
         {
             switch (keyValue)
             {
@@ -62,7 +62,7 @@ namespace cmArcade.Shared
             }
         }
 
-        public bool updatePosition((int row, int col) limits)
+        public bool UpdatePosition()
         {
             pos += movingDirection;
             return true;

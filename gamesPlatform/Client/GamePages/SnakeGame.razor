@@ -21,16 +21,16 @@
             <button type="button" class="soft-shadow game-button" @onclick=ResetGame>reset</button>
         </div>
     </div>
-    <div id="game-container" class="soft-shadow" tabindex="0" @onkeydown=@((e) => playerInputHandler(e.Key))>
+    <div id="game-container" class="soft-shadow" tabindex="0" @onkeydown=@((e) => KeyDownHandler(e.Key))>
         <GameCanvas @ref=gameScreen appID=@_myID />
         @if (turnCount > 0 && !gameControl.Enabled)
         {
-            <PostGameView currentScore=currentScore highScore=highScore app=AppID.Snake />
+            <PostGameView currentScore=currentScore highScore=highScore appID=AppID.Snake />
         }
     </div>
     @if (isMobile)
     {
-        <TouchDPad clickCallback=playerInputHandler />
+        <TouchDPad clickCallback=KeyDownHandler />
     }
 </main>
 
@@ -62,7 +62,7 @@
         }
     }
 
-    private void increaseSpeed(Object? sender, EventArgs e)
+    private void IncreaseSpeed(Object? sender, EventArgs e)
     {
         if (gameControl.Enabled)
         {
@@ -71,13 +71,18 @@
         }
     }
 
-    private void playerInputHandler(string direction)
+    protected override void KeyDownHandler(string key)
     {
         if (gameControl.Enabled && canMove)
         {
-            game!.player.parseMoveCommand(direction);
+            game!.player.ParseInput(key);
         }
         canMove = false;
+    }
+
+    protected override void KeyUpHandler(string key)
+    {
+        //
     }
 
     protected async override Task StopGame()
@@ -108,12 +113,11 @@
         gameControl.Interval = 400;
         if (gameControl.Enabled)
             ToggleControlObjects();
-        await gameScreen.setCanvasSize();
-        await gameScreen.clear();
-        game = new SnakeBoard(
-            gameScreen.baseResolution,
-            gameScreen.canvasReference);
-        game.ateFood += increaseSpeed;
+
+        await gameScreen.SetCanvasSize();
+        gameScreen.ClearCanvas();
+        game = new SnakeBoard(gameScreen.baseResolution);
+        game.ateFood += IncreaseSpeed;
     }
 
     protected override void RunGame(Object? src, ElapsedEventArgs e)
@@ -131,7 +135,7 @@
             }
         }
         else
-            game.updateGameState(currentScore);
+            game.UpdateGameState(currentScore);
 
         canMove = true;
         StateHasChanged();
@@ -139,15 +143,11 @@
 
     protected async override void DrawGame(Object? o, ElapsedEventArgs e)
     {
-        await gameScreen.canvasReference.BeginBatchAsync();
-        await gameScreen.fillColor("white");
-        await gameScreen.drawScaledSimpleObject(game.food);        
-        await gameScreen.drawScaledSimpleObject(game.player);        
-        foreach (var tailPiece in game.player.tail)
-        {
-            await gameScreen.drawScaledSimpleObject(tailPiece);
-        }        
-        await gameScreen.canvasReference.EndBatchAsync();
+        gameScreen.FillCanvas("white");
+        game.food.ForEach(f => gameScreen.DrawScaledObject(f));
+        gameScreen.DrawScaledObject(game.player);
+        game.player.tail.ForEach(tp => gameScreen.DrawScaledObject(tp));
+        await gameScreen.RenderQueue();
     }
 
     public override void DisposeHarder()

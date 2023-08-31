@@ -1,37 +1,34 @@
 ﻿using System.Numerics;
 
-using Blazor.Extensions.Canvas.Canvas2D;
-
 namespace cmArcade.Shared
 {
     public class SnakeBoard : IGameField
     {
         private (int r, int c) limits { get; set; }
         public SnakePlayer player { get; private set; }
-        public SnakeFood food { get; private set; }
-
+        public List<SnakeFood> food { get; private set; }
+        private readonly int maxFood = 2;
         private string uiMessage { get; set; } = string.Empty;
         private int scoreMultipier = 0;
 
         public event EventHandler ateFood;
-        private Canvas2DContext canvas;
 
-        public SnakeBoard((int r, int c) limits, Canvas2DContext c)
+        public SnakeBoard((int r, int c) limits)
         {
             this.limits = limits;
+            food = new List<SnakeFood>();
             player = new SnakePlayer(2, limits);
-            ateFood += player.growSnake;
+            ateFood += player.GrowSnake;
             ateFood += makeFood;
-            canvas = c;
             makeFood(this, EventArgs.Empty);
         }
 
-        public void setScoreMultiplier(int m)
+        public void SetScoreMultiplier(int m)
         {
             scoreMultipier = m;
         }
 
-        public void setMessage(String m)
+        public void ShowFieldMessage(String m)
         {
             uiMessage = m;
         }
@@ -41,16 +38,18 @@ namespace cmArcade.Shared
             var rng = new Random();
             Vector2 newPos;
             bool invalid;
-
-            do
+            while (food.Count() <= maxFood)
             {
-                newPos = new Vector2(rng.Next(1, limits.r - 2), rng.Next(1, limits.c - 2));
-                invalid = player.pos == newPos || player.tail.Exists(p => p.pos == newPos);
-            } while (invalid);
-            food = new SnakeFood(newPos);
+                do
+                {
+                    newPos = new Vector2(rng.Next(1, limits.r - 2), rng.Next(1, limits.c - 2));
+                    invalid = player.pos == newPos || player.tail.Exists(p => p.pos == newPos);
+                } while (invalid);
+                food.Add(new SnakeFood(newPos));
+            }
         }
 
-        public bool checkGameOver()
+        public bool CheckGameOver()
         {
             if (player.pos.Y < 0 || player.pos.X < 0 || player.pos.Y >= limits.r || player.pos.X >= limits.c)
                 return true;
@@ -60,10 +59,10 @@ namespace cmArcade.Shared
             return false;
         }
 
-        public void updateGameState(Score s)
+        public void UpdateGameState(Score s)
         {
             player.tail.Add(new TailPiece(player.pos, player.healthPoints));
-            player.updatePosition(limits);
+            player.UpdatePosition();
             player.tail.RemoveAll(tp => tp.healthVal == 0);
             for (int i = 0; i < player.tail.Count; i++)
             {
@@ -73,19 +72,21 @@ namespace cmArcade.Shared
 
         public bool checkSnakeParts()
         {
-            if (checkGameOver())
+            if (CheckGameOver())
                 return false;
             else
             {
-                if (player.pos == food.pos)
+                var chomp = food.Find(f => player.pos == f.pos);
+                if (chomp != null)
                 {
                     ateFood.Invoke(this, EventArgs.Empty);
+                    food.Remove(chomp);
                 }
             }
             return true;
         }
 
-        public Object getPlayer()
+        public object GetPlayer()
         {
             return player;
         }

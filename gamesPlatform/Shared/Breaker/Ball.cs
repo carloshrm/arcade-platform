@@ -23,17 +23,17 @@ namespace cmArcade.Shared.Breaker
             movementVector = new Vector2(0, 0);
         }
 
-        public void follow(float c)
+        public void Follow(float c)
         {
             pos = new Vector2(c - (model.width / 2), pos.Y);
         }
 
-        public void shoot()
+        public void Shoot()
         {
-            movementVector = new Vector2(0, -4);
+            movementVector = new Vector2(0, -6);
         }
 
-        public void lockBreak()
+        public void LockoutBreaks()
         {
             if (!breakingTimeout)
             {
@@ -42,9 +42,8 @@ namespace cmArcade.Shared.Breaker
             }
         }
 
-        public async void bounce(int rDir, int cDir)
+        public async void Bounce(int rDir, int cDir)
         {
-            await Console.Out.WriteLineAsync("bounce");
             if (!bouncingTimeout)
             {
                 bouncingTimeout = true;
@@ -55,12 +54,12 @@ namespace cmArcade.Shared.Breaker
             }
         }
 
-        public void offsetVector(float accel)
+        public void OffsetVector(float accel)
         {
             movementVector = new Vector2((float)Math.Floor(accel / -10), movementVector.Y);
         }
 
-        public bool updatePosition((int row, int col) limits)
+        public bool UpdatePosition((int row, int col) limits)
         {
             if (pos.Y <= limits.row)
             {

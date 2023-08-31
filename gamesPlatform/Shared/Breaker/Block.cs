@@ -23,31 +23,30 @@ namespace cmArcade.Shared.Breaker
             powerupHolder = null;
         }
 
-        public void setPowerup(PowerUp p)
+        public void InsertPowerup(PowerUp p)
         {
             powerupHolder = p;
         }
 
-        public void addDecal(GameDecal d)
+        public void AddDecal(GameDecal d)
         {
             decals?.Add(d);
         }
 
-        public void dropRow()
+        public void DropRow()
         {
             pos += new Vector2(0, BlockModel.highestBlockSize);
-            Console.WriteLine(pos);
             if (powerupHolder != null)
                 powerupHolder.pos += new Vector2(0, BlockModel.highestBlockSize);
         }
 
-        public PowerUp? hit()
+        public PowerUp? Hit()
         {
             healthPoints--;
 
             if (healthPoints > 0 && !((BlockModel)model).isSpecial)
             {
-                addDecal(GameDecal.breakerDecals["crack"]);
+                AddDecal(GameDecal.breakerDecals.First(d => d.spriteId.Contains("crack")));
                 return null;
             }
             else
@@ -65,7 +64,7 @@ namespace cmArcade.Shared.Breaker
             }
         }
 
-        public bool updatePosition((int row, int col) limits)
+        public bool UpdatePosition((int row, int col) limits)
         {
             throw new NotImplementedException();
         }
