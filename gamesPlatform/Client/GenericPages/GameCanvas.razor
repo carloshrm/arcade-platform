@@ -238,6 +238,7 @@
     public async void ForceCanvasClear()
     {
         await displayContext.ClearRectAsync(0, 0, componentWidth, componentHeight);
+        _renderQueue.Clear();
     }
 
     public void FillCanvas(string color)
