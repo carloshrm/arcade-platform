@@ -6,7 +6,7 @@
 @using cmArcade.Shared
 @using cmArcade.Shared.Tetris
 
-<main id="main-content" @onkeydown:preventDefault="true">
+<main id="main-content" @onkeydown:preventDefault=@(!gameOver)>
     <div id="game-controls">
         <button type="button" class="soft-shadow game-button @((currentScore.scoreValue > 0 && gameControl.Enabled) ? "dark-bg ok" : "")" @onclick=StartGame>start</button>
         <button type="button" class="soft-shadow game-button" @onclick=ResetGame>reset</button>

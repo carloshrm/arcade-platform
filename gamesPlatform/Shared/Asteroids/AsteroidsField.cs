@@ -40,13 +40,12 @@ public class AsteroidsField : IGameField
         }
         return field;
     }
-
     private Asteroid SpawnAsteroidOutside()
     {
         return new Asteroid(
                 new Vector2(
-                    Random.Shared.Next(-10, 0),
-                    Random.Shared.Next(-10, 0)));
+                    Random.Shared.Next(-1, limits.row + 1),
+                    Random.Shared.Next(-1, limits.col + 1)));
     }
 
     private bool CheckCollision(ISimpleVectorialObject target, float objX, float objY)
@@ -211,7 +210,9 @@ public class AsteroidsField : IGameField
     {
         int ct = asteroids.Count(a => a.isPrimary);
         while (ct++ < asteroidLimit)
-            SpawnAsteroidOutside();
+        {
+            asteroids.Add(SpawnAsteroidOutside());
+        }
     }
 
     public void UpdateGameState(Score s)
