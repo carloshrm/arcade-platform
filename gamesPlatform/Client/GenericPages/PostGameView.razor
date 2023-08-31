@@ -27,7 +27,7 @@
     protected override async Task OnInitializedAsync()
     {
         uploadCallback = new Action<int>(refreshAfterUpload);
-        allowUpload = highScore.id == -1 || highScore == currentScore;
+        allowUpload = highScore.id == -1 || highScore.scoreValue >= currentScore.scoreValue;
     }
 
     private void refreshAfterUpload(int newID)
