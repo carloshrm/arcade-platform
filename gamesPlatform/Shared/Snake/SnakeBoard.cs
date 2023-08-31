@@ -1,7 +1,5 @@
 ﻿using System.Numerics;
 
-using Blazor.Extensions.Canvas.Canvas2D;
-
 namespace cmArcade.Shared
 {
     public class SnakeBoard : IGameField
