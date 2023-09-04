@@ -28,7 +28,7 @@ public abstract class GamePage<T> : ComponentBase, IDisposable
         _myID = app;
         textStyle = ("12px \"Press Start 2P\"", "white");
         assetList = new List<string>();
-        canvasRefresh = new Timer(1000 / 60) { AutoReset = true, Enabled = false };
+        canvasRefresh = new Timer(1000 / 30) { AutoReset = true, Enabled = false };
         gameControl = new Timer(50) { AutoReset = true, Enabled = false };
         currentScore = new Score(_myID);
         highScore = currentScore;
