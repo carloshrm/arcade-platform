@@ -1,19 +1,22 @@
-using Blazored.LocalStorage;
 using cmArcade.Client.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using System.Runtime.InteropServices.JavaScript;
 
-namespace cmArcade.Client
+namespace cmArcade.Client;
+
+public class Program
 {
-    public class Program
+    public static async Task Main(string[] args)
     {
-        public static async Task Main(string[] args)
+        var builder = WebAssemblyHostBuilder.CreateDefault(args);
+        builder.RootComponents.Add<App>("#app");
+        builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+        if (OperatingSystem.IsBrowser())
         {
-            var builder = WebAssemblyHostBuilder.CreateDefault(args);
-            builder.RootComponents.Add<App>("#app");
-            builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-            builder.Services.AddBlazoredLocalStorage();
-            builder.Services.AddScoped<IScoreService, ScoreService>();
-            await builder.Build().RunAsync();
+            await JSHost.ImportAsync("LocalStorageService", "../LocalStorage.js");
+            await JSHost.ImportAsync("GameCanvas", "../GameCanvas.js");
         }
+        builder.Services.AddScoped<IScoreService, ScoreService>();
+        await builder.Build().RunAsync();
     }
 }
