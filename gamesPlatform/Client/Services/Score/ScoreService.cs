@@ -1,18 +1,17 @@
-﻿using Blazored.LocalStorage;
-using cmArcade.Shared;
+﻿using cmArcade.Shared;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace cmArcade.Client.Services
 {
     public class ScoreService : IScoreService
     {
         private readonly HttpClient _httpClient;
-        private readonly ILocalStorageService _localStorage;
+        //private readonly ILocalStorageService _localStorage;
 
-        public ScoreService(HttpClient httpClient, ILocalStorageService localStorage)
+        public ScoreService(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            _localStorage = localStorage;
         }
 
         public async Task<IEnumerable<Score>> getLeaderboard(AppID appID)
@@ -44,17 +43,20 @@ namespace cmArcade.Client.Services
 
         public async Task<Score> readLocalScore(AppID appID)
         {
-            if (await _localStorage.ContainKeyAsync($"highScore_{(int)appID}"))
+            var scoreVal = new Score(appID);
+            var localData = LocalStorageService.GetItem($"highScore_{(int)appID}");
+            if (localData != null)
             {
-                return await _localStorage.GetItemAsync<Score>($"highScore_{(int)appID}");
+                var parsedInfo = JsonSerializer.Deserialize<Score>(localData);
+                if (parsedInfo != null)
+                    scoreVal = parsedInfo;
             }
-            else
-                return new Score(appID);
+            return scoreVal;
         }
 
         public async Task setLocalScore(Score highScore)
         {
-            await _localStorage.SetItemAsync<Score>($"highScore_{highScore.appID}", highScore);
+            LocalStorageService.SetItem($"highScore_{highScore.appID}", JsonSerializer.Serialize(highScore));
         }
     }
 }
