@@ -1,6 +1,5 @@
 ﻿@page "/asteroids"
 
-@inject IJSRuntime jsRuntime
 @inject IScoreService scoreService
 @implements IDisposable
 @inherits GamePage<AsteroidsField>
@@ -39,7 +38,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        isMobile = await jsRuntime.InvokeAsync<bool>("isMobile");
+        isMobile = GameCanvas.IsBrowserMobile();
         if (isMobile)
             textStyle = ("8px \"Press Start 2P\"", "white");
 
@@ -52,8 +51,8 @@
         {
             if (gameScreen != null)
             {
-                await gameScreen.SetCanvasSize();
-                game = new AsteroidsField(gameScreen!.GetDimensions());
+                gameScreen.SetCanvasSize();
+                game = new AsteroidsField(gameScreen.GetDimensions());
             }
             gameControl.Elapsed += RunGame;
             canvasRefresh.Elapsed += DrawGame;
@@ -63,7 +62,7 @@
 
     protected async override Task StartGame()
     {
-        await jsRuntime.InvokeVoidAsync("setFocus");
+        GameCanvas.SetWindowFocus();
         if (gameControl.Enabled)
             return;
         else
@@ -78,7 +77,7 @@
 
     protected override async Task ResetGame()
     {
-        await jsRuntime.InvokeVoidAsync("setFocus");
+        GameCanvas.SetWindowFocus();
         if (gameControl.Enabled)
             ToggleControlObjects();
 
@@ -134,9 +133,9 @@
         var ship = ((PlayerShip)game.GetPlayer());
         gameScreen.DrawVectorialSet(ship.GetParts());
         gameScreen.DrawVectorialSet(ship.shots);
-        gameScreen.FillTextExtended(getUIText(), gameScreen.componentWidth * 0.02, 20, textStyle.font, textStyle.color, 10);
+        gameScreen.FillTextExtended(getUIText(), gameScreen.componentWidth * 0.02f, 20, textStyle.font, textStyle.color, 10);
         gameScreen.DrawVectorialSet(game.asteroids);
-        await gameScreen.RenderQueue();        
+        gameScreen.RenderQueue();        
     }
 
     public override void DisposeHarder()
