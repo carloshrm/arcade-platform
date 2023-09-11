@@ -1,10 +1,12 @@
 ﻿using System.Numerics;
 
+using static System.Net.Mime.MediaTypeNames;
+
 namespace cmArcade.Shared.Asteroids;
 
 public class AsteroidsField : IGameField
 {
-    private readonly (int row, int col) limits;
+    private readonly (float row, float col) limits;
     public int activeEdges { get; private set; }
     public string uiMessage { get; set; } = string.Empty;
     public int scoreMult { get; set; } = 1;
@@ -13,7 +15,7 @@ public class AsteroidsField : IGameField
     private PlayerShip player { get; set; }
     public List<Asteroid> asteroids { get; set; }
 
-    public AsteroidsField((int row, int col) limits)
+    public AsteroidsField((float row, float col) limits)
     {
         this.limits = limits;
         player = new PlayerShip((limits.row / 2, limits.col / 2));
@@ -30,13 +32,10 @@ public class AsteroidsField : IGameField
             Asteroid newAsteroid;
             do
             {
-                float nextX = Random.Shared.Next(100, limits.col - 100);
-                float nextY = Random.Shared.Next(100, limits.row - 100);
-                newAsteroid = new Asteroid(new Vector2((float)nextX, (float)nextY));
-            } while (player.GetParts().Any(p => CheckCollision(newAsteroid, p))
-                    || field.Any(a => CheckCollision(newAsteroid, a)));
-
-            field.Add(newAsteroid);
+                float nextX = Random.Shared.Next(100, (int)(limits.col - 100));
+                float nextY = Random.Shared.Next(100, (int)(limits.row - 100));
+                newAsteroid = new Asteroid(new Vector2(nextX, nextY));
+            } while (player.GetParts().Any(p => CheckCollision(newAsteroid, p)) || field.Any(a => CheckCollision(newAsteroid, a)));
         }
         return field;
     }
@@ -44,8 +43,8 @@ public class AsteroidsField : IGameField
     {
         return new Asteroid(
                 new Vector2(
-                    Random.Shared.Next(-1, limits.row + 1),
-                    Random.Shared.Next(-1, limits.col + 1)));
+                    Random.Shared.Next(-1, (int)(limits.row + 1)),
+                    Random.Shared.Next(-1, (int)(limits.col + 1))));
     }
 
     private bool CheckCollision(ISimpleVectorialObject target, float objX, float objY)
@@ -56,9 +55,9 @@ public class AsteroidsField : IGameField
             && target.pos.X + target.model.topRightBounds.X >= objX;
     }
 
-    private bool CheckCollision(ISimpleVectorialObject tgt, ISimpleVectorialObject obj)
+    private bool CheckCollision(ISimpleVectorialObject target, ISimpleVectorialObject obj)
     {
-        return CheckCollision(tgt, obj.pos.X, obj.pos.Y);
+        return CheckCollision(target, obj.pos.X, obj.pos.Y);
     }
 
     private void CheckHit()
@@ -117,8 +116,8 @@ public class AsteroidsField : IGameField
                 if (a.isPrimary)
                 {
                     var fragmentA = new Asteroid(new Vector2(a.pos.X, a.pos.Y), false);
-                    fragmentA.SetNormalizedFloatDir(a.floatDir);
                     var fragmentB = new Asteroid(new Vector2(a.pos.X + fragmentA.model.objWidth, a.pos.Y + fragmentA.model.objHeight), false);
+                    fragmentA.SetNormalizedFloatDir(a.floatDir);
                     fragmentB.SetNormalizedFloatDir(Vector2.Negate(fragmentA.floatDir));
                     secondary.Add(fragmentA);
                     secondary.Add(fragmentB);

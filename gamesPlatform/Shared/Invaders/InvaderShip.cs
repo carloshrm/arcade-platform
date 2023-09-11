@@ -12,7 +12,7 @@ namespace cmArcade.Shared.Invaders
 
         private static Direction movingDirection = Direction.Right;
 
-        public InvaderShip(int row, int col, ShipModel model)
+        public InvaderShip(float row, float col, ShipModel model)
         {
             pos = new Vector2(col, row);
             this.model = model;
@@ -30,13 +30,13 @@ namespace cmArcade.Shared.Invaders
             spriteSelect = spriteSelect == 0 ? 1 : 0;
         }
 
-        public bool UpdatePosition((int row, int col) limits)
+        public bool UpdatePosition((float row, float col) limits)
         {
             pos += new Vector2((int)movingDirection * 18, 0);
             return pos.X <= 0 + model.width || pos.X >= limits.col - (model.width * 1.5);
         }
 
-        public void DropRow(int rowEdge)
+        public void DropRow(float rowEdge)
         {
             pos += new Vector2(0, rowEdge / 20);
         }

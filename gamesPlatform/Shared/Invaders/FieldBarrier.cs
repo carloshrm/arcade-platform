@@ -10,7 +10,7 @@ namespace cmArcade.Shared.Invaders
         public int spriteSelect { get; set; }
         public List<GraphicAsset>? decals { get; set; } = null;
 
-        public FieldBarrier(int row, int col)
+        public FieldBarrier(float row, float col)
         {
             model = GameDecal.getInvaderDecal("barrier");
             pos = new Vector2(col, row);
@@ -25,7 +25,7 @@ namespace cmArcade.Shared.Invaders
 
         }
 
-        public bool UpdatePosition((int row, int col) limits)
+        public bool UpdatePosition((float row, float col) limits)
         {
             return false;
         }

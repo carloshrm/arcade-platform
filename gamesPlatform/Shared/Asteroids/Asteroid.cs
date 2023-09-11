@@ -22,7 +22,7 @@ public class Asteroid : ISimpleVectorialObject
         floatDir = new Vector2((float)Random.Shared.NextDouble(), (float)Random.Shared.NextDouble());
     }
 
-    public void UpdatePosition((int xEdge, int yEdge) limits)
+    public void UpdatePosition((float xEdge, float yEdge) limits)
     {
         pos += floatDir;
         if (pos.X < 0) pos = new Vector2(limits.xEdge - 1, pos.Y);

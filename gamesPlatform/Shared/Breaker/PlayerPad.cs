@@ -13,7 +13,7 @@ namespace cmArcade.Shared.Breaker
         public float weight { get; set; }
         public List<GraphicAsset>? decals { get; set; } = null;
 
-        public PlayerPad(int row, int col)
+        public PlayerPad(float row, float col)
         {
             pos = new Vector2(col, row);
             model = PadModel.playerPad;
@@ -37,7 +37,7 @@ namespace cmArcade.Shared.Breaker
             return --healthPoints <= 0;
         }
 
-        public bool UpdatePosition((int row, int col) limits)
+        public bool UpdatePosition((float row, float col) limits)
         {
             if (pos.X >= 0 && pos.X <= limits.col - model.width - 1)
             {

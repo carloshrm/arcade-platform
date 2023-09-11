@@ -14,7 +14,7 @@ namespace cmArcade.Shared.Invaders
         public bool canShoot { get; set; }
         public List<GraphicAsset>? decals { get; set; } = null;
 
-        public PlayerShip(int row, int col)
+        public PlayerShip(float row, float col)
         {
             pos = new Vector2(col, row);
             model = ShipModel.playerShip;
@@ -25,7 +25,7 @@ namespace cmArcade.Shared.Invaders
             spriteSelect = 0;
         }
 
-        public bool UpdatePosition((int row, int col) limits)
+        public bool UpdatePosition((float row, float col) limits)
         {
             if (pos.X >= 0 && pos.X <= limits.col - model.width - 1)
                 pos += new Vector2(accel, 0);

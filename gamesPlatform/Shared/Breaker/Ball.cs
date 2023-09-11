@@ -30,7 +30,7 @@ namespace cmArcade.Shared.Breaker
 
         public void Shoot()
         {
-            movementVector = new Vector2(0, -6);
+            movementVector = new Vector2(0, -4);
         }
 
         public void LockoutBreaks()
@@ -59,7 +59,7 @@ namespace cmArcade.Shared.Breaker
             movementVector = new Vector2((float)Math.Floor(accel / -10), movementVector.Y);
         }
 
-        public bool UpdatePosition((int row, int col) limits)
+        public bool UpdatePosition((float row, float col) limits)
         {
             if (pos.Y <= limits.row)
             {

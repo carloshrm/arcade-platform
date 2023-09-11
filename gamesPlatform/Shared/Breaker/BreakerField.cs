@@ -15,14 +15,14 @@
         private static readonly int baseScore = 40;
         private static readonly int rowCount = 5;
 
-        public BreakerField((int row, int col) limits)
+        public BreakerField((float row, float col) limits)
         {
-            this.limits = limits;
+            this.limits = ((int)limits.row, (int)limits.col);
             fieldMessages = new List<string>();
-            player = new PlayerPad(limits.row - (limits.row / 14), limits.col / 2);
+            player = new PlayerPad(this.limits.row - (this.limits.row / 14), this.limits.col / 2);
             balls = new List<Ball>();
             powerups = new List<PowerUp>();
-            blocks = BlockFactory.setupBlockField(limits, rowCount);
+            blocks = BlockFactory.setupBlockField(this.limits, rowCount);
             fieldScoreMultiplier = 1;
             ballOnHold = true;
             breakCount = 0;

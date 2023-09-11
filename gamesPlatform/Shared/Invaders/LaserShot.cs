@@ -27,7 +27,7 @@ namespace cmArcade.Shared.Invaders
             hitSomething = true;
         }
 
-        public bool UpdatePosition((int row, int col) limits)
+        public bool UpdatePosition((float row, float col) limits)
         {
             if (!hitSomething)
                 pos += fromPlayer ? (VecDirection.Up * 10) : (VecDirection.Down * 6);
