@@ -8,9 +8,6 @@
     [Parameter] public AppID appID { get; set; }
 
     private ElementReference displayCanvas { get; set; }
-    // private Context2D displayContext { get; set; }
-    // private Context2D? _renderContext;
-
     private Queue<Action> _renderQueue = new();
 
     public int componentWidth { get; set; }
@@ -252,6 +249,6 @@
 
     public void Dispose()
     {
-        // displayContext.DisposeAsync();
+        //
     }
 }
