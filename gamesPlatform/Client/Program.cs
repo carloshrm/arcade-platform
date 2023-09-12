@@ -13,8 +13,8 @@ public class Program
         builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
         if (OperatingSystem.IsBrowser())
         {
-            await JSHost.ImportAsync("LocalStorageService", "../LocalStorage.js");
             await JSHost.ImportAsync("GameCanvas", "../GameCanvas.js");
+            await JSHost.ImportAsync("CanvasContext", "../CanvasContext.js");
         }
         builder.Services.AddScoped<IScoreService, ScoreService>();
         await builder.Build().RunAsync();
