@@ -1,5 +1,4 @@
 ﻿@page "/tetris"
-@inject IJSRuntime jsRuntime
 @inject IScoreService scoreService
 @implements IDisposable
 @inherits GamePage<TetrisField>
@@ -44,7 +43,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        isMobile = await jsRuntime.InvokeAsync<bool>("isMobile");
+        isMobile = GameCanvas.IsBrowserMobile();
         if (isMobile)
             textStyle = ("8px \"Press Start 2P\"", "white");
         highScore = await scoreService.readLocalScore(_myID);
@@ -56,9 +55,8 @@
         {
             if (gameScreen != null)
             {
-                await gameScreen.SetCanvasSize();
+                gameScreen.SetCanvasSize();
                 game = new TetrisField(gameScreen.baseResolution);
-                gameScreen.SetupImageAsset(assetList);
             }
             gameControl.Interval = 1000;
             gameControl.Elapsed += RunGame;
@@ -69,7 +67,7 @@
 
     protected async override Task StartGame()
     {
-        await jsRuntime.InvokeVoidAsync("setFocus");
+        GameCanvas.SetWindowFocus();
         if (gameControl.Enabled)
             return;
         else
@@ -84,14 +82,14 @@
 
     protected async override Task ResetGame()
     {
-        await jsRuntime.InvokeVoidAsync("setFocus");
+        GameCanvas.SetWindowFocus();
         if (gameControl.Enabled)
             ToggleControlObjects();
         gameControl.Interval = 1000;
         currentScore = new Score(_myID);
         game = new TetrisField(gameScreen.baseResolution);
         gameOver = false;
-        gameScreen?.ClearCanvas();
+        gameScreen.ForceCanvasClear();
     }
 
     protected override async Task StopGame()
@@ -122,7 +120,7 @@
         return
             $"Time: \n  {currentScore.runLength.ToString("mm\\:ss")}\n" +
             $"Score:\n{currentScore.scoreValue}" +
-            $"{game.scoreMult} lines\n" +
+            $"  {game.scoreMult}\n" +
             $"Best: \n  {highScore.scoreValue}\n \n" +
             ":: Controls ::\nA D/Arrows:\n  Move\nUp:\n  Rotate \nSpacebar:\n  Drop";
     }
@@ -141,7 +139,7 @@
     {
         gameScreen.FillCanvas("black");
         gameScreen.DrawSimpleImage(TetrisPlayerModel.player.spriteId, 0, 0, gameScreen.componentWidth, gameScreen.componentHeight);
-        gameScreen.FillTextExtended(getUIText(), gameScreen.componentWidth * 0.02, 20, textStyle, 10);
+        gameScreen.FillTextExtended(getUIText(), gameScreen.componentWidth * 0.02f, 20, textStyle, 10);
 
         game.active.parts.ForEach(p => gameScreen.DrawScaledObject(p));
 
@@ -154,9 +152,9 @@
             }
         }
 
-        gameScreen.FillTextExtended("Next: ", gameScreen.componentWidth * 0.84, 20, textStyle, 10);
+        gameScreen.FillTextExtended("Next: ", gameScreen.componentWidth * 0.84f, 20, textStyle, 10);
         game.next.Peek().parts.ForEach(pt => gameScreen.DrawScaledObject(pt));
-        await gameScreen.RenderQueue();
+        gameScreen.RenderQueue();
     }
 
     public override void DisposeHarder()

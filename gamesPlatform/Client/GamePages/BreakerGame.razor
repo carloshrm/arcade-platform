@@ -1,5 +1,4 @@
 ﻿@page "/breaker"
-@inject IJSRuntime jsRuntime
 @inject IScoreService scoreService
 @implements IDisposable
 @inherits GamePage<BreakerField>
@@ -57,7 +56,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        isMobile = await jsRuntime.InvokeAsync<bool>("isMobile");
+        isMobile = GameCanvas.IsBrowserMobile();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -66,9 +65,8 @@
         {
             if (gameScreen != null)
             {
-                await gameScreen.SetCanvasSize();
+                gameScreen.SetCanvasSize();
                 game = new BreakerField(gameScreen.GetDimensions());
-                gameScreen.SetupImageAsset(assetList);
             }
             highScore = await scoreService.readLocalScore(_myID);
             gameControl.Elapsed += RunGame;
@@ -79,7 +77,7 @@
 
     protected async override Task StartGame()
     {
-        await jsRuntime.InvokeVoidAsync("setFocus");
+        GameCanvas.SetWindowFocus();
         if (gameControl.Enabled)
             return;
         else
@@ -94,13 +92,12 @@
 
     protected override async Task ResetGame()
     {
-        await jsRuntime.InvokeVoidAsync("setFocus");
+        GameCanvas.SetWindowFocus();
         if (gameControl.Enabled) ToggleControlObjects();
         currentScore = new Score(_myID);
         game = new BreakerField(gameScreen!.GetDimensions());
         gameOver = false;
-        gameScreen.ClearCanvas();
-        await gameScreen.RenderQueue();
+        gameScreen.ForceCanvasClear();
     }
 
     protected override async Task StopGame()
@@ -165,7 +162,7 @@
             gameScreen.FillTextExtended(game.fieldMessages[i], 0, (gameScreen.GetDimensions().y / 2) + (i * 20), "10px \"Press Start 2P\"", "yellow");
 
         if (game.ballOnHold)
-            gameScreen.FillTextExtended("hit spacebar or up to release the ball", (gameScreen.GetDimensions().x * 0.3), (gameScreen.GetDimensions().y * 0.8), textStyle);
+            gameScreen.FillTextExtended("hit spacebar or up to release the ball", (gameScreen.GetDimensions().x * 0.3f), (gameScreen.GetDimensions().y * 0.8f), textStyle);
 
         for (int i = 1; i <= game.player.healthPoints; i++)
             gameScreen.DrawSimpleImage("heart", gameScreen.componentWidth - (40 * i), 10);
@@ -174,7 +171,7 @@
         gameScreen.DrawObjectSet(game.balls);
         gameScreen.DrawObjectSet(game.powerups);
         game.blocks.ForEach(r => gameScreen.DrawObjectSet(r));
-        await gameScreen.RenderQueue();
+        gameScreen.RenderQueue();
     }
 
     public override void DisposeHarder()

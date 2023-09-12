@@ -1,5 +1,4 @@
 ﻿@page "/invaders"
-@inject IJSRuntime jsRuntime
 @inject IScoreService scoreService
 @implements IDisposable
 @inherits GamePage<Space>
@@ -52,9 +51,8 @@
         {
             if (gameScreen != null)
             {
-                await gameScreen.SetCanvasSize();
+                gameScreen.SetCanvasSize();
                 game = new Space(gameScreen.GetDimensions());
-                gameScreen.SetupImageAsset(assetList);
             }
             highScore = await scoreService.readLocalScore(_myID);
             invaderControl.Elapsed += InvadersStep;
@@ -71,7 +69,7 @@
 
     protected override async Task StartGame()
     {
-        await jsRuntime.InvokeVoidAsync("setFocus");
+        GameCanvas.SetWindowFocus();
         if (gameControl.Enabled && gameOver == false)
             return;
         else
@@ -86,13 +84,14 @@
 
     protected override async Task ResetGame()
     {
-        await jsRuntime.InvokeVoidAsync("setFocus");
+        GameCanvas.SetWindowFocus();
         if (gameControl.Enabled) 
             ToggleControlObjects();
 
         currentScore = new Score(_myID);
         game = new Space(gameScreen.GetDimensions());
         gameOver = false;
+        gameScreen.ForceCanvasClear();
     }
 
     protected new void ToggleControlObjects()
@@ -112,7 +111,8 @@
             gameScreen.RenderQueue();
             await Task.Delay(1000);
         }
-        game = new Space(gameScreen.GetDimensions());
+        var s = gameScreen.GetDimensions();
+        game = new Space(((int)s.y, (int)s.x));
         currentScore.turn++;
         game.SetScoreMultiplier(currentScore.turn);
         ToggleControlObjects();
@@ -202,7 +202,7 @@
         if (game.specialInvader != null) 
             gameScreen.DrawObject(game.specialInvader);
 
-        await gameScreen.RenderQueue();
+        gameScreen.RenderQueue();
     }
 
     public override void DisposeHarder()
