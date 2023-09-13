@@ -6,6 +6,7 @@ let drawingContext = undefined;
 export function setup() {
     currentCanvas = document.getElementById("game-display-canvas");
     currentContext = currentCanvas.getContext("2d");
+    drawingContext = currentContext;
 }
 
 export function fillText(msg, x, y) {
@@ -56,8 +57,8 @@ export function clearRect(x, y, width, height) {
     drawingContext.clearRect(x, y, width, height);
 }
 
-export function forceClear(x, y, width, height) {
-    currentContext.clearRect(x, y, width, height);
+export function clearCanvas() {
+    currentContext.clearRect(0, 0, currentCanvas.width, currentCanvas.height);
 }
 
 export function drawImage(imageID, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
@@ -78,6 +79,6 @@ export function startBatch() {
 
 export function endBatch() {
     currentContext.drawImage(currentCanvas.offscreenCanvas, 0, 0);
-    currentCanvas.offscreenCanvas = undefined;
-    drawingContext = undefined;
+    currentCanvas.offscreenCanvas = null;
+    drawingContext = currentContext;
 }
