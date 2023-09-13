@@ -52,10 +52,9 @@ internal partial class CanvasContext
     internal static partial void DrawImage(string imgID, 
         float? sx, float? sy, float? sWidth, float? sHeight, 
         float dx, float dy, float? dWidth, float? dHeight);
-
-    internal static void DrawImage(string imgID, float dx, float dy, float? dWidth, float dHeight) =>
+    internal static void DrawImage(string imgID, 
+        float dx, float dy, float? dWidth, float dHeight) =>
         DrawImage(imgID, null, null, null, null, dx, dy, dWidth, dHeight);
-
     internal static void DrawImage(string imgID, float dx, float dy) =>
         DrawImage(imgID, null, null, null, null, dx, dy, null, null);
 }
