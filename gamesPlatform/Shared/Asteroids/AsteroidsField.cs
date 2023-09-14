@@ -88,9 +88,8 @@ public class AsteroidsField : IGameField
             {
                 if (currentAst != floatingAst
                     && (Math.Abs(currentAst.pos.X - floatingAst.pos.X) <= 100
-                        || Math.Abs(currentAst.pos.Y - floatingAst.pos.Y) <= 100))
+                        && Math.Abs(currentAst.pos.Y - floatingAst.pos.Y) <= 100))
                 {
-
                     var innerClosestPoint = currentAst.FindClosestPoint(floatingAst.pos);
                     var outerClosestPoint = floatingAst.FindClosestPoint(currentAst.pos);
                     var outer = Vector2.Distance(outerClosestPoint, currentAst.pos);
@@ -135,7 +134,7 @@ public class AsteroidsField : IGameField
     {
         var playerParts = player.GetParts().Take(2);
         return
-            player.healthPoints == 0
+            player.healthPoints == 0 
             || asteroids.Any(a => CheckCollision(a, playerParts.First())
                                 || CheckCollision(a, playerParts.Last()));
     }
