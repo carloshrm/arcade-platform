@@ -29,7 +29,7 @@
     </div>
     @if (isMobile)
     {
-        <TouchDPad clickCallback=KeyDownHandler />
+        <TouchPad clickCallback=KeyDownHandler />
     }
 </main>
 
@@ -62,7 +62,6 @@
         if (gameControl.Enabled)
         {
             gameControl.Interval = 1300 / game!.player.healthPoints;
-            // if (isMobile) jsRuntime.InvokeVoidAsync("vibrateFeedback");
         }
     }
 
