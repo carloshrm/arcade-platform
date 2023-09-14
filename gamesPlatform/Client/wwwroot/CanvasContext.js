@@ -58,7 +58,8 @@ export function clearRect(x, y, width, height) {
 }
 
 export function clearCanvas() {
-    currentContext.clearRect(0, 0, currentCanvas.width, currentCanvas.height);
+    if (currentContext)
+        currentContext.clearRect(0, 0, currentCanvas.width, currentCanvas.height);
 }
 
 export function drawImage(imageID, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
