@@ -10,5 +10,5 @@ public interface IGameObject
     GraphicAsset model { get; set; }
     Vector2 pos { get; set; }
     int spriteSelect { get; set; }
-    bool UpdatePosition((int row, int col) limits);
+    bool UpdatePosition((float row, float col) limits);
 }

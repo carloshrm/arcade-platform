@@ -1,5 +1,4 @@
 ﻿@page "/snakegame"
-@inject IJSRuntime jsRuntime
 @inject IScoreService scoreService
 @implements IDisposable
 @inherits GamePage<SnakeBoard>
@@ -30,7 +29,7 @@
     </div>
     @if (isMobile)
     {
-        <TouchDPad clickCallback=KeyDownHandler />
+        <TouchPad clickCallback=KeyDownHandler />
     }
 </main>
 
@@ -46,16 +45,12 @@
         gameControl.Interval = 400;
     }    
 
-    protected override async Task OnInitializedAsync()
-    {
-        isMobile = await jsRuntime.InvokeAsync<bool>("isMobile");
-        highScore = await scoreService.readLocalScore(_myID);
-    }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            isMobile = GameCanvas.IsBrowserMobile();
+            highScore = await scoreService.readLocalScore(_myID);
             await ResetGame();
             canvasRefresh.Elapsed += DrawGame;
             gameControl.Elapsed += RunGame;
@@ -67,7 +62,6 @@
         if (gameControl.Enabled)
         {
             gameControl.Interval = 1300 / game!.player.healthPoints;
-            if (isMobile) jsRuntime.InvokeVoidAsync("vibrateFeedback");
         }
     }
 
@@ -82,7 +76,7 @@
 
     protected override void KeyUpHandler(string key)
     {
-        //
+    //
     }
 
     protected async override Task StopGame()
@@ -92,7 +86,7 @@
 
     protected async override Task StartGame()
     {
-        await jsRuntime.InvokeVoidAsync("setFocus");
+        GameCanvas.SetWindowFocus();
         if (gameControl.Enabled)
             return;
         else
@@ -114,10 +108,9 @@
         if (gameControl.Enabled)
             ToggleControlObjects();
 
-        await gameScreen.SetCanvasSize();
-        gameScreen.ClearCanvas();
         game = new SnakeBoard(gameScreen.baseResolution);
         game.ateFood += IncreaseSpeed;
+        gameScreen.ForceCanvasClear();
     }
 
     protected override void RunGame(Object? src, ElapsedEventArgs e)
@@ -147,7 +140,7 @@
         game.food.ForEach(f => gameScreen.DrawScaledObject(f));
         gameScreen.DrawScaledObject(game.player);
         game.player.tail.ForEach(tp => gameScreen.DrawScaledObject(tp));
-        await gameScreen.RenderQueue();
+        gameScreen.RenderQueue();
     }
 
     public override void DisposeHarder()

@@ -28,7 +28,7 @@ public class PlayerShip
     private Timer shotCooldown { get; init; }
     private readonly float cooldownVal = 350;
 
-    public PlayerShip((int row, int col) initialPos)
+    public PlayerShip((float row, float col) initialPos)
     {
         hull = new ShipPart(initialPos.col, initialPos.row) { model = ShipModel.GetHull() };
         head = new ShipPart(initialPos.col, initialPos.row + hull.model.topRightBounds.Y) { model = ShipModel.GetHead() };
@@ -107,7 +107,7 @@ public class PlayerShip
         return new Vector2((float)x + rf.X, (float)y + rf.Y);
     }
 
-    public void UpdatePosition((int row, int col) limits)
+    public void UpdatePosition((float row, float col) limits)
     {
         if (isRotating)
             ApplyRotation();
@@ -142,7 +142,7 @@ public class PlayerShip
         jet.pos = hull.pos;
     }
 
-    public void UpdateShots((int xEdge, int yEdge) limits)
+    public void UpdateShots((float xEdge, float yEdge) limits)
     {
         shots.ForEach(s => s.UpdatePosition());
         shots.RemoveAll(s => s.fade ||

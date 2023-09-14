@@ -8,7 +8,7 @@
         public double difficultyRatio = 1;
         public bool isNextRound = false;
 
-        public (int row, int col) limits { get; set; }
+        public (float row, float col) limits { get; set; }
         public PlayerShip player { get; set; }
         public List<InvaderShip> invaders { get; set; }
         public InvaderShip specialInvader { get; set; }
@@ -16,9 +16,9 @@
         public List<FieldBarrier> barriers { get; set; }
         public List<LaserShot> shotsFired { get; set; }
 
-        public string uiMessage { get; private set; }
+        public string uiMessage { get; private set; } = string.Empty;
 
-        public Space((int row, int col) limits)
+        public Space((float row, float col) limits)
         {
             player = new PlayerShip(limits.row - (limits.row / 10), limits.col / 2);
             shotsFired = new List<LaserShot>();
@@ -45,8 +45,8 @@
 
         public void SetupBarriers()
         {
-            int row = (int)(limits.row * 0.80);
-            int col = limits.col / 6;
+            float row = limits.row * 0.80f;
+            float col = limits.col / 6;
             barriers.Add(new FieldBarrier(row, col));
             barriers.Add(new FieldBarrier(row, limits.col - col));
             barriers.Add(new FieldBarrier(row, col * 3));
@@ -82,7 +82,7 @@
         {
             int invadersPerRow = 10;
             int tallestInvader = ShipModel.invaderShips.Max(x => x.height) + 6;
-            int rowPos = limits.row / 22;
+            float rowPos = limits.row / 22;
             int colSize = (int)(limits.col / invadersPerRow * 0.7);
             foreach (var model in ShipModel.invaderShips.Take(4))
             {

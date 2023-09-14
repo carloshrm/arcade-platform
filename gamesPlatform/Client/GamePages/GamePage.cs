@@ -1,10 +1,7 @@
 ﻿
 using System.Timers;
-
 using cmArcade.Shared;
-
 using Microsoft.AspNetCore.Components;
-
 using Timer = System.Timers.Timer;
 
 namespace cmArcade.Client.GamePages;

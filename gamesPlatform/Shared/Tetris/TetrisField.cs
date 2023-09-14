@@ -19,7 +19,7 @@ namespace cmArcade.Shared.Tetris
         public TetrisField((int row, int col) limits)
         {
             this.limits = limits;
-            activeEdges = limits.col / 2 / 2;
+            activeEdges = (limits.col / 2 / 2);
             player = new TetrisPlayer();
             field = new ITetrisElement[limits.row][].Select(_ => new ITetrisElement[limits.col]).ToArray();
             active = getRandomTetromino();

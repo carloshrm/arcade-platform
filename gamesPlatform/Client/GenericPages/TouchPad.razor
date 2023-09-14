@@ -1,6 +1,4 @@
-﻿@inject IJSRuntime jsRuntime
-
-<div id="mobile_pad">
+﻿<div id="mobile_pad">
     <div id="pad_container">
 
         <button id="pad_bt_down" class="oi oi-chevron-bottom" @ontouchstart=@((e) => clickHandler("s")) @ontouchend=@((e) => releaseHandler("s"))>
@@ -18,6 +16,7 @@
 </div>
 
 @code {
+
     public delegate void externalClickHandler(string d);
     public delegate void externalReleaseHandler(string d);
 
@@ -29,7 +28,7 @@
     private void clickHandler(string direction)
     {
         clickCallback(direction);
-        jsRuntime.InvokeVoidAsync("vibrateFeedback");
+        
     }
 
     private void releaseHandler(string direction)
