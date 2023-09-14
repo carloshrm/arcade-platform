@@ -38,9 +38,8 @@ internal partial class CanvasContext
     internal static partial void FillRect(float x, float y, float width, float height);
     [JSImport("clearRect", "CanvasContext")]
     internal static partial void ClearRect(float x, float y, float width, float height);
-    [JSImport("forceClear", "CanvasContext")]
-    internal static partial void ForceClear(float x, float y, float width, float height);
-
+    [JSImport("clearCanvas", "CanvasContext")]
+    internal static partial void ClearCanvas();
 
     [JSImport("fillText", "CanvasContext")]
     internal static partial void FillText(string text, float x, float y);

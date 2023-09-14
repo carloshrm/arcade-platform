@@ -6,9 +6,6 @@ namespace cmArcade.Client.GenericPages;
 [SupportedOSPlatform("browser")]
 public partial class GameCanvas
 {
-    //[JSImport("Test", "GameCanvas")]
-    //internal static partial string DoTest(string msg);
-
     [JSImport("getWindowWidth", "GameCanvas")]
     internal static partial float GetWindowWidth();
 

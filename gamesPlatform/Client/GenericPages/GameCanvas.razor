@@ -191,14 +191,14 @@
             DrawObject(o);
     }
 
-    public void ClearCanvas()
+    public void ClearRect(float x, float y, float width, float height)
     {
-        _renderQueue.Enqueue(() => CanvasContext.ClearRect(0, 0, componentWidth, componentHeight));
+        _renderQueue.Enqueue(() => CanvasContext.ClearRect(x, y, width, componentHeight));
     }
 
-    public async void ForceCanvasClear()
+    public void ForceCanvasClear()
     {
-        CanvasContext.ForceClear(0, 0, componentWidth, componentHeight);
+        CanvasContext.ClearCanvas();
         _renderQueue.Clear();
     }
 
