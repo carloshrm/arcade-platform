@@ -43,7 +43,7 @@ public class ScoreService : IScoreService
     public async Task<Score> readLocalScore(AppID appID)
     {
         var scoreVal = new Score(appID);
-        var localData = LocalStorageService.GetItem($"highScore_{(int)appID}");
+        var localData = LocalStorageService.GetItem($"{(int)appID}_hs");
         if (localData != null)
         {
             var parsedInfo = JsonSerializer.Deserialize<Score>(localData);
@@ -55,6 +55,6 @@ public class ScoreService : IScoreService
 
     public async Task setLocalScore(Score highScore)
     {
-        LocalStorageService.SetItem($"highScore_{highScore.appID}", JsonSerializer.Serialize(highScore));
+        LocalStorageService.SetItem($"{highScore.appID}_hs", JsonSerializer.Serialize(highScore));
     }
 }
