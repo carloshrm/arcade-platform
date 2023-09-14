@@ -15,6 +15,7 @@ public class Program
         {
             await JSHost.ImportAsync("GameCanvas", "../GameCanvas.js");
             await JSHost.ImportAsync("CanvasContext", "../CanvasContext.js");
+            await JSHost.ImportAsync("TouchPad", "../TouchPad.js");
         }
         builder.Services.AddScoped<IScoreService, ScoreService>();
         await builder.Build().RunAsync();
