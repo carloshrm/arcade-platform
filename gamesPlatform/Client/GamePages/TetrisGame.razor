@@ -119,10 +119,10 @@
     {
         return
             $"Time: \n  {currentScore.runLength.ToString("mm\\:ss")}\n" +
-            $"Score:\n{currentScore.scoreValue}" +
-            $"  {game.scoreMult}\n" +
+            $"Score:\n{currentScore.scoreValue}\n" +
+            $" {game.scoreMult}x\n" +
             $"Best: \n  {highScore.scoreValue}\n \n" +
-            ":: Controls ::\nA D/Arrows:\n  Move\nUp:\n  Rotate \nSpacebar:\n  Drop";
+            "  Controls:\nA D/Arrows:\n  Move\nUp:\n  Rotate \nSpacebar:\n  Drop";
     }
 
     protected async override void RunGame(Object? o, ElapsedEventArgs e)

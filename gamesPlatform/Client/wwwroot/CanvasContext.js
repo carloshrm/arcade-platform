@@ -63,14 +63,14 @@ export function clearCanvas() {
 }
 
 export function drawImage(imageID, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
-    const img = document.getElementById("im-" + imageID);
+    const imageElement = document.getElementById("im-" + imageID);
 
     if (sx === undefined || sy === undefined)
-        drawingContext.drawImage(img, dx, dy, dWidth, dHeight);
+        drawingContext.drawImage(imageElement, dx, dy, dWidth, dHeight);
     else if (dWidth === undefined || dHeight === undefined)
-        drawingContext.drawImage(img, dx, dy);
+        drawingContext.drawImage(imageElement, dx, dy);
     else
-        drawingContext.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+        drawingContext.drawImage(imageElement, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
 }
 
 export function startBatch() {
