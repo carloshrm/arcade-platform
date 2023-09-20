@@ -10,14 +10,14 @@
     private ElementReference displayCanvas { get; set; }
     private Queue<Action> _renderQueue = new();
 
-    public int componentWidth { get; set; }
-    public int componentHeight { get; set; }
+    public float componentWidth { get; set; }
+    public float componentHeight { get; set; }
     public float windowWidth { get; set; }
     public float windowHeight { get; set; }
     public (int r, int c) baseResolution { get; set; }
-    public (int r, int c) scaleFactor { get; set; } = (1, 1);
+    public (float r, float c) scaleFactor { get; set; } = (1, 1);
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
         {
@@ -25,7 +25,7 @@
         }
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         ReadConfigurationValues();
     }
