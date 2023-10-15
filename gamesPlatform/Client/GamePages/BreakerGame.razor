@@ -36,7 +36,6 @@
     private bool gameOver = false;
 
     private bool isMobile = false;
-    private bool mobileMoveToggle = false;
 
     public BreakerGame() : base(AppID.Breaker)
     {
@@ -161,10 +160,7 @@
             gameScreen.FillTextExtended("hit spacebar or up to release the ball", (gameScreen.GetDimensions().x * 0.3f), (gameScreen.GetDimensions().y * 0.8f), textStyle);
 
         for (int i = 1; i <= game.player.healthPoints; i++)
-        {
-            
             gameScreen.DrawSimpleImage("heart", (gameScreen.GetDimensions().x - (40 * i)), 10);
-        }
 
         gameScreen.DrawObject(game.player);
         gameScreen.DrawObjectSet(game.balls);
