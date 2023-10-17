@@ -65,12 +65,13 @@ export function clearCanvas() {
 export function drawImage(imageID, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
     const imageElement = document.getElementById("im-" + imageID);
 
-    if (sx === undefined || sy === undefined)
-        drawingContext.drawImage(imageElement, dx, dy, dWidth, dHeight);
-    else if (dWidth === undefined || dHeight === undefined)
+    if (dWidth !== null && dHeight !== null) {
+        if (sx !== null && sy !== null)
+            drawingContext.drawImage(imageElement, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+        else
+            drawingContext.drawImage(imageElement, dx, dy, dWidth, dHeight);
+    } else
         drawingContext.drawImage(imageElement, dx, dy);
-    else
-        drawingContext.drawImage(imageElement, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
 }
 
 export function startBatch() {

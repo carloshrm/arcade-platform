@@ -36,7 +36,6 @@
     private bool gameOver = false;
 
     private bool isMobile = false;
-    private bool mobileMoveToggle = false;
 
     public BreakerGame() : base(AppID.Breaker)
     {
@@ -46,11 +45,11 @@
         assetList.AddRange(BlockModel.blocks.Select(b => b.spriteId));
         assetList.AddRange(PowerUpModel.breakerPowerUps.Values.Select(v => v.spriteId));
         assetList.AddRange(GameDecal.breakerDecals.Select(v => v.spriteId));
+        assetList.AddRange(GameDecal.genericDecals.Select(v => v.spriteId));
         assetList.AddRange(new List<string>
             {
                 PadModel.playerPad.spriteId,
                 BallModel.breakerBall.spriteId,
-                "crack", "heart"
             });
     }
 
@@ -126,7 +125,7 @@
     private string MakeUIText()
     {
         return 
-            $"Score:{currentScore.scoreValue}x{game.fieldScoreMultiplier} \t " +
+            $"Score:{currentScore.scoreValue} | {game.fieldScoreMultiplier}x \t " +
             (highScore.scoreValue > 0 ? $"Best{highScore.scoreValue} \t" : "") +
             $"Time:{currentScore.runLength.ToString("mm\\:ss")} " +
             $"Depth:{currentScore.turn}";
@@ -157,20 +156,20 @@
     {
         gameScreen.FillCanvas("black");
         gameScreen.FillTextExtended(MakeUIText(), 10, 20, textStyle);
-
-        for (int i = 0; i < game.fieldMessages.Count; i++)
-            gameScreen.FillTextExtended(game.fieldMessages[i], 0, (gameScreen.GetDimensions().y / 2) + (i * 20), "10px \"Press Start 2P\"", "yellow");
-
         if (game.ballOnHold)
             gameScreen.FillTextExtended("hit spacebar or up to release the ball", (gameScreen.GetDimensions().x * 0.3f), (gameScreen.GetDimensions().y * 0.8f), textStyle);
 
         for (int i = 1; i <= game.player.healthPoints; i++)
-            gameScreen.DrawSimpleImage("heart", gameScreen.componentWidth - (40 * i), 10);
+            gameScreen.DrawSimpleImage("heart", (gameScreen.GetDimensions().x - (40 * i)), 10);
 
         gameScreen.DrawObject(game.player);
         gameScreen.DrawObjectSet(game.balls);
         gameScreen.DrawObjectSet(game.powerups);
         game.blocks.ForEach(r => gameScreen.DrawObjectSet(r));
+
+        for (int i = 0; i < game.fieldMessages.Count; i++)
+            gameScreen.FillTextExtended(game.fieldMessages[i], 0, (gameScreen.GetDimensions().y / 2) + (i * 20), "10px \"Press Start 2P\"", "yellow");
+
         gameScreen.RenderQueue();
     }
 

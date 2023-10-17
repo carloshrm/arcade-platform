@@ -24,11 +24,13 @@ body {
 }
 
 #main-card-container {
+    margin: auto;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
 }
+
 
 .light-bg {
     background-color: var(--color-light-background);
@@ -36,7 +38,8 @@ body {
 }
 
 .card {
-    margin: 1em;
+    width: fit-content;
+    margin: 4em;
 }
 
 h1:focus {
@@ -111,7 +114,7 @@ a, .btn-link {
 }
 
 .soft-shadow {
-    box-shadow: var(--color-light-background-hsat) 4px 4px;
+    box-shadow: var(--color-light-background-lsat) 4px 4px 0px;
 }
 
 .on {
@@ -120,12 +123,14 @@ a, .btn-link {
 }
 
 .card {
+    height:fit-content;
     color: var(--color-dark-background);
 }
 
-.card:hover {
+/*.card:hover {
     transform: scale(1.1);
 }
+*/
 
 .btn {
     border: none;
@@ -153,3 +158,4 @@ a, .btn-link {
     padding: 1em;
     z-index: 1;
 }
+

@@ -26,7 +26,6 @@
 
 @code {
     private GameCanvas? gameScreen;
-    private double scale;
     private bool combo = false;
 
     private Timer invaderControl;
@@ -38,7 +37,6 @@
     {
         invaderControl = new Timer(800) { AutoReset = true, Enabled = false };
         gameControl.Interval = 15;
-        scale = 1;
         assetList.AddRange(ShipModel.invaderShips.Select(s => s.spriteId));
         assetList.AddRange(GameDecal.invaderDecals.Select(s => s.spriteId));
         assetList.Add(ShipModel.playerShip.spriteId);

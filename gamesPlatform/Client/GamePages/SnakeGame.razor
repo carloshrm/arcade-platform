@@ -108,7 +108,7 @@
         if (gameControl.Enabled)
             ToggleControlObjects();
 
-        game = new SnakeBoard(gameScreen.baseResolution);
+        game = new SnakeBoard(gameScreen!.baseResolution);
         game.ateFood += IncreaseSpeed;
         gameScreen.ForceCanvasClear();
     }
@@ -136,8 +136,8 @@
 
     protected async override void DrawGame(Object? o, ElapsedEventArgs e)
     {
-        gameScreen.FillCanvas("white");
-        game.food.ForEach(f => gameScreen.DrawScaledObject(f));
+        gameScreen!.FillCanvas("white");
+        game!.food.ForEach(f => gameScreen.DrawScaledObject(f));
         gameScreen.DrawScaledObject(game.player);
         game.player.tail.ForEach(tp => gameScreen.DrawScaledObject(tp));
         gameScreen.RenderQueue();
@@ -145,6 +145,6 @@
 
     public override void DisposeHarder()
     {
-        gameScreen.Dispose();
+        gameScreen!.Dispose();
     }
 }
