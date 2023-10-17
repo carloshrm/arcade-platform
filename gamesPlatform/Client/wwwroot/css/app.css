@@ -24,10 +24,18 @@ body {
 }
 
 #main-card-container {
+    max-width: 30%;
+    margin: auto;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
+}
+
+@media only screen and (max-width: 500px) {
+    #main-card-container {
+        max-width: 92%;
+    }
 }
 
 .light-bg {
@@ -36,7 +44,7 @@ body {
 }
 
 .card {
-    margin: 1em;
+    margin: 4em;
 }
 
 h1:focus {
@@ -111,7 +119,7 @@ a, .btn-link {
 }
 
 .soft-shadow {
-    box-shadow: var(--color-light-background-hsat) 4px 4px;
+    box-shadow: var(--color-light-background-lsat) 2px 2px 18px 1px;
 }
 
 .on {
@@ -123,9 +131,10 @@ a, .btn-link {
     color: var(--color-dark-background);
 }
 
-.card:hover {
+/*.card:hover {
     transform: scale(1.1);
 }
+*/
 
 .btn {
     border: none;
@@ -153,3 +162,4 @@ a, .btn-link {
     padding: 1em;
     z-index: 1;
 }
+
