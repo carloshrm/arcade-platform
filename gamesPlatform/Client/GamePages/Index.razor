@@ -2,80 +2,47 @@
 @layout MainLayout
 
 <PageTitle>Classic Arcade Games</PageTitle>
-<div id="main-card-container" class="carousel slide" data-bs-ride="true" data-bs-interval="4000">
+<div id="main-card-container">
 
-    <div class="carousel-indicators">
-        <button type="button" data-bs-target="#main-card-container" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Fastsnake"></button>
-        <button type="button" data-bs-target="#main-card-container" data-bs-slide-to="1" aria-label="Cat Invaders"></button>
-        <button type="button" data-bs-target="#main-card-container" data-bs-slide-to="2" aria-label="Breaker"></button>
-        <button type="button" data-bs-target="#main-card-container" data-bs-slide-to="3" aria-label="Tetris"></button>
-        <button type="button" data-bs-target="#main-card-container" data-bs-slide-to="4" aria-label="Asteroids"></button>
+    <div class="card soft-shadow">
+        <img class="card-img-top" src="/img/sg.png" alt="Snake Game Image">
+        <div class="card-body">
+            <h5 class="card-title">Fastsnake</h5>
+            <p class="card-text">Classic snake game just a little bit faster.</p>
+            <a href="/snakegame" class="btn btn-primary">Play!</a>
+        </div>
+    </div>
+    <div class="card soft-shadow">
+        <img class="card-img-top" src="img/ig.png" alt="Invaders Game Image">
+        <div class="card-body">
+            <h5 class="card-title">Cat Invaders</h5>
+            <p class="card-text">Invaders totally not from space are coming for your yard.</p>
+            <a href="/invaders" class="btn btn-primary">Play!</a>
+        </div>
+    </div>
+    <div class="card soft-shadow">
+        <img class="card-img-top" src="img/brg.png" alt="Breaker Game Image">
+        <div class="card-body">
+            <h5 class="card-title">Breaker</h5>
+            <p class="card-text">Bounce your ball against the blocks up top to break them.</p>
+            <a href="/breaker" class="btn btn-primary">Play!</a>
+        </div>
+    </div>
+    <div class="card soft-shadow">
+        <img class="card-img-top" src="img/ttr.png" alt="Tetris Game Image">
+        <div class="card-body">
+            <h5 class="card-title">Tetris</h5>
+            <p class="card-text">Arrange the falling blocks to form solid lines.</p>
+            <a href="/tetris" class="btn btn-primary">Play!</a>
+        </div>
+    </div>
+    <div class="card soft-shadow">
+        <img class="card-img-top" src="img/astr.png" alt="Asteroids Game Image">
+        <div class="card-body">
+            <h5 class="card-title">Asteroids</h5>
+            <p class="card-text">Clear out the asteroid field and survive.</p>
+            <a href="/asteroids" class="btn btn-primary">Play!</a>
+        </div>
     </div>
 
-    <div class="carousel-inner">
-
-        <div class="carousel-item active">
-            <div class="card soft-shadow">
-                <img class="card-img-top" src="/img/sg.png" alt="Snake Game Image">
-                <div class="card-body">
-                    <h5 class="card-title">Fastsnake</h5>
-                    <p class="card-text">Classic snake game just a little bit faster.</p>
-                    <a href="/snakegame" class="btn btn-primary">Play!</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="carousel-item">
-            <div class="card soft-shadow">
-                <img class="card-img-top" src="img/ig.png" alt="Invaders Game Image">
-                <div class="card-body">
-                    <h5 class="card-title">Cat Invaders</h5>
-                    <p class="card-text">Invaders totally not from space are coming for your yard.</p>
-                    <a href="/invaders" class="btn btn-primary">Play!</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="carousel-item">
-            <div class="card soft-shadow">
-                <img class="card-img-top" src="img/brg.png" alt="Breaker Game Image">
-                <div class="card-body">
-                    <h5 class="card-title">Breaker</h5>
-                    <p class="card-text">Bounce your ball against the blocks up top to break them.</p>
-                    <a href="/breaker" class="btn btn-primary">Play!</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="carousel-item">
-            <div class="card soft-shadow">
-                <img class="card-img-top" src="img/ttr.png" alt="Tetris Game Image">
-                <div class="card-body">
-                    <h5 class="card-title">Tetris</h5>
-                    <p class="card-text">Arrange the falling blocks to form solid lines.</p>
-                    <a href="/tetris" class="btn btn-primary">Play!</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="carousel-item">
-            <div class="card soft-shadow">
-                <img class="card-img-top" src="img/astr.png" alt="Asteroids Game Image">
-                <div class="card-body">
-                    <h5 class="card-title">Asteroids</h5>
-                    <p class="card-text">Clear out the asteroid field and survive.</p>
-                    <a href="/asteroids" class="btn btn-primary">Play!</a>
-                </div>
-            </div>
-        </div>
-
-    </div>
-    <button class="carousel-control-prev" type="button" data-bs-target="#main-card-container" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#main-card-container" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-    </button>
 </div>
