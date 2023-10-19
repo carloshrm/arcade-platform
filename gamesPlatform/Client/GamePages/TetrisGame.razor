@@ -96,7 +96,6 @@
     {
         gameOver = true;
         ToggleControlObjects();
-        currentScore.runLength = DateTime.Now - currentScore.runStart;
         if (currentScore.scoreValue > highScore.scoreValue)
         {
             highScore = currentScore;
@@ -128,6 +127,7 @@
     protected async override void RunGame(Object? o, ElapsedEventArgs e)
     {
         currentScore.turn += 1;
+        currentScore.runLength = DateTime.Now - currentScore.runStart;
         game.UpdateGameState(currentScore);
         if (game.CheckGameOver())
             await StopGame();
