@@ -1,8 +1,4 @@
 ﻿using System.Numerics;
-using System.Timers;
-
-using Timer = System.Timers.Timer;
-
 namespace cmArcade.Shared.Asteroids;
 
 public class Shot : ISimpleVectorialObject
@@ -14,13 +10,12 @@ public class Shot : ISimpleVectorialObject
 
     public CanvasRenderedVectorial model { get; set; }
 
-    private Timer lifetime = new Timer() { Enabled = true, Interval = 2000 };
 
     public Shot(Vector2 pos, Vector2 dir)
     {
         this.pos = pos;
         this.dir = dir * 2.5f;
-        lifetime.Elapsed += (o, e) => fade = true;
+        Task.Delay(1400).ContinueWith(_ => fade = true);
         model = new ShotModel(new List<Vector2>() { dir, this.dir });
     }
 
