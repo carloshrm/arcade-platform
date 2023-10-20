@@ -142,12 +142,10 @@ public class PlayerShip
         jet.pos = hull.pos;
     }
 
-    public void UpdateShots((float xEdge, float yEdge) limits)
+    public void UpdateShots((float yEdge, float xEdge) limits)
     {
         shots.ForEach(s => s.UpdatePosition());
-        shots.RemoveAll(s => s.fade ||
-            s.pos.X <= 0 || s.pos.X >= limits.xEdge ||
-            s.pos.Y <= 0 || s.pos.Y >= limits.yEdge);
+        shots.RemoveAll(s => s.fade);
     }
 
     public List<ShipPart> GetParts()
