@@ -20,7 +20,7 @@ public class AsteroidModel : CanvasRenderedVectorial
         strokeLineWidth = 2f;
     }
 
-    public static AsteroidModel GenerateRandomAsteroid(bool isPrimary)
+    public static AsteroidModel GenerateRandomModel(bool isPrimary)
     {
         var newPoints = new List<Vector2>();
         int pointCount = Random.Shared.Next(6, 10);
