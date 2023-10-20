@@ -21,9 +21,6 @@ public class Shot : ISimpleVectorialObject
 
     public void UpdatePosition()
     {
-        if (!fade)
-        {
-            pos += dir;
-        }
+        pos += dir;
     }
 }
