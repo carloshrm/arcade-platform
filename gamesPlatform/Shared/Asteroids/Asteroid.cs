@@ -12,23 +12,29 @@ public class Asteroid : ISimpleVectorialObject
     public bool wasHit { get; set; } = false;
     public bool isPrimary { get; set; }
     private float bumpLimit { get; set; }
-    public Vector2 floatDir { get; set; }    
+    public Vector2 floatDir { get; set; }
+    public bool canColide { get; set; } = false;
 
     public Asteroid(Vector2 pos, bool isPrimary = true)
     {
         this.pos = pos;
         this.isPrimary = isPrimary;
-        model = AsteroidModel.GenerateRandomAsteroid(isPrimary);
+        model = AsteroidModel.GenerateRandomModel(isPrimary);
         floatDir = new Vector2((float)Random.Shared.NextDouble(), (float)Random.Shared.NextDouble());
+        Task.Delay(1000).ContinueWith(_ => canColide = true);
     }
 
-    public void UpdatePosition((float xEdge, float yEdge) limits)
+    public void UpdatePosition((float yEdge, float xEdge) limits)
     {
         pos += floatDir;
-        if (pos.X < 0) pos = new Vector2(limits.xEdge - 1, pos.Y);
-        else if (pos.Y < 0) pos = new Vector2(pos.X, limits.yEdge);
-        else if (pos.X >= limits.xEdge) pos = new Vector2(0, pos.Y);
-        else if (pos.Y >= limits.yEdge) pos = new Vector2(pos.X, 0);
+        if (pos.X < 0) 
+            pos = new Vector2(limits.xEdge - 1, pos.Y);
+        else if (pos.Y < 0) 
+            pos = new Vector2(pos.X, limits.yEdge - 1);
+        else if (pos.X >= limits.xEdge) 
+            pos = new Vector2(1, pos.Y);
+        else if (pos.Y >= limits.yEdge) 
+            pos = new Vector2(pos.X, 1);
 
         if (bumpLimit > 0)
         {
@@ -39,7 +45,7 @@ public class Asteroid : ISimpleVectorialObject
     public void SetNormalizedFloatDir(Vector2 dir)
     {
         double normX = Math.Round(dir.X / dir.Length(), 2);
-        double normY = Math.Round(dir.Y / dir.Length(), 2); 
+        double normY = Math.Round(dir.Y / dir.Length(), 2);
 
         if (double.IsNaN(normX))
             normX = Random.Shared.Next(0, 1);
