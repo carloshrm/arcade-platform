@@ -1,0 +1,22 @@
+﻿
+.card-body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-evenly;
+}
+
+.card {
+    width: 30%;
+    margin: 1.5em;
+}
+
+@media only screen and (max-width: 800px) {
+    .card {
+        width: fit-content;
+    }
+}
+
+.card:hover {
+    transform: scale(1.1);
+}
