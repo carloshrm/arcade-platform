@@ -48,10 +48,8 @@
         if (firstRender)
         {
             if (gameScreen != null)
-            {
-                gameScreen.SetCanvasSize();
                 game = new AsteroidsField(gameScreen.GetDimensions());
-            }
+
             gameControl.Elapsed += RunGame;
             canvasRefresh.Elapsed += DrawGame;
             StateHasChanged();
