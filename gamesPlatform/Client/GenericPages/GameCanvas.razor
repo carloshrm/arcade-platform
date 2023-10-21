@@ -50,10 +50,8 @@
         int screenLimit = Math.Min((int)(windowWidth * 0.08) * 10, (int)(windowHeight * 0.08) * 10);
         (componentWidth, componentHeight) = appID switch
         {
-            AppID.Snake =>
-                (screenLimit - (screenLimit % baseResolution.c), screenLimit - (screenLimit % baseResolution.r)),
-            AppID.Tetris =>
-                (screenLimit - (screenLimit % baseResolution.c), screenLimit - (screenLimit % baseResolution.r)),
+            var app when app is AppID.Snake || app is AppID.Tetris
+                => (screenLimit - (screenLimit % baseResolution.c), screenLimit - (screenLimit % baseResolution.r)),
             _ => baseResolution
         };
         StateHasChanged();
