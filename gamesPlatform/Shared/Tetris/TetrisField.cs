@@ -7,8 +7,8 @@ namespace cmArcade.Shared.Tetris
         private readonly (int row, int col) limits;
         private TetrisPlayer player { get; set; }
         public ITetrisElement[][] field { get; private set; }
-        public Tetromino active { get; set; }
-        public Queue<Tetromino> next { get; private set; }
+        public Tetromino activePiece { get; set; }
+        public Queue<Tetromino> nextPieces { get; private set; }
         public int activeEdges { get; private set; }
 
         public string uiMessage { get; set; } = string.Empty;
@@ -16,15 +16,15 @@ namespace cmArcade.Shared.Tetris
         public int scoreMult { get; set; } = 0;
         private int baseScore = 3;
 
-        public TetrisField((int row, int col) limits)
+        public TetrisField((float row, float col) limits)
         {
-            this.limits = limits;
-            activeEdges = (limits.col / 2 / 2);
+            this.limits = ((int row, int col))limits;
+            activeEdges = (int)(limits.col / 2 / 2);
             player = new TetrisPlayer();
-            field = new ITetrisElement[limits.row][].Select(_ => new ITetrisElement[limits.col]).ToArray();
-            active = getRandomTetromino();
-            next = new Queue<Tetromino>(new[] { getRandomTetromino(), getRandomTetromino() });
-            active.offsetHorzPos(activeEdges + 4);
+            field = new ITetrisElement[this.limits.row][].Select(_ => new ITetrisElement[this.limits.col]).ToArray();
+            activePiece = getRandomTetromino();
+            nextPieces = new Queue<Tetromino>(new[] { getRandomTetromino(), getRandomTetromino() });
+            activePiece.offsetHorzPos(activeEdges + 4);
             setupEdges();
         }
 
@@ -59,7 +59,7 @@ namespace cmArcade.Shared.Tetris
 
         public bool CheckGameOver()
         {
-            return active.parts.Any(p =>
+            return activePiece.parts.Any(p =>
             {
                 return field[(int)p.pos.Y][(int)p.pos.X] != null;
             });
@@ -67,24 +67,24 @@ namespace cmArcade.Shared.Tetris
 
         public void spin()
         {
-            var pvt = active.parts.Find(part => part.isPivot).pos;
+            var pvt = activePiece.parts.Find(part => part.isPivot).pos;
 
-            var prevState = new Vector2[active.parts.Count];
-            for (int i = 0; i < active.parts.Count; i++)
+            var prevState = new Vector2[activePiece.parts.Count];
+            for (int i = 0; i < activePiece.parts.Count; i++)
             {
-                float newX = pvt.X - (active.parts[i].pos.Y - pvt.Y);
-                float newY = pvt.Y + (active.parts[i].pos.X - pvt.X);
+                float newX = pvt.X - (activePiece.parts[i].pos.Y - pvt.Y);
+                float newY = pvt.Y + (activePiece.parts[i].pos.X - pvt.X);
                 Vector2 newPos = new Vector2(newX, newY);
 
                 if (field[(int)newPos.Y][(int)newPos.X] != null || newPos.X < 0 || newPos.Y < 0)
                 {
                     while (i-- > 0)
-                        active.parts[i].pos = prevState[i];
+                        activePiece.parts[i].pos = prevState[i];
                     return;
                 }
 
-                prevState[i] = active.parts[i].pos;
-                active.parts[i].pos = newPos;
+                prevState[i] = activePiece.parts[i].pos;
+                activePiece.parts[i].pos = newPos;
             }
         }
 
@@ -98,15 +98,15 @@ namespace cmArcade.Shared.Tetris
                     break;
                 case "ArrowDown":
                 case "s":
-                    if (!checkBottomCollision(active)) active.step(VecDirection.Down);
+                    if (!checkBottomCollision(activePiece)) activePiece.step(VecDirection.Down);
                     break;
                 case "ArrowLeft":
                 case "a":
-                    if (!checkLeftCollision(active)) active.step(VecDirection.Left);
+                    if (!checkLeftCollision(activePiece)) activePiece.step(VecDirection.Left);
                     break;
                 case "ArrowRight":
                 case "d":
-                    if (!checkRightCollision(active)) active.step(VecDirection.Right);
+                    if (!checkRightCollision(activePiece)) activePiece.step(VecDirection.Right);
                     break;
                 case " ":
                     snapActiveToBottom();
@@ -118,9 +118,9 @@ namespace cmArcade.Shared.Tetris
 
         private void snapActiveToBottom()
         {
-            while (!checkBottomCollision(active))
+            while (!checkBottomCollision(activePiece))
             {
-                active.step(VecDirection.Down);
+                activePiece.step(VecDirection.Down);
             }
 
         }
@@ -147,8 +147,8 @@ namespace cmArcade.Shared.Tetris
 
         public void UpdateGameState(Score s)
         {
-            if (checkBottomCollision(active) is false)
-                active.step(VecDirection.Down);
+            if (checkBottomCollision(activePiece) is false)
+                activePiece.step(VecDirection.Down);
             else
                 settleActive();
 
@@ -159,10 +159,10 @@ namespace cmArcade.Shared.Tetris
 
         private void settleActive()
         {
-            active.parts.ForEach(p => field[(int)p.pos.Y][(int)p.pos.X] = p);
-            active = next.Dequeue();
-            active.offsetHorzPos(activeEdges + 4);
-            next.Enqueue(getRandomTetromino());
+            activePiece.parts.ForEach(p => field[(int)p.pos.Y][(int)p.pos.X] = p);
+            activePiece = nextPieces.Dequeue();
+            activePiece.offsetHorzPos(activeEdges + 4);
+            nextPieces.Enqueue(getRandomTetromino());
         }
 
         private int searchLines()
