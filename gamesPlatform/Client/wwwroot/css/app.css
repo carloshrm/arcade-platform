@@ -37,15 +37,6 @@ body {
     color: var(--color-light);
 }
 
-.card {
-    width: fit-content;
-    margin: 1em;
-}
-
-.card:hover {
-    transform: scale(1.1);
-}
-
 h1:focus {
     outline: none;
 }

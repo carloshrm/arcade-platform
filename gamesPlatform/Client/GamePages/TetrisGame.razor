@@ -56,7 +56,7 @@
             if (gameScreen != null)
             {
                 gameScreen.SetCanvasSize();
-                game = new TetrisField(gameScreen.baseResolution);
+                game = new TetrisField(gameScreen.GetDimensions());
             }
             gameControl.Interval = 1000;
             gameControl.Elapsed += RunGame;
@@ -85,9 +85,10 @@
         GameCanvas.SetWindowFocus();
         if (gameControl.Enabled)
             ToggleControlObjects();
+
         gameControl.Interval = 1000;
         currentScore = new Score(_myID);
-        game = new TetrisField(gameScreen.baseResolution);
+        game = new TetrisField(gameScreen.GetDimensions());
         gameOver = false;
         gameScreen.ForceCanvasClear();
     }
@@ -126,13 +127,13 @@
 
     protected async override void RunGame(Object? o, ElapsedEventArgs e)
     {
-        currentScore.turn += 1;
+        // currentScore.turn += 1;
         currentScore.runLength = DateTime.Now - currentScore.runStart;
         game.UpdateGameState(currentScore);
         if (game.CheckGameOver())
             await StopGame();
 
-        gameControl.Interval = 1000 - ((game.scoreMult + 1) * 20);
+        gameControl.Interval = 1000 - ((game.scoreMult + 1) * 30);
     }
 
     protected async override void DrawGame(Object? o, ElapsedEventArgs e)
@@ -141,7 +142,7 @@
         gameScreen.DrawSimpleImage(TetrisPlayerModel.player.spriteId, 0, 0, gameScreen.componentWidth, gameScreen.componentHeight);
         gameScreen.FillTextExtended(getUIText(), gameScreen.componentWidth * 0.02f, 20, textStyle, 10);
 
-        game.active.parts.ForEach(p => gameScreen.DrawScaledObject(p));
+        game.activePiece.parts.ForEach(p => gameScreen.DrawScaledObject(p));
 
         for (int i = 0; i < game.field.Length; i++)
         {
@@ -153,7 +154,7 @@
         }
 
         gameScreen.FillTextExtended("Next: ", gameScreen.componentWidth * 0.84f, 20, textStyle, 10);
-        game.next.Peek().parts.ForEach(pt => gameScreen.DrawScaledObject(pt));
+        game.nextPieces.Peek().parts.ForEach(pt => gameScreen.DrawScaledObject(pt));
         gameScreen.RenderQueue();
     }
 

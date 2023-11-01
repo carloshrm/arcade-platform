@@ -32,26 +32,27 @@ public class AsteroidsField : IGameField
             Asteroid newAsteroid;
             do
             {
-                float nextX = Random.Shared.Next(100, (int)(limits.col - 100));
-                float nextY = Random.Shared.Next(100, (int)(limits.row - 100));
+                float nextX = Random.Shared.Next(0, (int)limits.col);
+                float nextY = Random.Shared.Next(0, (int)limits.row);
                 newAsteroid = new Asteroid(new Vector2(nextX, nextY));
-            } while (player.GetParts().Any(p => CheckCollision(newAsteroid, p)) || field.Any(a => CheckCollision(newAsteroid, a)));
+            } while (player.GetParts().Any(p => CheckCollision(newAsteroid, p))
+                    || field.Any(a => CheckCollision(newAsteroid, a)));
+            field.Add(newAsteroid);
         }
         return field;
     }
     private Asteroid SpawnAsteroidOutside()
     {
-        return new Asteroid(
-                new Vector2(
-                    Random.Shared.Next(-1, (int)(limits.row + 1)),
-                    Random.Shared.Next(-1, (int)(limits.col + 1))));
+        var hor = Random.Shared.Next(-1, 2);
+        var ver = Random.Shared.Next(-1, 2);
+        return new Asteroid(new Vector2(limits.col * hor, limits.row * ver));
     }
 
     private bool CheckCollision(ISimpleVectorialObject target, float objX, float objY)
     {
-        return target.pos.Y + target.model.topRightBounds.Y >= objY 
-            && target.pos.Y + target.model.bottomLeftBounds.Y <= objY 
-            && target.pos.X + target.model.bottomLeftBounds.X <= objX 
+        return target.pos.Y + target.model.topRightBounds.Y >= objY
+            && target.pos.Y + target.model.bottomLeftBounds.Y <= objY
+            && target.pos.X + target.model.bottomLeftBounds.X <= objX
             && target.pos.X + target.model.topRightBounds.X >= objX;
     }
 
@@ -87,8 +88,8 @@ public class AsteroidsField : IGameField
             foreach (var floatingAst in asteroids)
             {
                 if (currentAst != floatingAst
-                    && (Math.Abs(currentAst.pos.X - floatingAst.pos.X) <= 100
-                        && Math.Abs(currentAst.pos.Y - floatingAst.pos.Y) <= 100))
+                    && Math.Abs(currentAst.pos.X - floatingAst.pos.X) <= 100
+                    && Math.Abs(currentAst.pos.Y - floatingAst.pos.Y) <= 100)
                 {
                     var innerClosestPoint = currentAst.FindClosestPoint(floatingAst.pos);
                     var outerClosestPoint = floatingAst.FindClosestPoint(currentAst.pos);
@@ -133,10 +134,10 @@ public class AsteroidsField : IGameField
     public bool CheckGameOver()
     {
         var playerParts = player.GetParts().Take(2);
-        return
-            player.healthPoints == 0 
-            || asteroids.Any(a => CheckCollision(a, playerParts.First())
-                                || CheckCollision(a, playerParts.Last()));
+        return player.healthPoints == 0 
+            || asteroids.Where(a => a.canColide)
+                        .Any(a => CheckCollision(a, playerParts.First())
+                            || CheckCollision(a, playerParts.Last()));
     }
 
     public object GetPlayer()
