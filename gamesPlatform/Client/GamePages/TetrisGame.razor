@@ -58,7 +58,7 @@
                 gameScreen.SetCanvasSize();
                 game = new TetrisField(gameScreen.GetDimensions());
             }
-            gameControl.Interval = 1000;
+            gameControl.Interval = 800;
             gameControl.Elapsed += RunGame;
             canvasRefresh.Elapsed += DrawGame;
             StateHasChanged();
