@@ -56,7 +56,7 @@
             if (gameScreen != null)
             {
                 gameScreen.SetCanvasSize();
-                game = new TetrisField(gameScreen.GetDimensions());
+                game = new TetrisField(gameScreen.baseResolution);
             }
             gameControl.Interval = 1000;
             gameControl.Elapsed += RunGame;
@@ -88,7 +88,7 @@
 
         gameControl.Interval = 1000;
         currentScore = new Score(_myID);
-        game = new TetrisField(gameScreen.GetDimensions());
+        game = new TetrisField(gameScreen.baseResolution);
         gameOver = false;
         gameScreen.ForceCanvasClear();
     }
