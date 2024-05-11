@@ -28,6 +28,7 @@
     protected override void OnInitialized()
     {
         ReadConfigurationValues();
+        SetCanvasSize();
     }
 
     private void ReadConfigurationValues()
@@ -38,8 +39,6 @@
             .FirstOrDefault(s => s.GetValue<AppID>("id") == appID);
         if (config != null)
             baseResolution = (config.GetValue<int>("size:width"), config.GetValue<int>("size:height"));
-
-        SetCanvasSize();
     }
 
     public void SetCanvasSize()
@@ -154,10 +153,12 @@
         _renderQueue.Enqueue(() =>
         {
             CanvasContext.BeginPath();
+            var toBeMirrored = new List<ISimpleVectorialObject>();
 
             bool first = true;
             foreach (var pt in obj.model.points)
             {
+
                 if (first)
                 {
                     CanvasContext.MoveTo(pt.X + obj.pos.X, pt.Y + obj.pos.Y);

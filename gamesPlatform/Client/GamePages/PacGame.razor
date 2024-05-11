@@ -1,0 +1,140 @@
+﻿@page "/Pac"
+
+@inject IScoreService scoreService
+@implements IDisposable
+@inherits GamePage<PacField>
+@using cmArcade.Shared.Pac
+
+<main id="main-content" @onkeydown:preventDefault=@(!gameOver)>
+    <div id="game-controls">
+        <button type="button" class="soft-shadow game-button @((currentScore.scoreValue > 0 && gameControl.Enabled) ? "dark-bg ok" : "")" @onclick=StartGame>start</button>
+        <button type="button" class="soft-shadow game-button" @onclick=ResetGame>reset</button>
+    </div>
+    <div id="game-container" tabindex="0" @onkeydown=@((e) => KeyDownHandler(e.Key)) @onkeyup=@((e) => KeyUpHandler(e.Key))>
+        <GameCanvas @ref=gameScreen appID=_myID />
+        @if (currentScore?.turn > 0 && gameOver)
+        {
+            <PostGameView currentScore=currentScore highScore=highScore appID=_myID />
+        }
+    </div>
+    @if (isMobile)
+    {
+        <TouchPad clickCallback=KeyDownHandler releaseCallback=KeyUpHandler />
+    }
+</main>
+
+@code {
+
+    private GameCanvas? gameScreen;
+
+    private bool gameOver = false;
+    private bool isMobile = false;
+
+    public PacGame() : base(AppID.Pac)
+    {
+        gameControl.Interval = 100;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        isMobile = GameCanvas.IsBrowserMobile();
+        if (isMobile)
+            textStyle = ("8px \"Press Start 2P\"", "white");
+
+        highScore = await scoreService.readLocalScore(_myID);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (gameScreen != null)
+                game = new PacField(gameScreen.baseResolution);
+
+            gameControl.Elapsed += RunGame;
+            canvasRefresh.Elapsed += DrawGame;
+            StateHasChanged();
+        }
+    }
+
+    protected async override Task StartGame()
+    {
+        GameCanvas.SetWindowFocus();
+        if (gameControl.Enabled)
+            return;
+        else
+        {
+            if (currentScore.scoreValue > 0)
+                await ResetGame();
+            currentScore.turn = 1;
+            currentScore.runStart = DateTime.Now;
+            ToggleControlObjects();
+        }
+    }
+
+    protected override async Task ResetGame()
+    {
+        GameCanvas.SetWindowFocus();
+        if (gameControl.Enabled)
+            ToggleControlObjects();
+
+        currentScore = new Score(_myID);
+        game = new PacField(gameScreen!.GetDimensions());
+        gameOver = false;
+        gameScreen.ForceCanvasClear();
+    }
+
+    protected override async Task StopGame()
+    {
+        gameOver = true;
+        ToggleControlObjects();
+        currentScore.runLength = DateTime.Now - currentScore.runStart;
+        if (currentScore.scoreValue > highScore.scoreValue)
+        {
+            highScore = currentScore;
+            await scoreService.setLocalScore(highScore);
+        }
+        StateHasChanged();
+    }
+
+    protected override void KeyDownHandler(string key)
+    {
+        game.parseKeyDown(key);
+    }
+
+    protected override void KeyUpHandler(string key)
+    {
+        game.parseKeyUp(key);
+    }
+
+    private string getUIText()
+    {
+        return
+            $"Time: \n  {currentScore.runLength.ToString("mm\\:ss")} \n" +
+            $"Score:\n  {currentScore.scoreValue} \n" +
+            $"Best: \n  {highScore.scoreValue} \n";
+    }
+
+    protected async override void RunGame(Object? o, ElapsedEventArgs e)
+    {
+        game.UpdateGameState(currentScore);
+        if (game.CheckGameOver())
+            await StopGame();
+
+        currentScore.runLength = DateTime.Now - currentScore.runStart;
+    }
+
+    protected async override void DrawGame(Object? o, ElapsedEventArgs e)
+    {
+        gameScreen.FillCanvas("black");
+        gameScreen.FillTextExtended(getUIText(), gameScreen.componentWidth * 0.02f, 20, textStyle, 10);
+
+        gameScreen.DrawScaledObject()
+        gameScreen.RenderQueue();
+    }
+
+    public override void DisposeHarder()
+    {
+        gameScreen?.Dispose();
+    }
+}

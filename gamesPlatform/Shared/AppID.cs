@@ -7,5 +7,6 @@
         Breaker = 3,
         Tetris = 4,
         Asteroids = 5,
+        Pac = 6,
     }
 }
