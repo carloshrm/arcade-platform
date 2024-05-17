@@ -1,2 +1,29 @@
-﻿body {
+﻿* {
+    overflow: hidden !important;
+    font-family: 'Press Start 2P', cursive !important;
+    outline: none;
+}
+
+#main-content {
+    z-index: 1;
+}
+
+#score-display {
+    margin: 0.4em;
+    font-size: 18px;
+}
+
+#game-container {
+    display: flex;
+    width: fit-content;
+    height: fit-content;
+    border: 2px solid var(--color-highlight-hsat);
+    background-color: var(--color-light);
+    margin: 1em auto;
+}
+
+#game-controls {
+    display: flex;
+    justify-content: space-around;
+    padding: 1em 0;
 }
