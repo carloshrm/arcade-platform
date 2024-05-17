@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace cmArcade.Shared.Pac;
 
@@ -14,52 +15,26 @@ public class PacField : IGameField
     public PacField((float row, float col) limits)
     {
         this.limits = limits;
+        player = new PacNyan((int)limits.col / 2, (int)limits.row / 2);
     }
 
     public void parseKeyDown(string input)
     {
-        switch (input)
+        Vector2? nextDir = input switch
         {
-            case "ArrowUp":
-            case "w":
-                //player.Thrust();
-                break;
-            case "ArrowDown":
-            case "s":
-                //player.Thrust(fw: false);
-                break;
-            case "ArrowLeft":
-            case "a":
-                //player.Rotate(cw: false);
-                break;
-            case "ArrowRight":
-            case "d":
-                //player.Rotate(cw: true);
-                break;
-            default:
-                break;
-        }
+            "ArrowUp" or "w" => VecDirection.Up,
+            "ArrowDown" or "s" => VecDirection.Down,
+            "ArrowLeft" or "a" => VecDirection.Left,
+            "ArrowRight" or "d" => VecDirection.Right,
+            _ => null,
+        };
+        if (nextDir.HasValue)
+            player.SetDirection(nextDir.Value);
     }
 
     public void parseKeyUp(string dir)
     {
-        switch (dir)
-        {
-            case "ArrowUp":
-            case "w":
-                break;
-            case "ArrowDown":
-            case "s":
-                break;
-            case "ArrowLeft":
-            case "a":
-                break;
-            case "ArrowRight":
-            case "d":
-                break;
-            default:
-                break;
-        }
+        return;
     }
 
     public bool CheckGameOver()
@@ -74,7 +49,7 @@ public class PacField : IGameField
 
     public void SetScoreMultiplier(int val)
     {
-        
+        //
     }
 
     public void ShowFieldMessage(string msg)
@@ -84,6 +59,6 @@ public class PacField : IGameField
 
     public void UpdateGameState(Score s)
     {
-        player.walk(limits);
+        player.UpdatePosition(limits);
     }
 }

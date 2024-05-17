@@ -23,6 +23,11 @@
     }
 </main>
 
+@foreach (var id in assetList)
+{
+    <GameImageAsset assetID=@id appID=@_myID />
+}
+
 @code {
 
     private GameCanvas? gameScreen;
@@ -33,6 +38,7 @@
     public PacGame() : base(AppID.Pac)
     {
         gameControl.Interval = 100;
+        assetList.Add("nyan");
     }
 
     protected override async Task OnInitializedAsync()
@@ -129,7 +135,7 @@
         gameScreen.FillCanvas("black");
         gameScreen.FillTextExtended(getUIText(), gameScreen.componentWidth * 0.02f, 20, textStyle, 10);
 
-        gameScreen.DrawScaledObject()
+        gameScreen.DrawObject(game.GetPlayer() as PacNyan);
         gameScreen.RenderQueue();
     }
 

@@ -1,35 +1,39 @@
-﻿using System.Numerics;
+﻿using cmArcade.Shared.Pac.models;
+
+using System.Numerics;
 
 namespace cmArcade.Shared.Pac;
 
-public class PacNyan : IGameObject
+public class PacNyan(int x, int y) : IGameObject
 {
-    public bool powerUp { get; set; }
-    public int healthPoints { get; set; }
+    public bool powerUp { get; set; } = false;
+    public int healthPoints { get; set; } = 2;
 
     public List<GraphicAsset>? decals { get; set; }
-    public int spriteSelect { get; set; }
-    public GraphicAsset model { get; set; }
+    public int spriteSelect { get; set; } = 1;
+    public GraphicAsset model { get; set; } = NyanModel.GetModel();
 
-    public Vector2 pos { get; set; }
-    public Vector2 movingDirection { get; set; }
+    public Vector2 pos { get; set; } = new Vector2(x, y);
+    public Vector2 movingDirection { get; set; } = VecDirection.Zero;
 
-    public PacNyan(int x, int y)
-    {
-        pos = new Vector2(x, y);
-        healthPoints = 2;
-        powerUp = false;
-        movingDirection = VecDirection.Zero;
-    }
+    public int speed { get; set; } = 1;
 
-    public void moveTo(Vector2 direction)
+    public void SetDirection(Vector2 direction)
     {
         movingDirection = direction;
     }
 
     public bool UpdatePosition((float row, float col) limits)
     {
-        pos += movingDirection;
-        return true;
+        if (pos.X == 0 || pos.Y == 0 || pos.X == limits.col || pos.Y == limits.row)
+        {
+            movingDirection = VecDirection.Zero;
+            return false;
+        }
+        else
+        {
+            pos += (movingDirection * speed);
+            return true;
+        }
     }
 }
