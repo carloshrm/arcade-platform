@@ -5,17 +5,19 @@ namespace cmArcade.Shared.Pac;
 
 public class PacField : IGameField
 {
-    private readonly (float row, float col) limits;    
+    private readonly (float row, float col) limits;
     public string uiMessage { get; set; } = string.Empty;
     public int scoreMult { get; set; } = 1;
     private int activeDogs = 1;
 
     public PacNyan player { get; set; }
+    public PacMaze maze {  get; set; }
 
     public PacField((float row, float col) limits)
     {
         this.limits = limits;
         player = new PacNyan((int)limits.col / 2, (int)limits.row / 2);
+        maze = new PacMaze();
     }
 
     public void parseKeyDown(string input)
@@ -59,6 +61,11 @@ public class PacField : IGameField
 
     public void UpdateGameState(Score s)
     {
-        player.UpdatePosition(limits);
+        var nextPos = player.pos + player.movingDirection;
+        if (player.pos.X == 0 || player.pos.Y == 0 || player.pos.X == limits.col || player.pos.Y == limits.row || maze.collisionMap[(int)nextPos.X][(int)nextPos.Y])
+            player.SetDirection(VecDirection.Zero);
+        else
+            player.UpdatePosition(limits);
+
     }
 }

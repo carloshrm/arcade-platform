@@ -39,6 +39,7 @@
     {
         gameControl.Interval = 100;
         assetList.Add("nyan");
+        assetList.Add("test-maze");
     }
 
     protected override async Task OnInitializedAsync()
@@ -136,6 +137,7 @@
         gameScreen.FillTextExtended(getUIText(), gameScreen.componentWidth * 0.02f, 20, textStyle, 10);
 
         gameScreen.DrawObject(game.GetPlayer() as PacNyan);
+        gameScreen.DrawObject(game.maze);
         gameScreen.RenderQueue();
     }
 

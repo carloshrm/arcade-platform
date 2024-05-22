@@ -25,15 +25,8 @@ public class PacNyan(int x, int y) : IGameObject
 
     public bool UpdatePosition((float row, float col) limits)
     {
-        if (pos.X == 0 || pos.Y == 0 || pos.X == limits.col || pos.Y == limits.row)
-        {
-            movingDirection = VecDirection.Zero;
-            return false;
-        }
-        else
-        {
+
             pos += (movingDirection * speed);
             return true;
-        }
     }
 }
