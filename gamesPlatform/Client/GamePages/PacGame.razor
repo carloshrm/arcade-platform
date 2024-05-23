@@ -56,7 +56,7 @@
         if (firstRender)
         {
             if (gameScreen != null)
-                game = new PacField(gameScreen.baseResolution);
+                game = new PacField(gameScreen!.GetDimensions());
 
             gameControl.Elapsed += RunGame;
             canvasRefresh.Elapsed += DrawGame;
@@ -133,11 +133,11 @@
 
     protected async override void DrawGame(Object? o, ElapsedEventArgs e)
     {
-        gameScreen.FillCanvas("black");
+        gameScreen.FillCanvas("gray");
         gameScreen.FillTextExtended(getUIText(), gameScreen.componentWidth * 0.02f, 20, textStyle, 10);
 
-        gameScreen.DrawObject(game.GetPlayer() as PacNyan);
-        gameScreen.DrawObject(game.maze);
+        gameScreen.DrawObject(game.player);
+        gameScreen.DrawVectorialObject(game.maze);
         gameScreen.RenderQueue();
     }
 
