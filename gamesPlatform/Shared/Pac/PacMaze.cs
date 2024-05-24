@@ -14,11 +14,20 @@ public class PacMaze : ISimpleVectorialObject
         model = PacMazeModel.GetTestMaze();
         //var test = File.ReadLines("./test.txt");
         collisionMap = (new bool[1280][]).Select(l => l = new bool[720]).ToArray();
-        foreach (var pt in model.points)
+        for (int i = 1; i < model.points.Count(); i++)
         {
-            for (int i = pt; i < length; i++)
+            var currentPoint = model.points.ElementAt(i);
+            var prevPoint = model.points.ElementAt(i - 1);
+
+            int index = 0;
+            bool lineDirection = (currentPoint.X != prevPoint.X);
+            index = lineDirection ? (int)prevPoint.X : (int)prevPoint.Y;
+            int offset = (lineDirection ? prevPoint.X > currentPoint.X : prevPoint.Y > currentPoint.Y) ? -1 : 1;
+
+            while (index != (lineDirection ? currentPoint.X : currentPoint.Y))
             {
-                
+                collisionMap[(int)prevPoint.X][(int)prevPoint.Y] = true;
+                index += offset;
             }
         }
     }
