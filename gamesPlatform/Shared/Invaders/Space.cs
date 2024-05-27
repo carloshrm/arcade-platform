@@ -65,7 +65,7 @@
                 var selected = invaders[j / 2];
                 while (j >= 0)
                 {
-                    float fromLeft = Math.Abs(player.pos.X - invaders[j].pos.X);
+                    float fromLeft = Math.Abs(player.position.X - invaders[j].position.X);
                     if (fromLeft <= player.model.width)
                     {
                         selected = invaders[j];
@@ -105,13 +105,13 @@
         private void UpdateSpecialInvader()
         {
             if (specialIsActive)
-                specialInvader.pos += VecDirection.Left * 3;
+                specialInvader.position += VecDirection.Left * 3;
         }
 
         public void SpawnSpecialInvader()
         {
             if (invaders.Count % 9 == 0) specialIsActive = true;
-            if (specialInvader.pos.X <= 0 - specialInvader.model.width || specialInvader.healthPoints <= 0)
+            if (specialInvader.position.X <= 0 - specialInvader.model.width || specialInvader.healthPoints <= 0)
                 specialInvader = SetupSpecialInvader();
         }
 
@@ -128,21 +128,21 @@
             else
             {
                 if (input.Equals("a") || input.Equals("ArrowLeft"))
-                    player.movingDir = Direction.Left;
+                    player.movingDirection = VecDirection.Left;
                 if (input.Equals("d") || input.Equals("ArrowRight"))
-                    player.movingDir = Direction.Right;
+                    player.movingDirection = VecDirection.Right;
             }
         }
 
         public void ParseKeyUp(string input)
         {
             if (!input.Equals(" "))
-                player.movingDir = Direction.Zero;
+                player.movingDirection = VecDirection.Zero;
         }
 
         public void UpdateInvaderState()
         {
-            shotsFired.RemoveAll(s => s.pos.Y <= 0 || s.pos.Y >= limits.row || s.hitSomething);
+            shotsFired.RemoveAll(s => s.position.Y <= 0 || s.position.Y >= limits.row || s.hitSomething);
             invaderShotCount = shotsFired.Count(x => !x.fromPlayer);
 
             bool touchedEdge = false;
@@ -154,9 +154,9 @@
 
             if (touchedEdge)
             {
-                InvaderShip.FlipDirection();
                 invaders.ForEach(i =>
                 {
+                    i.FlipDirection();
                     i.DropRow(limits.row);
                     i.UpdatePosition(limits);
                 });
@@ -171,7 +171,7 @@
             {
                 foreach (var inv in invaders)
                 {
-                    if (inv.pos.Y >= player.pos.Y)
+                    if (inv.position.Y >= player.position.Y)
                         return true;
                 }
                 return false;
@@ -185,7 +185,7 @@
             {
                 if (i.healthPoints <= 0)
                 {
-                    calculatedScore += baseScore * ((int)i.pos.Y / 10);
+                    calculatedScore += baseScore * ((int)i.position.Y / 10);
                     return true;
                 }
                 else
@@ -200,10 +200,10 @@
             bool checkHit(IGameObject g, IGameObject s)
             {
                 return
-                    s.pos.X >= g.pos.X &&
-                    s.pos.X <= g.pos.X + g.model.width &&
-                    s.pos.Y <= g.pos.Y + g.model.height &&
-                    s.pos.Y > g.pos.Y;
+                    s.position.X >= g.position.X &&
+                    s.position.X <= g.position.X + g.model.width &&
+                    s.position.Y <= g.position.Y + g.model.height &&
+                    s.position.Y > g.position.Y;
             }
 
             foreach (var shot in shotsFired)

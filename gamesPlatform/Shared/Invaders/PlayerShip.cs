@@ -4,45 +4,45 @@ namespace cmArcade.Shared.Invaders
 {
     public class PlayerShip : IGameObject
     {
-        public Vector2 pos { get; set; }
+        public Vector2 position { get; set; }
         public int healthPoints { get; set; }
         public GraphicAsset model { get; set; }
         public int spriteSelect { get; set; }
-        public Direction movingDir { get; set; }
-        public float accel { get; set; }
+        public Vector2 movingDirection { get; set; }
+        public float movingSpeed { get; set; }
 
         public bool canShoot { get; set; }
         public List<GraphicAsset>? decals { get; set; } = null;
 
         public PlayerShip(float row, float col)
         {
-            pos = new Vector2(col, row);
+            position = new Vector2(col, row);
             model = ShipModel.playerShip;
-            movingDir = Direction.Zero;
+            movingDirection = Vector2.Zero;
             canShoot = true;
             healthPoints = 3;
-            accel = 0;
+            movingSpeed = 0;
             spriteSelect = 0;
         }
 
         public bool UpdatePosition((float row, float col) limits)
         {
-            if (pos.X >= 0 && pos.X <= limits.col - model.width - 1)
-                pos += new Vector2(accel, 0);
-            else if (pos.X < 0)
-                pos = new Vector2(1, pos.Y);
+            if (position.X >= 0 && position.X <= limits.col - model.width - 1)
+                position += new Vector2(movingSpeed, 0);
+            else if (position.X < 0)
+                position = new Vector2(1, position.Y);
             else
-                pos = new Vector2(limits.col - model.width - 2, pos.Y);
+                position = new Vector2(limits.col - model.width - 2, position.Y);
 
-            if (movingDir == Direction.Right)
-                accel = 6;
-            else if (movingDir == Direction.Left)
-                accel = -6;
+            if (movingDirection == VecDirection.Right)
+                movingSpeed = 6;
+            else if (movingDirection == VecDirection.Left)
+                movingSpeed = -6;
             else
             {
-                accel += accel > 0 ? -0.5f : 0.5f;
-                if (Math.Abs(accel) >= accel)
-                    accel = 0;
+                movingSpeed += movingSpeed > 0 ? -0.5f : 0.5f;
+                if (Math.Abs(movingSpeed) >= movingSpeed)
+                    movingSpeed = 0;
             }
 
             return true;

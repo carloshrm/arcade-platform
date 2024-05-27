@@ -4,12 +4,13 @@ namespace cmArcade.Shared.Breaker
 {
     public class Ball : IGameObject
     {
-        public Vector2 pos { get; set; }
+        public Vector2 position { get; set; }
         public int healthPoints { get; set; }
         public GraphicAsset model { get; set; }
         public int spriteSelect { get; set; }
         public List<GraphicAsset>? decals { get; set; }
-        private Vector2 movementVector { get; set; } = Vector2.Zero;
+        public Vector2 movingDirection { get; set; } = Vector2.Zero;
+        public float movingSpeed { get; set; } = 0;
 
         public bool breakingTimeout = false;
         private bool bouncingTimeout = false;
@@ -17,20 +18,20 @@ namespace cmArcade.Shared.Breaker
         public Ball(float row, float col)
         {
             model = BallModel.breakerBall;
-            pos = new Vector2(col - (model.width / 2), row - 10);
+            position = new Vector2(col - (model.width / 2), row - 10);
             healthPoints = 0;
             spriteSelect = 0;
-            movementVector = new Vector2(0, 0);
+            movingDirection = new Vector2(0, 0);
         }
 
         public void Follow(float c)
         {
-            pos = new Vector2(c - (model.width / 2), pos.Y);
+            position = new Vector2(c - (model.width / 2), position.Y);
         }
 
         public void Shoot()
         {
-            movementVector = new Vector2(0, -4);
+            movingDirection = new Vector2(0, -4);
         }
 
         public void LockoutBreaks()
@@ -47,7 +48,7 @@ namespace cmArcade.Shared.Breaker
             if (!bouncingTimeout)
             {
                 bouncingTimeout = true;
-                movementVector = new Vector2(movementVector.X * cDir, movementVector.Y * rDir);
+                movingDirection = new Vector2(movingDirection.X * cDir, movingDirection.Y * rDir);
                 // TODO - slow down?
                 await Task.Delay(50);
                 bouncingTimeout = false;
@@ -56,14 +57,14 @@ namespace cmArcade.Shared.Breaker
 
         public void OffsetVector(float accel)
         {
-            movementVector = new Vector2((float)Math.Floor(accel / -10), movementVector.Y);
+            movingDirection = new Vector2((float)Math.Floor(accel / -10), movingDirection.Y);
         }
 
         public bool UpdatePosition((float row, float col) limits)
         {
-            if (pos.Y <= limits.row)
+            if (position.Y <= limits.row)
             {
-                pos += movementVector;
+                position += movingDirection;
                 return true;
             }
             else

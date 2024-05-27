@@ -4,18 +4,20 @@ namespace cmArcade.Shared.Breaker
 {
     public class Block : IGameObject
     {
-        public Vector2 pos { get; set; }
+        public Vector2 position { get; set; }
         public int healthPoints { get; set; }
         public GraphicAsset model { get; set; }
         public int spriteSelect { get; set; }
         public List<GraphicAsset>? decals { get; set; }
         private PowerUp? powerupHolder { get; set; }
         public int scoreMultiplier { get; init; }
+        public Vector2 movingDirection { get; set; } = Vector2.Zero;
+        public float movingSpeed { get; set; } = 0;
 
         public Block(int row, int col, BlockModel model, int sprite)
         {
             this.model = model;
-            pos = new Vector2(col, row);
+            position = new Vector2(col, row);
             healthPoints = model.HP;
             scoreMultiplier = model.isSpecial ? model.HP * 10 : model.HP;
             spriteSelect = sprite % BlockModel.variationCount;
@@ -35,9 +37,9 @@ namespace cmArcade.Shared.Breaker
 
         public void DropRow()
         {
-            pos += new Vector2(0, BlockModel.highestBlockSize);
+            position += new Vector2(0, BlockModel.highestBlockSize);
             if (powerupHolder != null)
-                powerupHolder.pos += new Vector2(0, BlockModel.highestBlockSize);
+                powerupHolder.position += new Vector2(0, BlockModel.highestBlockSize);
         }
 
         public PowerUp? Hit()

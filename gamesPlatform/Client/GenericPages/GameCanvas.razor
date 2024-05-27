@@ -109,7 +109,7 @@
                 obj.model.spriteId, // asset image reference
                 obj.spriteSelect * obj.model.width, obj.model.height * 0, // asset position on referenced image, height not used yet
                 obj.model.width, obj.model.height, // asset size on image
-                obj.pos.X, obj.pos.Y, // canvas x and y coords for rendering
+                obj.position.X, obj.position.Y, // canvas x and y coords for rendering
                 obj.model.width, obj.model.height); // size for rendering in canvas
             if (obj.decals != null)
             {
@@ -118,7 +118,7 @@
                     int widthPadding = d.width < obj.model.width ? (d.width / -2) + ((obj.model.width) / 2) : 0;
                     int heightPadding = d.height < obj.model.height ? (d.height / -2) + ((obj.model.height) / 2) : 0;
                     CanvasContext.DrawImage(d.spriteId, 0, 0, d.width, d.height, 
-                        obj.pos.X + widthPadding, obj.pos.Y + heightPadding, d.width, d.height);
+                        obj.position.X + widthPadding, obj.position.Y + heightPadding, d.width, d.height);
                 }
             }
         });

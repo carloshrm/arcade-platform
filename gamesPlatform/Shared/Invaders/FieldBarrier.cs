@@ -4,16 +4,18 @@ namespace cmArcade.Shared.Invaders
 {
     public class FieldBarrier : IGameObject
     {
-        public Vector2 pos { get; set; }
+        public Vector2 position { get; set; }
         public int healthPoints { get; set; }
         public GraphicAsset model { get; set; }
         public int spriteSelect { get; set; }
         public List<GraphicAsset>? decals { get; set; } = null;
+        public Vector2 movingDirection { get; set; } = Vector2.Zero;
+        public float movingSpeed { get; set; } = 0;
 
         public FieldBarrier(float row, float col)
         {
             model = GameDecal.getInvaderDecal("barrier");
-            pos = new Vector2(col, row);
+            position = new Vector2(col, row);
             healthPoints = 6;
             spriteSelect = 0;
         }

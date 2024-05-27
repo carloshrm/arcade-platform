@@ -4,7 +4,7 @@ namespace cmArcade.Shared.Invaders
 {
     public partial class LaserShot : IGameObject
     {
-        public Vector2 pos { get; set; }
+        public Vector2 position { get; set; }
         public int healthPoints { get; set; } = 0;
         public GraphicAsset model { get; set; }
         public int spriteSelect { get; set; }
@@ -12,12 +12,16 @@ namespace cmArcade.Shared.Invaders
         public bool fromPlayer { get; set; }
         public List<GraphicAsset>? decals { get; set; } = null;
 
+        public Vector2 movingDirection { get; set; }
+        public float movingSpeed { get; set; } = 6;
+
         public LaserShot(IGameObject actor)
         {
             fromPlayer = actor is PlayerShip;
-            pos = new Vector2(actor.pos.X + (actor.model.width / 2) - 2, actor.pos.Y);
+            position = new Vector2(actor.position.X + (actor.model.width / 2) - 2, actor.position.Y);
             model = GameDecal.getInvaderDecal("laser");
-            spriteSelect = fromPlayer ? 0 : 1;
+            spriteSelect = actor is PlayerShip ? 0 : 1;
+            movingDirection = actor is PlayerShip ? (VecDirection.Up * (movingSpeed * 2)) : (VecDirection.Down * movingSpeed);
         }
 
         public void hit()
@@ -30,7 +34,7 @@ namespace cmArcade.Shared.Invaders
         public bool UpdatePosition((float row, float col) limits)
         {
             if (!hitSomething)
-                pos += fromPlayer ? (VecDirection.Up * 10) : (VecDirection.Down * 6);
+                position += movingDirection;
             return true;
         }
     }

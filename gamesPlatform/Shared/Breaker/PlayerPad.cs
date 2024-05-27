@@ -4,22 +4,22 @@ namespace cmArcade.Shared.Breaker
 {
     public class PlayerPad : IGameObject
     {
-        public Vector2 pos { get; set; }
+        public Vector2 position { get; set; }
         public int healthPoints { get; set; }
         public GraphicAsset model { get; set; }
         public int spriteSelect { get; set; }
-        public Direction movingDir { get; set; }
-        public float accel { get; set; }
+        public Vector2 movingDirection { get; set; }
+        public float movingSpeed { get; set; }
         public float weight { get; set; }
         public List<GraphicAsset>? decals { get; set; } = null;
 
         public PlayerPad(float row, float col)
         {
-            pos = new Vector2(col, row);
+            position = new Vector2(col, row);
             model = PadModel.playerPad;
-            movingDir = Direction.Zero;
+            movingDirection = VecDirection.Zero;
             healthPoints = 3;
-            accel = 0;
+            movingSpeed = 0;
             weight = 0.6f;
             spriteSelect = 0;
         }
@@ -39,36 +39,36 @@ namespace cmArcade.Shared.Breaker
 
         public bool UpdatePosition((float row, float col) limits)
         {
-            if (pos.X >= 0 && pos.X <= limits.col - model.width - 1)
+            if (position.X >= 0 && position.X <= limits.col - model.width - 1)
             {
-                pos = new Vector2(pos.X + accel, pos.Y);
+                position = new Vector2(position.X + movingSpeed, position.Y);
             }
-            else if (pos.X < 0)
+            else if (position.X < 0)
             {
-                pos = new Vector2(1, pos.Y);
+                position = new Vector2(1, position.Y);
             }
             else
             {
-                pos = new Vector2(limits.col - model.width - 2, pos.Y);
+                position = new Vector2(limits.col - model.width - 2, position.Y);
             }
 
-            if (movingDir == Direction.Right)
+            if (movingDirection == VecDirection.Right)
             {
-                if (accel < 0)
-                    accel = 0;
-                accel = accel < 8 ? accel + weight : 8;
+                if (movingSpeed < 0)
+                    movingSpeed = 0;
+                movingSpeed = movingSpeed < 8 ? movingSpeed + weight : 8;
             }
-            else if (movingDir == Direction.Left)
+            else if (movingDirection == VecDirection.Left)
             {
-                if (accel > 0)
-                    accel = 0;
-                accel = accel > -8 ? accel - weight : -8;
+                if (movingSpeed > 0)
+                    movingSpeed = 0;
+                movingSpeed = movingSpeed > -8 ? movingSpeed - weight : -8;
             }
             else
             {
-                accel += accel > 0 ? -weight : weight;
-                if (Math.Abs(accel) <= weight)
-                    accel = 0;
+                movingSpeed += movingSpeed > 0 ? -weight : weight;
+                if (Math.Abs(movingSpeed) <= weight)
+                    movingSpeed = 0;
             }
             return true;
         }

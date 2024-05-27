@@ -31,7 +31,7 @@
 
         public void SetBall()
         {
-            balls.Add(new Ball(player.pos.Y - (BallModel.breakerBall.height * 1.2f), player.pos.X + (player.model.width / 2f)));
+            balls.Add(new Ball(player.position.Y - (BallModel.breakerBall.height * 1.2f), player.position.X + (player.model.width / 2f)));
         }
 
         public void UpdateGameState(Score s)
@@ -49,7 +49,7 @@
         {
             foreach (var bk in blocks[0])
             {
-                if (bk.pos.Y + bk.model.height >= player.pos.Y + player.model.height)
+                if (bk.position.Y + bk.model.height >= player.position.Y + player.model.height)
                     return true;
             }
             return player.healthPoints <= 0;
@@ -72,7 +72,7 @@
             }
             else
             {
-                balls.First().Follow(player.pos.X + (player.model.width / 2));
+                balls.First().Follow(player.position.X + (player.model.width / 2));
             }
         }
 
@@ -137,11 +137,11 @@
                 if (CheckHit(ball, player))
                 {
                     ball.Bounce(-1, -1);
-                    ball.OffsetVector(CalculateOffsetPct(ball, player.pos.X, player.model.width));
+                    ball.OffsetVector(CalculateOffsetPct(ball, player.position.X, player.model.width));
                 }
-                else if ((ball.pos.X <= 0) || (ball.pos.X + ball.model.width >= limits.col))
+                else if ((ball.position.X <= 0) || (ball.position.X + ball.model.width >= limits.col))
                     ball.Bounce(1, -1);
-                else if (ball.pos.Y <= 0)
+                else if (ball.position.Y <= 0)
                     ball.Bounce(-1, 1);
                 else
                 {
@@ -165,23 +165,23 @@
 
         private static float CalculateOffsetPct(IGameObject obj, float edgePos, float edgeWidth)
         {
-            float offset = edgePos + (edgeWidth / 2) - (obj.pos.X + (obj.model.width / 2));
+            float offset = edgePos + (edgeWidth / 2) - (obj.position.X + (obj.model.width / 2));
             if (offset == 0) offset = (new Random().Next(3) - 1) * 6;
             return offset * 100 / edgeWidth;
         }
 
         private bool CheckHit(IGameObject obj, IGameObject target)
         {
-            return (obj.pos.Y + obj.model.height >= target.pos.Y) && (obj.pos.Y <= target.pos.Y + target.model.height) &&
-                    (obj.pos.X + obj.model.width >= target.pos.X) && (obj.pos.X <= target.pos.X + target.model.width);
+            return (obj.position.Y + obj.model.height >= target.position.Y) && (obj.position.Y <= target.position.Y + target.model.height) &&
+                    (obj.position.X + obj.model.width >= target.position.X) && (obj.position.X <= target.position.X + target.model.width);
         }
 
         public void ParseKeyDown(string input)
         {
             if (input.Equals("a") || input.Equals("ArrowLeft"))
-                player.movingDir = Direction.Left;
+                player.movingDirection = VecDirection.Left;
             if (input.Equals("d") || input.Equals("ArrowRight"))
-                player.movingDir = Direction.Right;
+                player.movingDirection = VecDirection.Right;
             if ((input.Equals(" ") || input.Equals("ArrowUp") || input.Equals("w")) && ballOnHold)
             {
                 ballOnHold = false;
@@ -190,10 +190,10 @@
         }
         public void ParseKeyUp(string input)
         {
-            if (player.movingDir == Direction.Left && (input.Equals("a") || input.Equals("ArrowLeft")))
-                player.movingDir = Direction.Zero;
-            if (player.movingDir == Direction.Right && (input.Equals("d") || input.Equals("ArrowRight")))
-                player.movingDir = Direction.Zero;
+            if (player.movingDirection == VecDirection.Left && (input.Equals("a") || input.Equals("ArrowLeft")))
+                player.movingDirection = VecDirection.Zero;
+            if (player.movingDirection == VecDirection.Right && (input.Equals("d") || input.Equals("ArrowRight")))
+                player.movingDirection = VecDirection.Zero;
         }
 
         public Object GetPlayer()

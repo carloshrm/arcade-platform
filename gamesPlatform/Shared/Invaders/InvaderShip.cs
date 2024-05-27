@@ -4,25 +4,26 @@ namespace cmArcade.Shared.Invaders
 {
     public class InvaderShip : IGameObject
     {
-        public Vector2 pos { get; set; }
+        public Vector2 position { get; set; }
         public int healthPoints { get; set; }
         public GraphicAsset model { get; set; }
         public int spriteSelect { get; set; }
         public List<GraphicAsset>? decals { get; set; } = null;
 
-        private static Direction movingDirection = Direction.Right;
+        public Vector2 movingDirection { get; set; } = VecDirection.Right;
+        public float movingSpeed { get; set; } = 18;
 
         public InvaderShip(float row, float col, ShipModel model)
         {
-            pos = new Vector2(col, row);
+            position = new Vector2(col, row);
             this.model = model;
             healthPoints = 1;
             spriteSelect = 0;
         }
 
-        public static void FlipDirection()
+        public void FlipDirection()
         {
-            movingDirection = movingDirection == Direction.Left ? Direction.Right : Direction.Left;
+            movingDirection = movingDirection == VecDirection.Left ? VecDirection.Right : VecDirection.Left;
         }
 
         public void Animate()
@@ -32,13 +33,13 @@ namespace cmArcade.Shared.Invaders
 
         public bool UpdatePosition((float row, float col) limits)
         {
-            pos += new Vector2((int)movingDirection * 18, 0);
-            return pos.X <= 0 + model.width || pos.X >= limits.col - (model.width * 1.5);
+            position += new Vector2((movingDirection == VecDirection.Left ? -1 : 1) * movingSpeed, 0);
+            return position.X <= 0 + model.width || position.X >= limits.col - (model.width * 1.5);
         }
 
         public void DropRow(float rowEdge)
         {
-            pos += new Vector2(0, rowEdge / 20);
+            position += new Vector2(0, rowEdge / 20);
         }
 
     }
