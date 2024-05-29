@@ -26,7 +26,10 @@ public class PacMaze : ISimpleVectorialObject
 
             while (index != (lineDirection ? currentPoint.X : currentPoint.Y))
             {
-                collisionMap[(int)prevPoint.X][(int)prevPoint.Y] = true;
+                if (lineDirection)
+                    collisionMap[index][(int)prevPoint.Y] = true;
+                else
+                    collisionMap[(int)prevPoint.X][index] = true;
                 index += offset;
             }
         }
@@ -44,9 +47,9 @@ public class PacMazeModel(IEnumerable<Vector2> points) : CanvasRenderedVectorial
     public override Vector2 topRightBounds { get; set; }
     public override Vector2 bottomLeftBounds { get; set; }
 
-    public static PacMazeModel GetTestMaze() => 
-        new(new List<Vector2> 
-        { 
+    public static PacMazeModel GetTestMaze() =>
+        new(new List<Vector2>
+        {
             new Vector2(200, 700),
             new Vector2(600, 700),
             new Vector2(600, 500),
@@ -54,9 +57,9 @@ public class PacMazeModel(IEnumerable<Vector2> points) : CanvasRenderedVectorial
             new Vector2(800, 700),
             new Vector2(1000, 700),
         })
-    {
-        strokeColor = "#00FF00",
-        strokeLineWidth = 3,
-        fillColor = "#AF00F0",
-    };
+        {
+            strokeColor = "#00FF00",
+            strokeLineWidth = 3,
+            fillColor = "#AF00F0",
+        };
 }

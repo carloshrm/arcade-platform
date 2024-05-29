@@ -13,10 +13,10 @@ public class PacNyan(int x, int y) : IGameObject
     public int spriteSelect { get; set; } = 1;
     public GraphicAsset model { get; set; } = NyanModel.GetModel();
 
-    public Vector2 pos { get; set; } = new Vector2(x, y);
+    public Vector2 position { get; set; } = new Vector2(x, y);
     public Vector2 movingDirection { get; set; } = VecDirection.Zero;
+    public float movingSpeed { get; set; } = 2;
 
-    public int speed { get; set; } = 1;
 
     public void SetDirection(Vector2 direction)
     {
@@ -25,8 +25,7 @@ public class PacNyan(int x, int y) : IGameObject
 
     public bool UpdatePosition((float row, float col) limits)
     {
-
-            pos += (movingDirection * speed);
+            position += (movingDirection * movingSpeed);
             return true;
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace cmArcade.Shared.Pac;
@@ -59,13 +60,22 @@ public class PacField : IGameField
         throw new NotImplementedException();
     }
 
+    private bool CheckFieldCollision(IGameObject entity)
+    {
+        int nextX = (int)(entity.position.X + entity.model.width + (entity.movingDirection.X * entity.movingSpeed));
+        int nextY = (int)(entity.position.Y + entity.model.height + (entity.movingDirection.Y * entity.movingSpeed));
+
+        return nextX <= 0 || nextY <= 0 || nextX >= limits.col || nextY >= limits.row
+            || maze.collisionMap[nextX][nextY];
+    }
+
     public void UpdateGameState(Score s)
     {
-        var nextPos = player.pos + player.movingDirection;
-        if (player.pos.X == 0 || player.pos.Y == 0 || player.pos.X == limits.col || player.pos.Y == limits.row || maze.collisionMap[(int)nextPos.X][(int)nextPos.Y])
-            player.SetDirection(VecDirection.Zero);
-        else
-            player.UpdatePosition(limits);
+        var nextPos = player.position + player.movingDirection;
 
+        if (CheckFieldCollision(player))
+            player.SetDirection(VecDirection.Zero);
+        
+        player.UpdatePosition(limits);
     }
 }
