@@ -7,7 +7,7 @@ namespace cmArcade.Client.GenericPages;
 internal partial class CanvasContext
 {
     [JSImport("setup", "CanvasContext")]
-    internal static partial void SetupContext();
+    internal static partial void SetupContext(string canvasID = "game-display-canvas");
     [JSImport("setupImage", "CanvasContext")]
     internal static partial void SetupImage();
     [JSImport("startBatch", "CanvasContext")]
@@ -18,6 +18,8 @@ internal partial class CanvasContext
 
     [JSImport("setStrokeStyle", "CanvasContext")]
     internal static partial void SetStrokeStyle(string style);
+    [JSImport("setLineWidth", "CanvasContext")]
+    internal static partial void setLineWidth(int width);
     [JSImport("stroke", "CanvasContext")]
     internal static partial void Stroke();
     [JSImport("setFillStyle", "CanvasContext")]

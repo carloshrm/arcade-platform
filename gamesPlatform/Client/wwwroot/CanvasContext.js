@@ -3,8 +3,8 @@ let currentCanvas = undefined;
 
 let drawingContext = undefined;
 
-export function setup() {
-    currentCanvas = document.getElementById("game-display-canvas");
+export function setup(canvasID) {
+    currentCanvas = document.getElementById(canvasID);
     currentContext = currentCanvas.getContext("2d");
     drawingContext = currentContext;
 }
@@ -27,6 +27,10 @@ export function stroke() {
 
 export function setFillStyle(style) {
     drawingContext.fillStyle = style;
+}
+
+export function setLineWidth(width) {
+    drawingContext.lineWidth = width;
 }
 
 export function fill() {
