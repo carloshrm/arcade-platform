@@ -1,0 +1,60 @@
+﻿@page "/Pac/Build"
+@using System.Runtime.InteropServices.JavaScript
+
+<div>
+    <h2>Builder</h2>
+    <canvas height="720" width="1280" id=@canvasID @onclick=BuilderCanvasClickHandler @ref=@displayCanvas />
+</div>
+
+@code {
+    private readonly string canvasID = "builder-canvas";
+    private ElementReference displayCanvas { get; set; }
+    private List<Vector2> points { get; set; } = new();
+
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            CanvasContext.SetupContext(canvasID);
+            StateHasChanged();
+        }
+        ResetCanvas();
+        DrawPoints();
+    }
+
+    private void DrawPoints()
+    {
+        CanvasContext.BeginPath();
+        bool first = true;
+        foreach (var pt in points)
+        {
+            if (first)
+            {
+                CanvasContext.MoveTo((int)pt.X, (int)pt.Y);
+                first = false;
+            }
+            else
+                CanvasContext.LineTo((int)pt.X, (int)pt.Y);
+        }
+        CanvasContext.ClosePath();
+
+        CanvasContext.setLineWidth(4);
+
+        CanvasContext.SetStrokeStyle("red");
+        CanvasContext.Stroke();
+    }
+
+    private void ResetCanvas()
+    {
+        CanvasContext.ClearCanvas();
+        CanvasContext.SetFillStyle("black");
+        CanvasContext.FillRect(0, 0, 1280, 720);
+    }
+
+    private void BuilderCanvasClickHandler(MouseEventArgs e)
+    {
+        Console.WriteLine(e.OffsetX + "||" + e.OffsetY);
+        points.Add(new Vector2((int)e.OffsetX, (int)e.OffsetY));
+    }
+}

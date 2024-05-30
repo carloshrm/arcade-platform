@@ -153,8 +153,6 @@
         _renderQueue.Enqueue(() =>
         {
             CanvasContext.BeginPath();
-            var toBeMirrored = new List<ISimpleVectorialObject>();
-
             bool first = true;
             foreach (var pt in obj.model.points)
             {
@@ -169,6 +167,7 @@
             CanvasContext.ClosePath();
 
             CanvasContext.SetStrokeStyle(obj.model.strokeColor);
+            CanvasContext.setLineWidth((int)obj.model.strokeLineWidth);
             CanvasContext.Stroke();
 
             if (obj.model.fillColor != null)
