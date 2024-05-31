@@ -3,7 +3,12 @@
 
 <div>
     <h2>Builder</h2>
-    <canvas height="720" width="1280" id=@canvasID @onclick=BuilderCanvasClickHandler @ref=@displayCanvas />
+    <div id="builder-container">
+        <div id="point-menu" hidden=@showMenu style=@($"top: {menuPosition.y}px; left: {menuPosition.x}px;")>
+            <span>here</span>
+        </div>
+        <canvas height="720" width="1280" id=@canvasID @onclick=ClickHandler @ref=@displayCanvas @onmousemove=@MouseMoveHandler/>
+    </div>
 </div>
 
 @code {
@@ -11,6 +16,8 @@
     private ElementReference displayCanvas { get; set; }
     private List<Vector2> points { get; set; } = new();
 
+    private bool showMenu { get; set; } = true;
+    private (double x, double y) menuPosition { get; set; } = (0, 0);
 
     protected override void OnAfterRender(bool firstRender)
     {
@@ -18,6 +25,8 @@
         {
             CanvasContext.SetupContext(canvasID);
             StateHasChanged();
+            CanvasContext.setLineWidth(4);
+            CanvasContext.SetStrokeStyle("red");
         }
         ResetCanvas();
         DrawPoints();
@@ -38,10 +47,6 @@
                 CanvasContext.LineTo((int)pt.X, (int)pt.Y);
         }
         CanvasContext.ClosePath();
-
-        CanvasContext.setLineWidth(4);
-
-        CanvasContext.SetStrokeStyle("red");
         CanvasContext.Stroke();
     }
 
@@ -52,9 +57,23 @@
         CanvasContext.FillRect(0, 0, 1280, 720);
     }
 
-    private void BuilderCanvasClickHandler(MouseEventArgs e)
+    private void ClickHandler(MouseEventArgs e)
     {
-        Console.WriteLine(e.OffsetX + "||" + e.OffsetY);
         points.Add(new Vector2((int)e.OffsetX, (int)e.OffsetY));
+    }
+
+    private void MouseMoveHandler(MouseEventArgs e)
+    {
+        foreach (var pt in points)
+        {
+            if ((e.OffsetX <= pt.X + 5 && e.OffsetX >= pt.X - 5) && (e.OffsetY <= pt.Y + 5 && e.OffsetY >= pt.Y - 5))
+            {
+                showMenu = true;
+                menuPosition = (e.OffsetX, e.OffsetY);
+            }
+            else
+                showMenu = false;
+        }
+        
     }
 }

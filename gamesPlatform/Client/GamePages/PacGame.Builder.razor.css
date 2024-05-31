@@ -1,0 +1,22 @@
+﻿body {
+}
+
+canvas {
+    transform: scale(0.8);
+    z-index: 1;
+}
+
+#builder-container {
+    display: block;
+    position: relative;
+}
+
+#point-menu {
+    position: absolute;
+    z-index: 2;
+    width: 100px;
+    height: 100px;
+    color: white;
+    background-color: gray;
+    transform: translate(-50%, -50%);
+}
