@@ -1,0 +1,45 @@
+﻿@inject IConfiguration appConfig
+
+<div class="card soft-shadow" @onmouseenter=@(() => animate = true) @onmouseleave=@(() => animate = false)>
+    <img class="card-img-top" src=@(animate ? imgSrc + ".gif" : imgSrc + ".png") alt=@(appName + " Gameplay Image")/>
+    <div class="card-body">
+        <h5 class="card-title">@appName</h5>
+        <p class="card-text">@caption</p>
+        <a href=@("/" + _app) class="btn btn-primary">Play!</a>
+    </div>
+</div>
+
+@code {
+    [Parameter] public AppID _app { get; set; }
+
+    private string caption { get; set; } = string.Empty;
+    private string appName { get; set; } = string.Empty;
+    private string imgSrc { get; set; } = string.Empty;
+    private bool animate = false;
+
+    protected override void OnParametersSet()
+    {
+        var config = appConfig
+            .GetSection("games")
+            .GetChildren()
+            .FirstOrDefault(s => s.GetValue<AppID>("id") == _app);
+
+        if (config == null)
+            throw new KeyNotFoundException("card info not found in settings");
+        else
+        {
+            appName = config.GetValue<string>("name");
+            caption = config.GetValue<string>("caption");
+            imgSrc = "/img/" + config.GetValue<string>("id");
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && GameCanvas.IsBrowserMobile())
+        {
+            animate = true;
+            StateHasChanged();
+        }
+    }
+}

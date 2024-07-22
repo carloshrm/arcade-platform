@@ -46,7 +46,6 @@ internal partial class CanvasContext
     [JSImport("setFont", "CanvasContext")]
     internal static partial void SetFont(string font);
 
-
     [JSImport("drawImage", "CanvasContext")]
     internal static partial void DrawImage(string imgID, 
         float? sx, float? sy, float? sWidth, float? sHeight, 

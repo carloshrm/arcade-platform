@@ -1,5 +1,5 @@
 ﻿<div id="mobile_pad">
-    <div id="pad_container">
+    <div id="pad_container" @ontouchmove=@touchHandler>
 
         <button id="pad_bt_down" class="oi oi-chevron-bottom" @ontouchstart=@((e) => clickHandler("s")) @ontouchend=@((e) => releaseHandler("s"))>
         </button>
@@ -23,7 +23,12 @@
     [Parameter]
     public externalClickHandler clickCallback { get; set; }
     [Parameter]
-    public externalReleaseHandler releaseCallback { get; set; }
+    public externalReleaseHandler? releaseCallback { get; set; }
+
+    private void touchHandler(TouchEventArgs e)
+    {
+        // TODO - 8-axis draggable pad
+    }
 
     private void clickHandler(string direction)
     {

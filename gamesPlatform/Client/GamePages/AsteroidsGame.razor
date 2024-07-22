@@ -1,4 +1,4 @@
-﻿@page "/asteroids"
+﻿@page "/Asteroids"
 
 @inject IScoreService scoreService
 @implements IDisposable
@@ -27,9 +27,7 @@
     private GameCanvas? gameScreen;
 
     private bool gameOver = false;
-
     private bool isMobile = false;
-    private bool mobileMoveToggle = false;
 
     public AsteroidsGame() : base(AppID.Asteroids)
     {
@@ -50,10 +48,8 @@
         if (firstRender)
         {
             if (gameScreen != null)
-            {
-                gameScreen.SetCanvasSize();
                 game = new AsteroidsField(gameScreen.GetDimensions());
-            }
+
             gameControl.Elapsed += RunGame;
             canvasRefresh.Elapsed += DrawGame;
             StateHasChanged();
