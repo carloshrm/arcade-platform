@@ -1,0 +1,2 @@
+C:\Users\クサメ\source\repos\arcade_v2\arcade_v2.Client\obj\Debug\net9.0\staticwebassets.build.json
+C:\Users\クサメ\source\repos\arcade_v2\arcade_v2.Client\obj\Debug\net9.0\staticwebassets.build.json
